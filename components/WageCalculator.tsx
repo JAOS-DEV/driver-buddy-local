@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 interface WageCalculatorProps {
   totalMinutes: number;
@@ -11,8 +12,14 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
   hourlyRate,
   setHourlyRate,
 }) => {
-  const [useManualHours, setUseManualHours] = useState(false);
-  const [manualHours, setManualHours] = useState(0);
+  const [useManualHours, setUseManualHours] = useLocalStorage<boolean>(
+    "useManualHours",
+    false
+  );
+  const [manualHours, setManualHours] = useLocalStorage<number>(
+    "manualHours",
+    0
+  );
 
   const totalHours = useManualHours ? manualHours : totalMinutes / 60;
   const totalEarnings = totalHours * hourlyRate;

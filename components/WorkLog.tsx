@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { TimeEntry, WorkTab } from "../types";
 import TimeTracker from "./TimeTracker";
 import WageCalculator from "./WageCalculator";
 import LawLimits from "./LawLimits";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 const TabButton: React.FC<{
   label: string;
@@ -23,9 +24,12 @@ const TabButton: React.FC<{
 );
 
 const WorkLog: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<WorkTab>(WorkTab.TRACKER);
-  const [entries, setEntries] = useState<TimeEntry[]>([]);
-  const [hourlyRate, setHourlyRate] = useState(0);
+  const [activeTab, setActiveTab] = useLocalStorage<WorkTab>(
+    "activeTab",
+    WorkTab.TRACKER
+  );
+  const [entries, setEntries] = useLocalStorage<TimeEntry[]>("timeEntries", []);
+  const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
   const { totalDuration } = useTimeCalculations(entries);
 
   const addEntry = (startTime: string, endTime: string) => {
