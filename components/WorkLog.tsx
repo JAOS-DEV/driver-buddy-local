@@ -1,7 +1,8 @@
 import React from "react";
-import { TimeEntry, WorkTab, DailySubmission } from "../types";
+import { TimeEntry, WorkTab, DailySubmission, Settings } from "../types";
 import TimeTracker from "./TimeTracker";
 import WageCalculator from "./WageCalculator";
+import WageHistory from "./WageHistory";
 import LawLimits from "./LawLimits";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -23,7 +24,11 @@ const TabButton: React.FC<{
   </button>
 );
 
-const WorkLog: React.FC = () => {
+interface WorkLogProps {
+  settings: Settings;
+}
+
+const WorkLog: React.FC<WorkLogProps> = ({ settings }) => {
   const [activeTab, setActiveTab] = useLocalStorage<WorkTab>(
     "activeTab",
     WorkTab.TRACKER
@@ -33,6 +38,10 @@ const WorkLog: React.FC = () => {
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
   >("dailySubmissions", []);
+  const [wageHistory, setWageHistory] = useLocalStorage<any[]>(
+    "wageHistory",
+    []
+  );
   const { totalDuration } = useTimeCalculations(entries);
 
   const addEntry = (startTime: string, endTime: string) => {
@@ -74,6 +83,11 @@ const WorkLog: React.FC = () => {
               onClick={() => setActiveTab(WorkTab.WAGE)}
             />
             <TabButton
+              label="History"
+              isActive={activeTab === WorkTab.WAGE_HISTORY}
+              onClick={() => setActiveTab(WorkTab.WAGE_HISTORY)}
+            />
+            <TabButton
               label="Law Limits"
               isActive={activeTab === WorkTab.LAW}
               onClick={() => setActiveTab(WorkTab.LAW)}
@@ -96,6 +110,14 @@ const WorkLog: React.FC = () => {
             totalMinutes={totalDuration.totalMinutes}
             hourlyRate={hourlyRate}
             setHourlyRate={setHourlyRate}
+            settings={settings}
+          />
+        )}
+        {activeTab === WorkTab.WAGE_HISTORY && (
+          <WageHistory
+            wageHistory={wageHistory}
+            setWageHistory={setWageHistory}
+            settings={settings}
           />
         )}
         {activeTab === WorkTab.LAW && (

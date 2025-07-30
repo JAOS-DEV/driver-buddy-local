@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "../types";
-import { ClockIcon, ChatIcon } from "./icons";
+import { ClockIcon, ChatIcon, SettingsIcon } from "./icons";
 
 interface BottomNavProps {
   activeView: View;
@@ -41,6 +41,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
           }
           isActive={activeView === View.CHAT}
           onClick={() => setActiveView(View.CHAT)}
+        />
+        <NavItem
+          icon={<SettingsIcon className="h-7 w-7" />}
+          isActive={activeView === View.SETTINGS}
+          onClick={() => setActiveView(View.SETTINGS)}
         />
       </div>
     </nav>
