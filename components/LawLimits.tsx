@@ -1,5 +1,6 @@
 import React from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { formatDurationWithMinutes } from "../hooks/useTimeCalculations";
 
 interface LawLimitsProps {
   totalMinutes: number;
@@ -17,6 +18,24 @@ const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
 }) => {
   const percentage = Math.min((value / max) * 100, 100);
   const isOver = value > max;
+
+  // Convert minutes to hours and minutes for display
+  const hours = Math.floor(value / 60);
+  const minutes = value % 60;
+
+  // Format the display values - use clean hours and minutes without decimals
+  const valueDisplay = formatDurationWithMinutes({
+    hours,
+    minutes,
+    totalMinutes: value,
+  });
+
+  const maxDisplay = formatDurationWithMinutes({
+    hours: max / 60,
+    minutes: 0,
+    totalMinutes: max,
+  });
+
   return (
     <div>
       <div className="flex justify-between mb-1">
@@ -26,7 +45,7 @@ const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
             isOver ? "text-red-600" : "text-slate-500"
           }`}
         >
-          {value.toFixed(2)} / {max} hours
+          {valueDisplay} / {maxDisplay}
         </span>
       </div>
       <div className="w-full bg-slate-200 rounded-full h-2.5">
@@ -58,27 +77,25 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split("T")[0];
 
-  // Calculate totals for different periods
-  const getPeriodTotal = (days: number) => {
+  // Calculate totals for different periods in minutes
+  const getPeriodTotalMinutes = (days: number) => {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
     const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
 
-    return (
-      dailySubmissions
-        .filter((entry) => entry.date >= cutoffDateStr)
-        .reduce((sum, entry) => sum + entry.totalMinutes, 0) / 60
-    );
+    return dailySubmissions
+      .filter((entry) => entry.date >= cutoffDateStr)
+      .reduce((sum, entry) => sum + entry.totalMinutes, 0);
   };
 
-  // For daily hours, sum all submissions for today, or use current totalMinutes if no submissions
+  // For daily minutes, sum all submissions for today, or use current totalMinutes if no submissions
   const todaySubmissions = dailySubmissions.filter((sub) => sub.date === today);
-  const dailyHours =
+  const dailyMinutes =
     todaySubmissions.length > 0
-      ? todaySubmissions.reduce((sum, sub) => sum + sub.totalMinutes, 0) / 60
-      : totalMinutes / 60;
-  const weeklyHours = getPeriodTotal(7);
-  const fortnightlyHours = getPeriodTotal(14);
+      ? todaySubmissions.reduce((sum, sub) => sum + sub.totalMinutes, 0)
+      : totalMinutes;
+  const weeklyMinutes = getPeriodTotalMinutes(7);
+  const fortnightlyMinutes = getPeriodTotalMinutes(14);
 
   const handleReset = () => {
     setDailySubmissions([]);
@@ -90,7 +107,7 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
     const cutoffDateStr = cutoffDate.toISOString().split("T")[0];
 
     setDailySubmissions((prev) =>
-      prev.filter((entry) => entry.date >= cutoffDateStr)
+      prev.filter((entry) => entry.date < cutoffDateStr)
     );
   };
 
@@ -98,38 +115,33 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
     <div className="space-y-6 text-[#003D5B]">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold">Driving Time Limits (UK Standard)</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={handleResetWeek}
-            className="text-xs bg-orange-500 text-white px-3 py-1 rounded-md hover:bg-orange-600 transition-colors"
-          >
-            Reset Week
-          </button>
-          <button
-            onClick={handleReset}
-            className="text-xs bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition-colors"
-          >
-            Reset All
-          </button>
-        </div>
       </div>
 
       <div className="space-y-6">
         <ProgressBar
-          value={dailyHours}
-          max={UK_DAILY_LIMIT}
+          value={dailyMinutes}
+          max={UK_DAILY_LIMIT * 60}
           label="Daily Driving"
         />
         <ProgressBar
-          value={weeklyHours}
-          max={UK_WEEKLY_LIMIT}
+          value={weeklyMinutes}
+          max={UK_WEEKLY_LIMIT * 60}
           label="Weekly Driving"
         />
         <ProgressBar
-          value={fortnightlyHours}
-          max={UK_FORTNIGHTLY_LIMIT}
+          value={fortnightlyMinutes}
+          max={UK_FORTNIGHTLY_LIMIT * 60}
           label="Fortnightly Driving"
         />
+
+        <div className="flex justify-center pt-2">
+          <button
+            onClick={handleReset}
+            className="text-xs bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition-colors"
+          >
+            Reset All
+          </button>
+        </div>
       </div>
 
       <div className="bg-white/50 p-3 rounded-lg border border-gray-200/80">
