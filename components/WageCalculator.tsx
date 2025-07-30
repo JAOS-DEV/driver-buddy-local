@@ -34,7 +34,7 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
   return (
     <div className="space-y-6 text-[#003D5B]">
       {/* Toggle for calculation method */}
-      <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
+      <div className="bg-white/50 p-3 rounded-lg border border-gray-200/80">
         <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-3">
           CALCULATION METHOD
         </label>
@@ -69,7 +69,7 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
       </div>
 
       {/* Hourly Rate Input */}
-      <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
+      <div className="bg-white/50 p-3 rounded-lg border border-gray-200/80">
         <label
           htmlFor="hourly-rate"
           className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -85,13 +85,13 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
           value={hourlyRate || ""}
           onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
           placeholder="e.g., 18.50"
-          className="mt-1 w-full p-2 text-xl bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+          className="mt-1 w-full p-1.5 text-lg bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
         />
       </div>
 
       {/* Manual Hours Input (conditional) */}
       {useManualHours && (
-        <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
+        <div className="bg-white/50 p-3 rounded-lg border border-gray-200/80">
           <label
             htmlFor="manual-hours"
             className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -107,7 +107,7 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
             value={manualHours || ""}
             onChange={(e) => setManualHours(parseFloat(e.target.value) || 0)}
             placeholder="e.g., 8.5"
-            className="mt-1 w-full p-2 text-xl bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+            className="mt-1 w-full p-1.5 text-lg bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
           />
         </div>
       )}
@@ -132,7 +132,7 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
           <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
             ESTIMATED WAGE
           </h2>
-          <p className="text-5xl font-bold text-[#003D5B]">
+          <p className="text-3xl font-bold text-[#003D5B]">
             {formatCurrency(totalEarnings)}
           </p>
         </div>

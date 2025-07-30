@@ -187,7 +187,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       <div ref={formRef} className="flex-shrink-0">
         <form
           onSubmit={handleAddEntry}
-          className="bg-white/50 p-4 rounded-lg border border-gray-200/80 mb-6"
+          className="bg-white/50 p-3 rounded-lg border border-gray-200/80 mb-4"
         >
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="min-h-[5.5rem]">
@@ -207,7 +207,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 maxLength={5}
                 value={startTime}
                 onChange={handleStartTimeChange}
-                className={`mt-1 w-full p-2 text-xl bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                className={`mt-1 w-full p-1.5 text-lg bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                   startTimeError ? "border-red-500" : "border-slate-300"
                 }`}
               />
@@ -233,7 +233,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 maxLength={5}
                 value={endTime}
                 onChange={handleEndTimeChange}
-                className={`mt-1 w-full p-2 text-xl bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                className={`mt-1 w-full p-1.5 text-lg bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                   endTimeError ? "border-red-500" : "border-slate-300"
                 }`}
               />
@@ -245,7 +245,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <button
             type="submit"
             disabled={!isFormValid}
-            className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-3 px-4 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-2 px-3 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
           >
             <PlusIcon className="h-5 w-5" />
             Add Entry
@@ -277,9 +277,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 return (
                   <div
                     key={entry.id}
-                    className="flex items-center justify-between bg-white/50 p-3 rounded-md border border-gray-200/50"
+                    className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
                   >
-                    <div className="flex items-center space-x-4 text-lg">
+                    <div className="flex items-center space-x-3 text-base">
                       <span>{entry.startTime}</span>
                       <span className="text-slate-400">&mdash;</span>
                       <span>{entry.endTime}</span>
@@ -312,7 +312,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
             TOTAL
           </h2>
-          <p className="text-3xl font-bold text-[#003D5B] font-mono">
+          <p className="text-2xl font-bold text-[#003D5B] font-mono">
             {formatDurationWithMinutes(totalDuration)}
           </p>
         </div>
