@@ -16,6 +16,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+  const [startTimeError, setStartTimeError] = useState("");
+  const [endTimeError, setEndTimeError] = useState("");
   const [entriesHeight, setEntriesHeight] = useState(200); // Default fallback
   const {
     totalDuration,
@@ -94,19 +96,19 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
   const isValidTime = (time: string, allow24: boolean = false): boolean => {
     if (!time) return false;
-    const regex2359 = /^([01][0-9]|2[0-3]):[0-5][0-9]$/;
-    if (regex2359.test(time)) return true;
-    if (allow24 && time === "24:00") return true;
-    return false;
-  };
 
-  const handleAddEntry = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isValidTime(startTime) && isValidTime(endTime, true)) {
-      addEntry(startTime, endTime);
-      setStartTime("");
-      setEndTime("");
+    const digits = time.replace(/\D/g, "");
+    if (digits.length === 4) {
+      const hours = parseInt(digits.slice(0, 2));
+      const minutes = parseInt(digits.slice(2));
+
+      if (allow24) {
+        return hours <= 24 && (hours < 24 || minutes === 0) && minutes <= 59;
+      }
+      return hours <= 23 && minutes <= 59;
     }
+
+    return false;
   };
 
   const formatTimeInput = (value: string): string => {
@@ -120,16 +122,58 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatTimeInput(e.target.value);
     setStartTime(formatted);
+    setStartTimeError(""); // Clear error while typing
 
     const digitsOnly = e.target.value.replace(/\D/g, "");
-    if (digitsOnly.length === 4 && isValidTime(formatted)) {
-      endTimeRef.current?.focus();
+    if (digitsOnly.length === 4) {
+      const hours = parseInt(digitsOnly.slice(0, 2));
+      const minutes = parseInt(digitsOnly.slice(2));
+
+      if (hours <= 23 && minutes <= 59) {
+        endTimeRef.current?.focus();
+      } else {
+        if (hours > 23) {
+          setStartTimeError("Hours must be between 00-23");
+        } else if (minutes > 59) {
+          setStartTimeError("Minutes must be between 00-59");
+        }
+      }
     }
   };
 
   const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatTimeInput(e.target.value);
     setEndTime(formatted);
+    setEndTimeError(""); // Clear error while typing
+
+    const digitsOnly = e.target.value.replace(/\D/g, "");
+    if (digitsOnly.length === 4) {
+      const hours = parseInt(digitsOnly.slice(0, 2));
+      const minutes = parseInt(digitsOnly.slice(2));
+
+      if (hours > 24 || (hours === 24 && minutes > 0)) {
+        setEndTimeError(
+          hours === 24
+            ? "24:00 is the only valid time for hour 24"
+            : "Hours must be between 00-24"
+        );
+      } else if (minutes > 59) {
+        setEndTimeError("Minutes must be between 00-59");
+      }
+    }
+  };
+
+  // Remove blur handlers entirely
+
+  const handleAddEntry = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isValidTime(startTime) && isValidTime(endTime, true)) {
+      addEntry(startTime, endTime);
+      setStartTime("");
+      setEndTime("");
+      setStartTimeError("");
+      setEndTimeError("");
+    }
   };
 
   const isFormValid = isValidTime(startTime) && isValidTime(endTime, true);
@@ -146,38 +190,56 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           className="bg-white/50 p-4 rounded-lg border border-gray-200/80 mb-6"
         >
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="text-xs font-bold tracking-wider uppercase text-slate-500">
+            <div className="min-h-[5.5rem]">
+              <label
+                htmlFor="start-time"
+                className="text-xs font-bold tracking-wider uppercase text-slate-500"
+              >
                 START TIME
               </label>
               <input
+                id="start-time"
+                name="start-time"
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]*"
                 title="Enter time in HHMM format (e.g., 0930)"
                 placeholder="HHMM"
                 maxLength={5}
                 value={startTime}
                 onChange={handleStartTimeChange}
-                className="mt-1 w-full p-2 text-xl bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                className={`mt-1 w-full p-2 text-xl bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                  startTimeError ? "border-red-500" : "border-slate-300"
+                }`}
               />
+              {startTimeError && (
+                <p className="mt-1 text-xs text-red-500">{startTimeError}</p>
+              )}
             </div>
-            <div>
-              <label className="text-xs font-bold tracking-wider uppercase text-slate-500">
+            <div className="min-h-[5.5rem]">
+              <label
+                htmlFor="end-time"
+                className="text-xs font-bold tracking-wider uppercase text-slate-500"
+              >
                 END TIME
               </label>
               <input
                 ref={endTimeRef}
+                id="end-time"
+                name="end-time"
                 type="text"
                 inputMode="numeric"
-                pattern="[0-9]*"
                 title="Enter time in HHMM format (e.g., 1700 or 2400)"
                 placeholder="HHMM"
                 maxLength={5}
                 value={endTime}
                 onChange={handleEndTimeChange}
-                className="mt-1 w-full p-2 text-xl bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                className={`mt-1 w-full p-2 text-xl bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                  endTimeError ? "border-red-500" : "border-slate-300"
+                }`}
               />
+              {endTimeError && (
+                <p className="mt-1 text-xs text-red-500">{endTimeError}</p>
+              )}
             </div>
           </div>
           <button
