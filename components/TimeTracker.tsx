@@ -1,24 +1,32 @@
 import React, { useState, useRef, useEffect } from "react";
-import { TimeEntry } from "../types";
+import { TimeEntry, DailySubmission } from "../types";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
 import { PlusIcon, TrashIcon } from "./icons";
+import useLocalStorage from "../hooks/useLocalStorage";
 
 interface TimeTrackerProps {
   entries: TimeEntry[];
   addEntry: (startTime: string, endTime: string) => void;
   removeEntry: (id: number) => void;
+  onDailySubmit?: (submission: DailySubmission) => void;
 }
 
 const TimeTracker: React.FC<TimeTrackerProps> = ({
   entries,
   addEntry,
   removeEntry,
+  onDailySubmit,
 }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [startTimeError, setStartTimeError] = useState("");
   const [endTimeError, setEndTimeError] = useState("");
   const [entriesHeight, setEntriesHeight] = useState(200); // Default fallback
+  const [showHistory, setShowHistory] = useState(false);
+
+  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
+    DailySubmission[]
+  >("dailySubmissions", []);
   const {
     totalDuration,
     formatDuration,
@@ -178,6 +186,55 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
   const isFormValid = isValidTime(startTime) && isValidTime(endTime, true);
 
+  // Get today's date
+  const today = new Date().toISOString().split("T")[0];
+
+  // Get all submissions for today
+  const todaySubmissions = dailySubmissions.filter((sub) => sub.date === today);
+  const canSubmitToday = entries.length > 0;
+
+  const handleSubmitDay = () => {
+    if (entries.length === 0) return;
+
+    const submission: DailySubmission = {
+      date: today,
+      timestamp: new Date().toISOString(),
+      entries: [...entries],
+      totalMinutes: totalDuration.totalMinutes,
+    };
+
+    setDailySubmissions((prev) => [...prev, submission]);
+
+    // Clear current entries after submission
+    entries.forEach((entry) => removeEntry(entry.id));
+
+    // Notify parent component
+    onDailySubmit?.(submission);
+  };
+
+  const handleClearDay = (timestamp: string) => {
+    setDailySubmissions((prev) =>
+      prev.filter((sub) => sub.timestamp !== timestamp)
+    );
+  };
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString("en-GB", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+    });
+  };
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
     <div
       ref={containerRef}
@@ -185,6 +242,39 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     >
       {/* Fixed form section */}
       <div ref={formRef} className="flex-shrink-0">
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-xs font-bold tracking-wider uppercase text-slate-500">
+            TODAY'S ENTRIES
+          </h2>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className="text-xs bg-slate-500 text-white px-3 py-1 rounded-md hover:bg-slate-600 transition-colors"
+            >
+              {showHistory ? "Hide History" : "Show History"}
+            </button>
+            {canSubmitToday && (
+              <button
+                type="button"
+                onClick={handleSubmitDay}
+                className="text-xs bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors"
+              >
+                Submit Day
+              </button>
+            )}
+          </div>
+        </div>
+
+        {todaySubmissions.length > 0 && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+            <p className="text-sm text-green-700">
+              ✅ {todaySubmissions.length} submission
+              {todaySubmissions.length > 1 ? "s" : ""} for today
+            </p>
+          </div>
+        )}
+
         <form
           onSubmit={handleAddEntry}
           className="bg-white/50 p-3 rounded-lg border border-gray-200/80 mb-4"
@@ -255,52 +345,177 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
       {/* Entries section with calculated height */}
       <div className="flex-shrink-0">
-        <h2
-          ref={entriesHeaderRef}
-          className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
-        >
-          ENTRIES
-        </h2>
-        <div
-          className="overflow-y-auto"
-          style={{ height: `${entriesHeight}px` }}
-        >
-          <div className="space-y-2">
-            {entries.length === 0 ? (
-              <p className="text-center text-slate-500 py-4">No entries yet.</p>
-            ) : (
-              entries.map((entry) => {
-                const duration = calculateDuration(
-                  entry.startTime,
-                  entry.endTime
-                );
-                return (
-                  <div
-                    key={entry.id}
-                    className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
-                  >
-                    <div className="flex items-center space-x-3 text-base">
-                      <span>{entry.startTime}</span>
-                      <span className="text-slate-400">&mdash;</span>
-                      <span>{entry.endTime}</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="font-mono text-base text-slate-600">
-                        {formatDurationWithMinutes(duration)}
-                      </span>
-                      <button
-                        onClick={() => removeEntry(entry.id)}
-                        className="text-red-500 hover:text-red-700"
+        {showHistory ? (
+          // History View
+          <div>
+            <h2
+              ref={entriesHeaderRef}
+              className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
+            >
+              SUBMITTED DAYS
+            </h2>
+            <div
+              className="overflow-y-auto"
+              style={{ height: `${entriesHeight}px` }}
+            >
+              <div className="space-y-2">
+                {dailySubmissions.length === 0 ? (
+                  <p className="text-center text-slate-500 py-4">
+                    No submitted days yet.
+                  </p>
+                ) : (
+                  // Group submissions by date
+                  Object.entries(
+                    dailySubmissions.reduce<Record<string, DailySubmission[]>>(
+                      (groups, submission) => {
+                        const date = submission.date;
+                        if (!groups[date]) {
+                          groups[date] = [];
+                        }
+                        groups[date].push(submission);
+                        return groups;
+                      },
+                      {}
+                    )
+                  )
+                    .sort(
+                      ([dateA], [dateB]) =>
+                        new Date(dateB).getTime() - new Date(dateA).getTime()
+                    )
+                    .map(([date, submissions]: [string, DailySubmission[]]) => (
+                      <div
+                        key={date}
+                        className="bg-white/50 p-3 rounded-md border border-gray-200/50"
                       >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })
-            )}
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium text-slate-700">
+                            {formatDate(date)}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {submissions.length} submission
+                            {submissions.length > 1 ? "s" : ""}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {submissions
+                            .sort(
+                              (a, b) =>
+                                new Date(b.timestamp).getTime() -
+                                new Date(a.timestamp).getTime()
+                            )
+                            .map((submission) => (
+                              <div
+                                key={submission.timestamp}
+                                className="border-l-2 border-slate-200 pl-3"
+                              >
+                                <div className="flex justify-between items-center mb-1">
+                                  <span className="text-xs text-slate-500">
+                                    Submitted at{" "}
+                                    {formatTimestamp(submission.timestamp)}
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-mono text-sm text-slate-600">
+                                      {formatDurationWithMinutes({
+                                        hours: Math.floor(
+                                          submission.totalMinutes / 60
+                                        ),
+                                        minutes: submission.totalMinutes % 60,
+                                        totalMinutes: submission.totalMinutes,
+                                      })}
+                                    </span>
+                                    <button
+                                      onClick={() =>
+                                        handleClearDay(submission.timestamp)
+                                      }
+                                      className="text-red-500 hover:text-red-700"
+                                    >
+                                      <TrashIcon className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  {submission.entries.map((entry) => {
+                                    const duration = calculateDuration(
+                                      entry.startTime,
+                                      entry.endTime
+                                    );
+                                    return (
+                                      <div
+                                        key={entry.id}
+                                        className="flex justify-between items-center text-xs text-slate-600"
+                                      >
+                                        <span>
+                                          {entry.startTime} - {entry.endTime}
+                                        </span>
+                                        <span className="font-mono">
+                                          {formatDurationWithMinutes(duration)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    ))
+                )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          // Current Entries View
+          <div>
+            <h2
+              ref={entriesHeaderRef}
+              className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
+            >
+              ENTRIES
+            </h2>
+            <div
+              className="overflow-y-auto"
+              style={{ height: `${entriesHeight}px` }}
+            >
+              <div className="space-y-2">
+                {entries.length === 0 ? (
+                  <p className="text-center text-slate-500 py-4">
+                    No entries yet.
+                  </p>
+                ) : (
+                  entries.map((entry) => {
+                    const duration = calculateDuration(
+                      entry.startTime,
+                      entry.endTime
+                    );
+                    return (
+                      <div
+                        key={entry.id}
+                        className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
+                      >
+                        <div className="flex items-center space-x-3 text-base">
+                          <span>{entry.startTime}</span>
+                          <span className="text-slate-400">&mdash;</span>
+                          <span>{entry.endTime}</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="font-mono text-base text-slate-600">
+                            {formatDurationWithMinutes(duration)}
+                          </span>
+                          <button
+                            onClick={() => removeEntry(entry.id)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <TrashIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Fixed total section - guaranteed to be visible */}

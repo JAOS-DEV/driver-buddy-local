@@ -1,5 +1,5 @@
 import React from "react";
-import { TimeEntry, WorkTab } from "../types";
+import { TimeEntry, WorkTab, DailySubmission } from "../types";
 import TimeTracker from "./TimeTracker";
 import WageCalculator from "./WageCalculator";
 import LawLimits from "./LawLimits";
@@ -30,6 +30,9 @@ const WorkLog: React.FC = () => {
   );
   const [entries, setEntries] = useLocalStorage<TimeEntry[]>("timeEntries", []);
   const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
+  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
+    DailySubmission[]
+  >("dailySubmissions", []);
   const { totalDuration } = useTimeCalculations(entries);
 
   const addEntry = (startTime: string, endTime: string) => {
@@ -43,6 +46,12 @@ const WorkLog: React.FC = () => {
 
   const removeEntry = (id: number) => {
     setEntries((prev) => prev.filter((entry) => entry.id !== id));
+  };
+
+  const handleDailySubmit = (submission: DailySubmission) => {
+    // This will be called when a day is submitted
+    // The submission is already saved in TimeTracker component
+    console.log("Day submitted:", submission);
   };
 
   return (
@@ -77,6 +86,7 @@ const WorkLog: React.FC = () => {
             entries={entries}
             addEntry={addEntry}
             removeEntry={removeEntry}
+            onDailySubmit={handleDailySubmit}
           />
         )}
         {activeTab === WorkTab.WAGE && (
