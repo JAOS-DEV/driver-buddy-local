@@ -314,51 +314,72 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
       {/* Breakdown section with calculated height */}
       <div className="flex-1 overflow-hidden">
         <div
-          className="overflow-y-auto space-y-2"
+          className="overflow-y-auto"
           style={{ height: `${breakdownHeight}px` }}
         >
-          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-            <span className="text-sm text-slate-600">
-              {useManualHours ? "Manual Hours" : "Time Tracker Hours"}
-            </span>
-            <span className="font-mono text-base">
-              {formatDurationWithMinutes(duration)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-            <span className="text-sm text-slate-600">Hourly Rate</span>
-            <span className="font-mono text-base">
-              {formatCurrency(hourlyRate)}
-            </span>
-          </div>
-          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-            <span className="text-sm text-slate-600">Standard Pay</span>
-            <span className="font-mono text-base">
-              {formatCurrency(standardEarnings)}
-            </span>
-          </div>
-          {overtimeDuration.totalMinutes > 0 && (
-            <>
-              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-                <span className="text-sm text-orange-700">Overtime Hours</span>
-                <span className="font-mono text-base text-orange-700">
-                  {formatDurationWithMinutes(overtimeDuration)}
+          <div className="bg-white/80 rounded-lg border border-gray-200/80 p-3 shadow-sm">
+            {/* Header */}
+            <div className="text-center mb-3 pb-2 border-b border-gray-200">
+              <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">
+                Wage Breakdown
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                {useManualHours ? "Manual Hours" : "Time Tracker"}
+              </p>
+            </div>
+
+            {/* Standard Hours Section */}
+            <div className="space-y-2 mb-3">
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-600">Hours Worked</span>
+                <span className="font-mono text-sm font-medium text-slate-800">
+                  {formatDurationWithMinutes(duration)}
                 </span>
               </div>
-              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-                <span className="text-sm text-orange-700">Overtime Rate</span>
-                <span className="font-mono text-base text-orange-700">
-                  {formatCurrency(overtimeRate || hourlyRate)}
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-slate-600">Hourly Rate</span>
+                <span className="font-mono text-sm font-medium text-slate-800">
+                  {formatCurrency(hourlyRate)}
                 </span>
               </div>
-              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-                <span className="text-sm text-orange-700">Overtime Pay</span>
-                <span className="font-mono text-base text-orange-700">
-                  {formatCurrency(overtimeEarnings)}
+              <div className="flex justify-between items-center pt-1 border-t border-gray-100">
+                <span className="text-sm font-semibold text-slate-700">
+                  Standard Pay
+                </span>
+                <span className="font-mono text-base font-bold text-slate-800">
+                  {formatCurrency(standardEarnings)}
                 </span>
               </div>
-            </>
-          )}
+            </div>
+
+            {/* Overtime Section */}
+            {overtimeDuration.totalMinutes > 0 && (
+              <div className="space-y-2 mb-3 pt-2 border-t border-orange-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-orange-600">
+                    Overtime Hours
+                  </span>
+                  <span className="font-mono text-sm font-medium text-orange-700">
+                    {formatDurationWithMinutes(overtimeDuration)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-orange-600">Overtime Rate</span>
+                  <span className="font-mono text-sm font-medium text-orange-700">
+                    {formatCurrency(overtimeRate || hourlyRate)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center pt-1 border-t border-orange-100">
+                  <span className="text-sm font-semibold text-orange-700">
+                    Overtime Pay
+                  </span>
+                  <span className="font-mono text-base font-bold text-orange-700">
+                    {formatCurrency(overtimeEarnings)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
