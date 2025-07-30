@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { TimeEntry } from '../types';
+import { useMemo } from "react";
+import { TimeEntry } from "../types";
 
 interface Duration {
   hours: number;
@@ -11,20 +11,27 @@ interface Duration {
 const timeToMinutes = (time: string): number => {
   if (!time) return 0;
 
-  if (time === '24:00') {
+  if (time === "24:00") {
     return 24 * 60;
   }
 
-  const parts = time.split(':');
+  const parts = time.split(":");
   if (parts.length !== 2) {
     return 0;
   }
-  
+
   const [hoursStr, minutesStr] = parts;
   const hours = parseInt(hoursStr, 10);
   const minutes = parseInt(minutesStr, 10);
 
-  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+  if (
+    isNaN(hours) ||
+    isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
     return 0;
   }
 
@@ -32,7 +39,10 @@ const timeToMinutes = (time: string): number => {
 };
 
 // Calculates the duration between a start and end time
-export const calculateDuration = (startTime: string, endTime: string): Duration => {
+export const calculateDuration = (
+  startTime: string,
+  endTime: string
+): Duration => {
   const startMinutes = timeToMinutes(startTime);
   const endMinutes = timeToMinutes(endTime);
 
@@ -49,7 +59,20 @@ export const calculateDuration = (startTime: string, endTime: string): Duration 
 
 // Formats a duration object into a H:MM string
 export const formatDuration = (duration: Duration): string => {
-  return `${duration.hours}:${String(duration.minutes).padStart(2, '0')}`;
+  return `${duration.hours}:${String(duration.minutes).padStart(2, "0")}`;
+};
+
+// Formats a duration object into a compact H hr/XXX mins string
+export const formatDurationWithMinutes = (duration: Duration): string => {
+  if (duration.hours === 0) {
+    return `${duration.totalMinutes} mins`;
+  } else if (duration.minutes === 0) {
+    return `${duration.hours} hr/${duration.totalMinutes} mins`;
+  } else {
+    return `${duration.hours}:${String(duration.minutes).padStart(2, "0")}/${
+      duration.totalMinutes
+    } mins`;
+  }
 };
 
 // Custom hook to provide memoized time calculation functions
@@ -57,7 +80,9 @@ export const useTimeCalculations = (entries: TimeEntry[]) => {
   const totalDuration = useMemo<Duration>(() => {
     const totalMinutes = entries.reduce((acc, entry) => {
       if (!entry.startTime || !entry.endTime) return acc;
-      return acc + calculateDuration(entry.startTime, entry.endTime).totalMinutes;
+      return (
+        acc + calculateDuration(entry.startTime, entry.endTime).totalMinutes
+      );
     }, 0);
 
     const hours = Math.floor(totalMinutes / 60);
@@ -68,6 +93,7 @@ export const useTimeCalculations = (entries: TimeEntry[]) => {
   return {
     totalDuration,
     formatDuration,
+    formatDurationWithMinutes,
     calculateDuration,
   };
 };

@@ -17,8 +17,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [entriesHeight, setEntriesHeight] = useState(200); // Default fallback
-  const { totalDuration, formatDuration, calculateDuration } =
-    useTimeCalculations(entries);
+  const {
+    totalDuration,
+    formatDuration,
+    formatDurationWithMinutes,
+    calculateDuration,
+  } = useTimeCalculations(entries);
   const endTimeRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
@@ -215,8 +219,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       <span>{entry.endTime}</span>
                     </div>
                     <div className="flex items-center gap-4">
-                      <span className="font-mono text-lg text-slate-600">
-                        {formatDuration(duration)}
+                      <span className="font-mono text-base text-slate-600">
+                        {formatDurationWithMinutes(duration)}
                       </span>
                       <button
                         onClick={() => removeEntry(entry.id)}
@@ -242,8 +246,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
             TOTAL
           </h2>
-          <p className="text-5xl font-bold text-[#003D5B]">
-            {formatDuration(totalDuration)}
+          <p className="text-3xl font-bold text-[#003D5B] font-mono">
+            {formatDurationWithMinutes(totalDuration)}
           </p>
         </div>
       </div>
