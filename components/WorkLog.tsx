@@ -48,6 +48,10 @@ const WorkLog: React.FC = () => {
     setEntries((prev) => prev.filter((entry) => entry.id !== id));
   };
 
+  const clearEntries = () => {
+    setEntries([]);
+  };
+
   const handleDailySubmit = (submission: DailySubmission) => {
     // This will be called when a day is submitted
     // The submission is already saved in TimeTracker component
@@ -84,6 +88,7 @@ const WorkLog: React.FC = () => {
             addEntry={addEntry}
             removeEntry={removeEntry}
             onDailySubmit={handleDailySubmit}
+            clearEntries={clearEntries}
           />
         )}
         {activeTab === WorkTab.WAGE && (

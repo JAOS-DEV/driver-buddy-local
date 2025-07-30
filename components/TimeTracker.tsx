@@ -9,6 +9,7 @@ interface TimeTrackerProps {
   addEntry: (startTime: string, endTime: string) => void;
   removeEntry: (id: number) => void;
   onDailySubmit?: (submission: DailySubmission) => void;
+  clearEntries?: () => void;
 }
 
 const TimeTracker: React.FC<TimeTrackerProps> = ({
@@ -16,6 +17,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   addEntry,
   removeEntry,
   onDailySubmit,
+  clearEntries,
 }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -219,8 +221,14 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       visible: true,
     });
 
-    // Clear current entries after submission
-    entries.forEach((entry) => removeEntry(entry.id));
+    // Clear all current entries after submission
+    if (clearEntries) {
+      clearEntries();
+    } else {
+      // Fallback: clear entries one by one
+      const entryIds = [...entries.map((entry) => entry.id)];
+      entryIds.forEach((id) => removeEntry(id));
+    }
 
     // Notify parent component
     onDailySubmit?.(submission);
