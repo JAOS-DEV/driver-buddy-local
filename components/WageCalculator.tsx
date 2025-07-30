@@ -28,6 +28,18 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
     "manualMinutes",
     0
   );
+  const [overtimeHours, setOvertimeHours] = useLocalStorage<number>(
+    "overtimeHours",
+    0
+  );
+  const [overtimeMinutes, setOvertimeMinutes] = useLocalStorage<number>(
+    "overtimeMinutes",
+    0
+  );
+  const [overtimeRate, setOvertimeRate] = useLocalStorage<number>(
+    "overtimeRate",
+    0
+  );
 
   const duration = useManualHours
     ? {
@@ -37,7 +49,17 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
       }
     : decimalHoursToDuration(totalMinutes / 60);
 
-  const totalEarnings = (duration.totalMinutes / 60) * hourlyRate;
+  const overtimeDuration = {
+    hours: overtimeHours,
+    minutes: overtimeMinutes,
+    totalMinutes: overtimeHours * 60 + overtimeMinutes,
+  };
+
+  // Calculate earnings breakdown
+  const standardEarnings = (duration.totalMinutes / 60) * hourlyRate;
+  const overtimeEarnings =
+    (overtimeDuration.totalMinutes / 60) * (overtimeRate || hourlyRate);
+  const totalEarnings = standardEarnings + overtimeEarnings;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
@@ -85,52 +107,123 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
         </div>
 
         {/* Input Fields Grid */}
-        <div
-          className={`grid ${
-            useManualHours ? "grid-cols-2" : "grid-cols-1"
-          } gap-2`}
-        >
-          {/* Hourly Rate Input */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <label
-              htmlFor="hourly-rate"
-              className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
-            >
-              HOURLY RATE (£)
-            </label>
-            <input
-              id="hourly-rate"
-              type="number"
-              inputMode="decimal"
-              step="0.01"
-              min="0"
-              value={hourlyRate || ""}
-              onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
-              placeholder="e.g., 18.50"
-              className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-            />
-          </div>
-
-          {/* Manual Hours Input */}
-          {useManualHours && (
+        <div className="grid grid-cols-1 gap-2">
+          {/* Standard Hours Section */}
+          <div
+            className={`grid ${
+              useManualHours ? "grid-cols-2" : "grid-cols-1"
+            } gap-2`}
+          >
+            {/* Hourly Rate Input */}
             <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
               <label
-                htmlFor="manual-hours"
+                htmlFor="hourly-rate"
                 className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
               >
-                HOURS & MINUTES
+                HOURLY RATE (£)
+              </label>
+              <input
+                id="hourly-rate"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={hourlyRate || ""}
+                onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
+                placeholder="e.g., 18.50"
+                className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+              />
+            </div>
+
+            {/* Manual Hours Input */}
+            {useManualHours && (
+              <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+                <label
+                  htmlFor="manual-hours"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                >
+                  HOURS & MINUTES
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <input
+                      id="manual-hours"
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      max="23"
+                      value={manualHours || ""}
+                      onChange={(e) =>
+                        setManualHours(parseInt(e.target.value) || 0)
+                      }
+                      placeholder="Hours"
+                      className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    />
+                  </div>
+                  <div>
+                    <input
+                      id="manual-minutes"
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      max="59"
+                      value={manualMinutes || ""}
+                      onChange={(e) =>
+                        setManualMinutes(parseInt(e.target.value) || 0)
+                      }
+                      placeholder="Minutes"
+                      className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Overtime Section */}
+          <div className="grid grid-cols-2 gap-2">
+            {/* Overtime Rate Input */}
+            <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+              <label
+                htmlFor="overtime-rate"
+                className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+              >
+                OVERTIME RATE (£)
+              </label>
+              <input
+                id="overtime-rate"
+                type="number"
+                inputMode="decimal"
+                step="0.01"
+                min="0"
+                value={overtimeRate || ""}
+                onChange={(e) =>
+                  setOvertimeRate(parseFloat(e.target.value) || 0)
+                }
+                placeholder="e.g., 27.75"
+                className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+              />
+            </div>
+
+            {/* Overtime Hours Input */}
+            <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+              <label
+                htmlFor="overtime-hours"
+                className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+              >
+                OVERTIME HOURS
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <input
-                    id="manual-hours"
+                    id="overtime-hours"
                     type="number"
                     inputMode="numeric"
                     min="0"
                     max="23"
-                    value={manualHours || ""}
+                    value={overtimeHours || ""}
                     onChange={(e) =>
-                      setManualHours(parseInt(e.target.value) || 0)
+                      setOvertimeHours(parseInt(e.target.value) || 0)
                     }
                     placeholder="Hours"
                     className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
@@ -138,14 +231,14 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
                 </div>
                 <div>
                   <input
-                    id="manual-minutes"
+                    id="overtime-minutes"
                     type="number"
                     inputMode="numeric"
                     min="0"
                     max="59"
-                    value={manualMinutes || ""}
+                    value={overtimeMinutes || ""}
                     onChange={(e) =>
-                      setManualMinutes(parseInt(e.target.value) || 0)
+                      setOvertimeMinutes(parseInt(e.target.value) || 0)
                     }
                     placeholder="Minutes"
                     className="mt-1 w-full p-1.5 text-base bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
@@ -153,7 +246,7 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -172,14 +265,42 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
             {formatCurrency(hourlyRate)}
           </span>
         </div>
+        <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
+          <span className="text-sm text-slate-600">Standard Pay</span>
+          <span className="font-mono text-base">
+            {formatCurrency(standardEarnings)}
+          </span>
+        </div>
+        {overtimeDuration.totalMinutes > 0 && (
+          <>
+            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+              <span className="text-sm text-orange-700">Overtime Hours</span>
+              <span className="font-mono text-base text-orange-700">
+                {formatDurationWithMinutes(overtimeDuration)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+              <span className="text-sm text-orange-700">Overtime Rate</span>
+              <span className="font-mono text-base text-orange-700">
+                {formatCurrency(overtimeRate || hourlyRate)}
+              </span>
+            </div>
+            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+              <span className="text-sm text-orange-700">Overtime Pay</span>
+              <span className="font-mono text-base text-orange-700">
+                {formatCurrency(overtimeEarnings)}
+              </span>
+            </div>
+          </>
+        )}
       </div>
 
-      <div className="flex-shrink-0 border-t border-slate-200 pt-3 mt-3">
+      <div className="flex-shrink-0 border-t border-slate-200 pt-3 pb-3 mt-3">
         <div className="flex justify-between items-center">
-          <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
-            ESTIMATED WAGE
+          <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">
+            TOTAL WAGE
           </h2>
-          <p className="text-3xl font-bold text-[#003D5B]">
+          <p className="text-2xl font-bold text-[#003D5B]">
             {formatCurrency(totalEarnings)}
           </p>
         </div>

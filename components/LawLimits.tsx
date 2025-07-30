@@ -1,6 +1,7 @@
 import React from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { formatDurationWithMinutes } from "../hooks/useTimeCalculations";
+import { DailySubmission } from "../types";
 
 interface LawLimitsProps {
   totalMinutes: number;
@@ -157,10 +158,10 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
         </div>
       </div>
 
-      <div className="text-xs text-slate-500 text-center p-4 bg-slate-100/50 rounded-lg">
+      {/* <div className="text-xs text-slate-500 text-center p-4 bg-slate-100/50 rounded-lg">
         Disclaimer: This is for informational purposes only and not legal
         advice. Always refer to official documentation and your contract.
-      </div>
+      </div> */}
     </div>
   );
 };

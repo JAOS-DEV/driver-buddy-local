@@ -514,7 +514,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                         key={entry.id}
                         className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
                       >
-                        <div className="flex items-center space-x-3 text-base">
+                        <div className="flex items-center space-x-2 text-base">
                           <span>{entry.startTime}</span>
                           <span className="text-slate-400">&mdash;</span>
                           <span>{entry.endTime}</span>
@@ -543,10 +543,10 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       {/* Fixed total section - guaranteed to be visible */}
       <div
         ref={totalRef}
-        className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-4"
+        className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-3"
       >
         <div className="flex justify-between items-center">
-          <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
+          <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">
             TOTAL
           </h2>
           <p className="text-2xl font-bold text-[#003D5B] font-mono">
