@@ -1,6 +1,6 @@
 import React from "react";
 import { View } from "../types";
-import { BriefcaseIcon, ChatIcon } from "./icons";
+import { ClockIcon, ChatIcon } from "./icons";
 
 interface BottomNavProps {
   activeView: View;
@@ -27,6 +27,11 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
     <nav className="sticky bottom-0 z-50 bg-[#FAF7F0]/95 backdrop-blur-sm border-t border-slate-200/80">
       <div className="flex justify-around items-center h-16 px-4">
         <NavItem
+          icon={<ClockIcon className="h-7 w-7" />}
+          isActive={activeView === View.WORK}
+          onClick={() => setActiveView(View.WORK)}
+        />
+        <NavItem
           icon={
             <ChatIcon
               className={`h-7 w-7 ${
@@ -36,11 +41,6 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
           }
           isActive={activeView === View.CHAT}
           onClick={() => setActiveView(View.CHAT)}
-        />
-        <NavItem
-          icon={<BriefcaseIcon className="h-7 w-7" />}
-          isActive={activeView === View.WORK}
-          onClick={() => setActiveView(View.WORK)}
         />
       </div>
     </nav>
