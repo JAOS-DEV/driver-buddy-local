@@ -57,9 +57,6 @@ const WorkLog: React.FC = () => {
   return (
     <div className="h-full flex flex-col">
       <header className="flex-shrink-0">
-        <h1 className="text-xl font-bold text-[#003D5B] text-left mb-3">
-          Drive Time Tracker
-        </h1>
         <div className="border-b border-slate-200">
           <nav className="flex justify-around items-center">
             <TabButton

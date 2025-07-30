@@ -23,6 +23,10 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const [endTimeError, setEndTimeError] = useState("");
   const [entriesHeight, setEntriesHeight] = useState(200); // Default fallback
   const [showHistory, setShowHistory] = useState(false);
+  const [toast, setToast] = useState<{ message: string; visible: boolean }>({
+    message: "",
+    visible: false,
+  });
 
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
@@ -39,6 +43,16 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const totalRef = useRef<HTMLDivElement>(null);
   const entriesHeaderRef = useRef<HTMLHeadingElement>(null);
 
+  // Toast effect
+  useEffect(() => {
+    if (toast.visible) {
+      const timer = setTimeout(() => {
+        setToast({ message: "", visible: false });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.visible]);
+
   // Calculate available space for entries
   useEffect(() => {
     const calculateEntriesHeight = () => {
@@ -48,43 +62,36 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         totalRef.current &&
         entriesHeaderRef.current
       ) {
-        const containerHeight = containerRef.current.clientHeight;
+        // Get the actual viewport height
+        const viewportHeight = window.innerHeight;
+
+        // Get the container's position and height
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerTop = containerRect.top;
+
+        // Calculate the available height from container top to viewport bottom
+        const availableViewportHeight = viewportHeight - containerTop;
+
+        // Get the heights of fixed elements
         const formHeight = formRef.current.offsetHeight;
         const totalHeight = totalRef.current.offsetHeight;
         const entriesHeaderHeight = entriesHeaderRef.current.offsetHeight;
 
-        // Calculate available space: container - form - total - header - margins/padding
+        // Account for navigation bar height (64px) and some padding
+        const navBarHeight = 64;
+        const padding = 16;
+
+        // Calculate available space for entries
         const availableHeight =
-          containerHeight - formHeight - totalHeight - entriesHeaderHeight - 50; // Increased margins for safety
+          availableViewportHeight -
+          formHeight -
+          totalHeight -
+          entriesHeaderHeight -
+          navBarHeight -
+          padding;
 
-        // More aggressive constraints for very small screens (iPhone SE)
-        let minHeight, maxHeight;
-
-        if (window.innerHeight <= 667) {
-          // iPhone SE and smaller
-          minHeight = 60; // Very small minimum
-          maxHeight = Math.min(availableHeight, 120); // Max 120px on tiny screens
-        } else if (window.innerHeight < 700) {
-          // Small screens
-          minHeight = 80;
-          maxHeight = Math.min(availableHeight, window.innerHeight * 0.25); // Max 25% of viewport
-        } else {
-          // Normal screens
-          minHeight = 120;
-          maxHeight = Math.min(availableHeight, window.innerHeight * 0.4); // Max 40% of viewport
-        }
-
-        const calculatedHeight = Math.max(
-          minHeight,
-          Math.min(maxHeight, availableHeight)
-        );
-
-        // Final safety check - ensure we never exceed 30% of viewport height on very small screens
-        const finalHeight =
-          window.innerHeight <= 667
-            ? Math.min(calculatedHeight, window.innerHeight * 0.3)
-            : calculatedHeight;
-
+        // Ensure minimum height and set the height
+        const finalHeight = Math.max(availableHeight, 100);
         setEntriesHeight(finalHeight);
       }
     };
@@ -205,6 +212,13 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
     setDailySubmissions((prev) => [...prev, submission]);
 
+    // Show toast notification
+    const newCount = todaySubmissions.length + 1;
+    setToast({
+      message: `${newCount} submission${newCount > 1 ? "s" : ""} for today`,
+      visible: true,
+    });
+
     // Clear current entries after submission
     entries.forEach((entry) => removeEntry(entry.id));
 
@@ -238,8 +252,17 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   return (
     <div
       ref={containerRef}
-      className="h-full flex flex-col text-[#003D5B] overflow-hidden"
+      className="h-full flex flex-col text-[#003D5B] overflow-hidden relative"
     >
+      {/* Toast Notification */}
+      {toast.visible && (
+        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
+            <span className="text-sm font-medium">✅ {toast.message}</span>
+          </div>
+        </div>
+      )}
+
       {/* Fixed form section */}
       <div ref={formRef} className="flex-shrink-0">
         <div className="flex justify-between items-center mb-3">
@@ -266,21 +289,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           </div>
         </div>
 
-        {todaySubmissions.length > 0 && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-            <p className="text-sm text-green-700">
-              ✅ {todaySubmissions.length} submission
-              {todaySubmissions.length > 1 ? "s" : ""} for today
-            </p>
-          </div>
-        )}
-
         <form
           onSubmit={handleAddEntry}
-          className="bg-white/50 p-3 rounded-lg border border-gray-200/80 mb-4"
+          className="bg-white/50 p-2 rounded-lg border border-gray-200/80 mb-3"
         >
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="min-h-[5.5rem]">
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            <div className="min-h-[4rem]">
               <label
                 htmlFor="start-time"
                 className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -297,7 +311,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 maxLength={5}
                 value={startTime}
                 onChange={handleStartTimeChange}
-                className={`mt-1 w-full p-1.5 text-lg bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                className={`mt-1 w-full p-1 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                   startTimeError ? "border-red-500" : "border-slate-300"
                 }`}
               />
@@ -305,7 +319,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 <p className="mt-1 text-xs text-red-500">{startTimeError}</p>
               )}
             </div>
-            <div className="min-h-[5.5rem]">
+            <div className="min-h-[4rem]">
               <label
                 htmlFor="end-time"
                 className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -323,7 +337,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 maxLength={5}
                 value={endTime}
                 onChange={handleEndTimeChange}
-                className={`mt-1 w-full p-1.5 text-lg bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                className={`mt-1 w-full p-1 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                   endTimeError ? "border-red-500" : "border-slate-300"
                 }`}
               />
@@ -335,16 +349,16 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <button
             type="submit"
             disabled={!isFormValid}
-            className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-2 px-3 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+            className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-1.5 px-3 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
           >
-            <PlusIcon className="h-5 w-5" />
+            <PlusIcon className="h-4 w-4" />
             Add Entry
           </button>
         </form>
       </div>
 
       {/* Entries section with calculated height */}
-      <div className="flex-shrink-0">
+      <div className="flex-1 overflow-hidden">
         {showHistory ? (
           // History View
           <div>
@@ -521,7 +535,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       {/* Fixed total section - guaranteed to be visible */}
       <div
         ref={totalRef}
-        className="flex-shrink-0 border-t border-slate-200 pt-4 mt-4"
+        className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-4"
       >
         <div className="flex justify-between items-center">
           <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
