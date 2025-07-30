@@ -76,6 +76,14 @@ export const formatDurationWithMinutes = (duration: Duration): string => {
 };
 
 // Custom hook to provide memoized time calculation functions
+// Convert decimal hours to Duration object
+export const decimalHoursToDuration = (decimalHours: number): Duration => {
+  const totalMinutes = Math.round(decimalHours * 60);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return { hours, minutes, totalMinutes };
+};
+
 export const useTimeCalculations = (entries: TimeEntry[]) => {
   const totalDuration = useMemo<Duration>(() => {
     const totalMinutes = entries.reduce((acc, entry) => {
