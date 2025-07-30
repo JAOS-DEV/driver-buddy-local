@@ -152,6 +152,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </label>
               <input
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 title="Enter time in HHMM format (e.g., 0930)"
                 placeholder="HHMM"
                 maxLength={5}
@@ -167,6 +169,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               <input
                 ref={endTimeRef}
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 title="Enter time in HHMM format (e.g., 1700 or 2400)"
                 placeholder="HHMM"
                 maxLength={5}

@@ -79,6 +79,9 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
         <input
           id="hourly-rate"
           type="number"
+          inputMode="decimal"
+          step="0.01"
+          min="0"
           value={hourlyRate || ""}
           onChange={(e) => setHourlyRate(parseFloat(e.target.value) || 0)}
           placeholder="e.g., 18.50"
@@ -98,7 +101,9 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
           <input
             id="manual-hours"
             type="number"
+            inputMode="decimal"
             step="0.1"
+            min="0"
             value={manualHours || ""}
             onChange={(e) => setManualHours(parseFloat(e.target.value) || 0)}
             placeholder="e.g., 8.5"
