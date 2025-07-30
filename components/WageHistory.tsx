@@ -70,7 +70,13 @@ const WageHistory: React.FC<WageHistoryProps> = ({
         weekEnd.setDate(weekEnd.getDate() + 6); // 7 days total
         return sortedWageHistory.filter((wage) => {
           const wageDate = new Date(wage.date);
-          return wageDate >= weekStart && wageDate <= weekEnd;
+          // Set time to start of day for accurate comparison
+          wageDate.setHours(0, 0, 0, 0);
+          const weekStartAdjusted = new Date(weekStart);
+          weekStartAdjusted.setHours(0, 0, 0, 0);
+          const weekEndAdjusted = new Date(weekEnd);
+          weekEndAdjusted.setHours(23, 59, 59, 999);
+          return wageDate >= weekStartAdjusted && wageDate <= weekEndAdjusted;
         });
       case "month":
         const monthStart = new Date(
@@ -85,7 +91,13 @@ const WageHistory: React.FC<WageHistoryProps> = ({
         );
         return sortedWageHistory.filter((wage) => {
           const wageDate = new Date(wage.date);
-          return wageDate >= monthStart && wageDate <= monthEnd;
+          // Set time to start of day for accurate comparison
+          wageDate.setHours(0, 0, 0, 0);
+          const monthStartAdjusted = new Date(monthStart);
+          monthStartAdjusted.setHours(0, 0, 0, 0);
+          const monthEndAdjusted = new Date(monthEnd);
+          monthEndAdjusted.setHours(23, 59, 59, 999);
+          return wageDate >= monthStartAdjusted && wageDate <= monthEndAdjusted;
         });
       case "all":
         return sortedWageHistory;
@@ -141,7 +153,20 @@ const WageHistory: React.FC<WageHistoryProps> = ({
     switch (selectedPeriod) {
       case "week":
         const weekStart = new Date(selectedDate);
-        weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
+        // Use the week start day from settings
+        const weekStartDayMap: Record<string, number> = {
+          sunday: 0,
+          monday: 1,
+          tuesday: 2,
+          wednesday: 3,
+          thursday: 4,
+          friday: 5,
+          saturday: 6,
+        };
+        const weekStartDay = weekStartDayMap[settings.weekStartDay];
+        const currentDay = weekStart.getDay();
+        const daysToSubtract = currentDay - weekStartDay;
+        weekStart.setDate(weekStart.getDate() - daysToSubtract);
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
         return `${formatDate(
@@ -314,8 +339,8 @@ const WageHistory: React.FC<WageHistoryProps> = ({
         </div>
       </div>
 
-      {/* Wage list */}
-      <div className="flex-1 overflow-y-auto space-y-3">
+      {/* Wage list with proper scrolling */}
+      <div className="flex-1 overflow-y-auto space-y-3 pb-6">
         {Object.entries(wagesByDate).length === 0 ? (
           <div className="text-center py-8">
             <p className="text-slate-500">No wages found for this period.</p>
