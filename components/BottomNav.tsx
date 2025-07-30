@@ -24,8 +24,8 @@ const NavItem: React.FC<{
 
 const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
   return (
-    <nav className="flex-shrink-0 bg-[#FAF7F0]/95 backdrop-blur-sm border-t border-slate-200/80 pb-safe">
-      <div className="flex justify-around items-center h-16 px-4 pb-safe">
+    <nav className="sticky bottom-0 z-50 bg-[#FAF7F0]/95 backdrop-blur-sm border-t border-slate-200/80">
+      <div className="flex justify-around items-center h-16 px-4">
         <NavItem
           icon={
             <ChatIcon
