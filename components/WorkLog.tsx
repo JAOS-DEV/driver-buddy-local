@@ -24,11 +24,8 @@ const TabButton: React.FC<{
 
 const WorkLog: React.FC = () => {
   const [activeTab, setActiveTab] = useState<WorkTab>(WorkTab.TRACKER);
-  const [entries, setEntries] = useState<TimeEntry[]>([
-    { id: 1, startTime: "09:00", endTime: "13:20" },
-    { id: 2, startTime: "14:15", endTime: "14:45" },
-  ]);
-  const [hourlyRate, setHourlyRate] = useState(18.5);
+  const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [hourlyRate, setHourlyRate] = useState(0);
   const { totalDuration } = useTimeCalculations(entries);
 
   const addEntry = (startTime: string, endTime: string) => {
