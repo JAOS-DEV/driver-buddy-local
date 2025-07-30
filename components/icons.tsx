@@ -98,3 +98,35 @@ export const TrashIcon: React.FC<IconProps> = ({ className }) => (
     />
   </svg>
 );
+
+export const CalculatorIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm-3-3a1 1 0 100 2h1a1 1 0 100-2H7zm0 4a1 1 0 100 2h1a1 1 0 100-2H7z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+export const ShieldIcon: React.FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path
+      fillRule="evenodd"
+      d="M12.516 2.17a.75.75 0 00-1.032 0 11.209 11.209 0 01-7.877 3.08.75.75 0 00-.722.515A12.74 12.74 0 002.25 9.75c0 5.942 2.883 11.2 7.5 13.5.75.375 1.5.375 2.25 0 4.617-2.3 7.5-7.558 7.5-13.5 0-.18-.001-.358-.01-.535a.75.75 0 00-.722-.515 11.209 11.209 0 01-7.877-3.08z"
+      clipRule="evenodd"
+    />
+  </svg>
+);

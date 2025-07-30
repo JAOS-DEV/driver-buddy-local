@@ -60,15 +60,15 @@ export interface ChatMessage {
 }
 
 export enum View {
-  WORK = "WORK",
-  CHAT = "CHAT",
-  SETTINGS = "SETTINGS",
+  WORK = "work",
+  CHAT = "chat",
+  SETTINGS = "settings",
+  WAGE = "wage",
+  LAW_LIMITS = "law_limits",
 }
 
 export enum WorkTab {
-  TRACKER = "TRACKER",
-  WAGE = "WAGE",
-  WAGE_HISTORY = "WAGE_HISTORY",
-  SETTINGS = "SETTINGS",
-  LAW = "LAW",
+  TRACKER = "tracker",
+  WAGE = "wage",
+  LAW = "law",
 }

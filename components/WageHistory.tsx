@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { DailyWage, Settings } from "../types";
 import { formatDurationWithMinutes } from "../hooks/useTimeCalculations";
@@ -20,6 +20,26 @@ const WageHistory: React.FC<WageHistoryProps> = ({
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
+  const [wageListHeight, setWageListHeight] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+
+  // Calculate dynamic height for wage list
+  useEffect(() => {
+    const calculateWageListHeight = () => {
+      if (containerRef.current && headerRef.current) {
+        const containerHeight = containerRef.current.offsetHeight;
+        const headerHeight = headerRef.current.offsetHeight;
+        const availableHeight = containerHeight - headerHeight - 32; // 32px for padding
+        setWageListHeight(Math.max(availableHeight, 200)); // Minimum 200px height
+      }
+    };
+
+    calculateWageListHeight();
+    window.addEventListener("resize", calculateWageListHeight);
+    return () => window.removeEventListener("resize", calculateWageListHeight);
+  }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
@@ -186,9 +206,9 @@ const WageHistory: React.FC<WageHistoryProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col text-[#003D5B]">
+    <div ref={containerRef} className="h-full flex flex-col text-[#003D5B]">
       {/* Header with period selector */}
-      <div className="flex-shrink-0 space-y-3">
+      <div ref={headerRef} className="flex-shrink-0 space-y-3 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold">Wage History</h2>
           <div className="flex gap-2">
@@ -339,110 +359,117 @@ const WageHistory: React.FC<WageHistoryProps> = ({
         </div>
       </div>
 
-      {/* Wage list with proper scrolling */}
-      <div className="flex-1 overflow-y-auto space-y-3 pb-6">
-        {Object.entries(wagesByDate).length === 0 ? (
-          <div className="text-center py-8">
-            <p className="text-slate-500">No wages found for this period.</p>
-          </div>
-        ) : (
-          Object.entries(wagesByDate)
-            .sort(
-              ([dateA], [dateB]) =>
-                new Date(dateB).getTime() - new Date(dateA).getTime()
-            )
-            .map(([date, wages]) => (
-              <div
-                key={date}
-                className="bg-white/50 rounded-lg border border-gray-200/80 overflow-hidden"
-              >
-                <div className="bg-slate-50 px-3 py-2 border-b border-gray-200">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-slate-700">
-                      {formatDate(date)}
-                    </span>
-                    <span className="text-xs text-slate-500">
-                      {wages.length} submission{wages.length > 1 ? "s" : ""}
-                    </span>
+      {/* Wage list with dynamic height and proper scrolling */}
+      <div className="flex-1 px-4 pb-20">
+        <div
+          className="overflow-y-auto space-y-3"
+          style={{ height: `${wageListHeight}px` }}
+        >
+          {Object.entries(wagesByDate).length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-slate-500">No wages found for this period.</p>
+            </div>
+          ) : (
+            Object.entries(wagesByDate)
+              .sort(
+                ([dateA], [dateB]) =>
+                  new Date(dateB).getTime() - new Date(dateA).getTime()
+              )
+              .map(([date, wages]) => (
+                <div
+                  key={date}
+                  className="bg-white/50 rounded-lg border border-gray-200/80 overflow-hidden"
+                >
+                  <div className="bg-slate-50 px-3 py-2 border-b border-gray-200">
+                    <div className="flex justify-between items-center">
+                      <span className="font-semibold text-slate-700">
+                        {formatDate(date)}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {wages.length} submission{wages.length > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-3 space-y-2">
+                    {wages
+                      .sort(
+                        (a, b) =>
+                          new Date(b.timestamp).getTime() -
+                          new Date(a.timestamp).getTime()
+                      )
+                      .map((wage) => (
+                        <div
+                          key={wage.id}
+                          className="flex justify-between items-center p-2 bg-slate-50 rounded border border-gray-200/50"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs text-slate-500">
+                                {wage.submissionTime}
+                              </span>
+                              <span className="text-xs text-slate-400">•</span>
+                              <span className="text-xs text-slate-500 capitalize">
+                                {wage.calculationMethod === "timeTracker"
+                                  ? "Time Tracker"
+                                  : "Manual Hours"}
+                              </span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-slate-600">
+                                {formatDurationWithMinutes({
+                                  hours:
+                                    wage.standardHours + wage.overtimeHours,
+                                  minutes:
+                                    wage.standardMinutes + wage.overtimeMinutes,
+                                  totalMinutes:
+                                    (wage.standardHours + wage.overtimeHours) *
+                                      60 +
+                                    wage.standardMinutes +
+                                    wage.overtimeMinutes,
+                                })}
+                              </span>
+                              {wage.overtimeHours > 0 && (
+                                <span className="text-orange-600 ml-2">
+                                  (+
+                                  {formatDurationWithMinutes({
+                                    hours: wage.overtimeHours,
+                                    minutes: wage.overtimeMinutes,
+                                    totalMinutes:
+                                      wage.overtimeHours * 60 +
+                                      wage.overtimeMinutes,
+                                  })}{" "}
+                                  OT)
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="text-right">
+                              <span className="font-mono font-bold text-slate-800">
+                                {formatCurrency(wage.totalWage)}
+                              </span>
+                              {wage.afterTaxWage &&
+                                wage.afterTaxWage !== wage.totalWage && (
+                                  <div className="text-xs text-red-600">
+                                    {formatCurrency(wage.afterTaxWage)} after
+                                    tax
+                                  </div>
+                                )}
+                            </div>
+                            <button
+                              onClick={() => handleDeleteWage(wage.id)}
+                              className="text-red-500 hover:text-red-700 text-xs"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                   </div>
                 </div>
-                <div className="p-3 space-y-2">
-                  {wages
-                    .sort(
-                      (a, b) =>
-                        new Date(b.timestamp).getTime() -
-                        new Date(a.timestamp).getTime()
-                    )
-                    .map((wage) => (
-                      <div
-                        key={wage.id}
-                        className="flex justify-between items-center p-2 bg-slate-50 rounded border border-gray-200/50"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs text-slate-500">
-                              {wage.submissionTime}
-                            </span>
-                            <span className="text-xs text-slate-400">•</span>
-                            <span className="text-xs text-slate-500 capitalize">
-                              {wage.calculationMethod === "timeTracker"
-                                ? "Time Tracker"
-                                : "Manual Hours"}
-                            </span>
-                          </div>
-                          <div className="text-sm">
-                            <span className="text-slate-600">
-                              {formatDurationWithMinutes({
-                                hours: wage.standardHours + wage.overtimeHours,
-                                minutes:
-                                  wage.standardMinutes + wage.overtimeMinutes,
-                                totalMinutes:
-                                  (wage.standardHours + wage.overtimeHours) *
-                                    60 +
-                                  wage.standardMinutes +
-                                  wage.overtimeMinutes,
-                              })}
-                            </span>
-                            {wage.overtimeHours > 0 && (
-                              <span className="text-orange-600 ml-2">
-                                (+
-                                {formatDurationWithMinutes({
-                                  hours: wage.overtimeHours,
-                                  minutes: wage.overtimeMinutes,
-                                  totalMinutes:
-                                    wage.overtimeHours * 60 +
-                                    wage.overtimeMinutes,
-                                })}{" "}
-                                OT)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right">
-                            <span className="font-mono font-bold text-slate-800">
-                              {formatCurrency(wage.totalWage)}
-                            </span>
-                            {wage.afterTaxWage &&
-                              wage.afterTaxWage !== wage.totalWage && (
-                                <div className="text-xs text-red-600">
-                                  {formatCurrency(wage.afterTaxWage)} after tax
-                                </div>
-                              )}
-                          </div>
-                          <button
-                            onClick={() => handleDeleteWage(wage.id)}
-                            className="text-red-500 hover:text-red-700 text-xs"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))
-        )}
+              ))
+          )}
+        </div>
       </div>
     </div>
   );

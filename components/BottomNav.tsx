@@ -1,49 +1,50 @@
 import React from "react";
 import { View } from "../types";
-import { ClockIcon, ChatIcon, SettingsIcon } from "./icons";
+import { NavItem } from "./NavItem";
+import {
+  ClockIcon,
+  ChatIcon,
+  SettingsIcon,
+  CalculatorIcon,
+  ShieldIcon,
+} from "./icons";
 
 interface BottomNavProps {
   activeView: View;
   setActiveView: (view: View) => void;
 }
 
-const NavItem: React.FC<{
-  icon: React.ReactNode;
-  isActive: boolean;
-  onClick: () => void;
-}> = ({ icon, isActive, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`p-3 rounded-lg transition-colors ${
-      isActive ? "text-[#003D5B]" : "text-slate-500 hover:text-[#003D5B]"
-    }`}
-  >
-    {icon}
-  </button>
-);
-
 const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
   return (
-    <nav className="sticky bottom-0 z-50 bg-[#FAF7F0]/95 backdrop-blur-sm border-t border-slate-200/80">
-      <div className="flex justify-around items-center h-16 px-4">
+    <nav className="bg-white/80 backdrop-blur-sm border-t border-slate-200/60 shadow-sm">
+      <div className="flex items-center justify-around px-2 py-1">
         <NavItem
-          icon={<ClockIcon className="h-7 w-7" />}
+          icon={<ClockIcon />}
+          label="Tracker"
           isActive={activeView === View.WORK}
           onClick={() => setActiveView(View.WORK)}
         />
         <NavItem
-          icon={
-            <ChatIcon
-              className={`h-7 w-7 ${
-                activeView === View.CHAT ? "text-teal-600" : "text-slate-500"
-              }`}
-            />
-          }
+          icon={<CalculatorIcon />}
+          label="Wage"
+          isActive={activeView === View.WAGE}
+          onClick={() => setActiveView(View.WAGE)}
+        />
+        <NavItem
+          icon={<ShieldIcon />}
+          label="Limits"
+          isActive={activeView === View.LAW_LIMITS}
+          onClick={() => setActiveView(View.LAW_LIMITS)}
+        />
+        <NavItem
+          icon={<ChatIcon />}
+          label="Chat"
           isActive={activeView === View.CHAT}
           onClick={() => setActiveView(View.CHAT)}
         />
         <NavItem
-          icon={<SettingsIcon className="h-7 w-7" />}
+          icon={<SettingsIcon />}
+          label="Settings"
           isActive={activeView === View.SETTINGS}
           onClick={() => setActiveView(View.SETTINGS)}
         />

@@ -1,24 +1,38 @@
-import React, { useState } from "react";
-import { View } from "./types";
+import React from "react";
+import { View, Settings } from "./types";
 import WorkLog from "./components/WorkLog";
 import UnionChatbot from "./components/UnionChatbot";
-import Settings from "./components/Settings";
+import SettingsComponent from "./components/Settings";
+import WageCalculator from "./components/WageCalculator";
+import LawLimits from "./components/LawLimits";
 import BottomNav from "./components/BottomNav";
 import useLocalStorage from "./hooks/useLocalStorage";
-import { Settings as SettingsType } from "./types";
+import { useTimeCalculations } from "./hooks/useTimeCalculations";
 
 const App: React.FC = () => {
-  const [activeView, setActiveView] = useState<View>(View.WORK);
-  const [settings, setSettings] = useLocalStorage<SettingsType>("settings", {
+  const [activeView, setActiveView] = useLocalStorage<View>(
+    "activeView",
+    View.WORK
+  );
+  const [settings, setSettings] = useLocalStorage<Settings>("settings", {
     weekStartDay: "monday",
     defaultHourlyRate: 0,
     defaultOvertimeRate: 0,
     enableTaxCalculations: false,
-    taxRate: 0.2, // 20% default UK rate
+    taxRate: 0.2,
     currency: "GBP",
     weeklyGoal: 0,
     monthlyGoal: 0,
   });
+
+  // Get time entries for wage calculations
+  const [entries] = useLocalStorage<any[]>("timeEntries", []);
+  const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
+  const [wageHistory, setWageHistory] = useLocalStorage<any[]>(
+    "wageHistory",
+    []
+  );
+  const { totalDuration } = useTimeCalculations(entries);
 
   return (
     <div className="h-[100dvh] w-full flex items-center justify-center bg-[#FAF7F0] overflow-hidden">
@@ -26,9 +40,22 @@ const App: React.FC = () => {
       <div className="w-full h-full sm:h-[700px] sm:max-w-md bg-[#FAF7F0] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200/50 flex flex-col overflow-hidden mx-auto">
         <div className="flex-1 overflow-hidden p-6 pb-0">
           {activeView === View.WORK && <WorkLog settings={settings} />}
+          {activeView === View.WAGE && (
+            <WageCalculator
+              totalMinutes={totalDuration.totalMinutes}
+              hourlyRate={hourlyRate}
+              setHourlyRate={setHourlyRate}
+              settings={settings}
+              wageHistory={wageHistory}
+              setWageHistory={setWageHistory}
+            />
+          )}
+          {activeView === View.LAW_LIMITS && (
+            <LawLimits totalMinutes={totalDuration.totalMinutes} />
+          )}
           {activeView === View.CHAT && <UnionChatbot />}
           {activeView === View.SETTINGS && (
-            <Settings settings={settings} setSettings={setSettings} />
+            <SettingsComponent settings={settings} setSettings={setSettings} />
           )}
         </div>
         <BottomNav activeView={activeView} setActiveView={setActiveView} />
