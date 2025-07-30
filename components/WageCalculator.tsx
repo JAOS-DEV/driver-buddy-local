@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import {
   decimalHoursToDuration,
@@ -40,6 +40,11 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
     "overtimeRate",
     0
   );
+  const [breakdownHeight, setBreakdownHeight] = useState(200); // Default fallback
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputSectionRef = useRef<HTMLDivElement>(null);
+  const totalSectionRef = useRef<HTMLDivElement>(null);
 
   const duration = useManualHours
     ? {
@@ -61,6 +66,59 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
     (overtimeDuration.totalMinutes / 60) * (overtimeRate || hourlyRate);
   const totalEarnings = standardEarnings + overtimeEarnings;
 
+  // Calculate available space for breakdown
+  useEffect(() => {
+    const calculateBreakdownHeight = () => {
+      if (
+        containerRef.current &&
+        inputSectionRef.current &&
+        totalSectionRef.current
+      ) {
+        // Get the actual viewport height
+        const viewportHeight = window.innerHeight;
+
+        // Get the container's position and height
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerTop = containerRect.top;
+
+        // Calculate the available height from container top to viewport bottom
+        const availableViewportHeight = viewportHeight - containerTop;
+
+        // Get the heights of fixed elements
+        const inputSectionHeight = inputSectionRef.current.offsetHeight;
+        const totalSectionHeight = totalSectionRef.current.offsetHeight;
+
+        // Account for navigation bar height (64px) and some padding
+        const navBarHeight = 64;
+        const padding = 16;
+
+        // Calculate available space for breakdown
+        const availableHeight =
+          availableViewportHeight -
+          inputSectionHeight -
+          totalSectionHeight -
+          navBarHeight -
+          padding;
+
+        // Ensure minimum height and set the height
+        const finalHeight = Math.max(availableHeight, 100);
+        setBreakdownHeight(finalHeight);
+      }
+    };
+
+    // Use setTimeout to ensure DOM is fully rendered
+    const timeoutId = setTimeout(calculateBreakdownHeight, 100);
+
+    // Recalculate on window resize
+    window.addEventListener("resize", calculateBreakdownHeight);
+
+    // Cleanup
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", calculateBreakdownHeight);
+    };
+  }, [useManualHours, overtimeDuration.totalMinutes]); // Recalculate when relevant values change
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
@@ -69,8 +127,11 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col text-[#003D5B]">
-      <div className="flex-shrink-0 space-y-2">
+    <div
+      ref={containerRef}
+      className="h-full flex flex-col text-[#003D5B] overflow-hidden relative"
+    >
+      <div ref={inputSectionRef} className="flex-shrink-0 space-y-2">
         {/* Toggle Section */}
         <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
           <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-2">
@@ -250,52 +311,62 @@ const WageCalculator: React.FC<WageCalculatorProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-2">
-        <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-          <span className="text-sm text-slate-600">
-            {useManualHours ? "Manual Hours" : "Time Tracker Hours"}
-          </span>
-          <span className="font-mono text-base">
-            {formatDurationWithMinutes(duration)}
-          </span>
+      {/* Breakdown section with calculated height */}
+      <div className="flex-1 overflow-hidden">
+        <div
+          className="overflow-y-auto space-y-2"
+          style={{ height: `${breakdownHeight}px` }}
+        >
+          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
+            <span className="text-sm text-slate-600">
+              {useManualHours ? "Manual Hours" : "Time Tracker Hours"}
+            </span>
+            <span className="font-mono text-base">
+              {formatDurationWithMinutes(duration)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
+            <span className="text-sm text-slate-600">Hourly Rate</span>
+            <span className="font-mono text-base">
+              {formatCurrency(hourlyRate)}
+            </span>
+          </div>
+          <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
+            <span className="text-sm text-slate-600">Standard Pay</span>
+            <span className="font-mono text-base">
+              {formatCurrency(standardEarnings)}
+            </span>
+          </div>
+          {overtimeDuration.totalMinutes > 0 && (
+            <>
+              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+                <span className="text-sm text-orange-700">Overtime Hours</span>
+                <span className="font-mono text-base text-orange-700">
+                  {formatDurationWithMinutes(overtimeDuration)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+                <span className="text-sm text-orange-700">Overtime Rate</span>
+                <span className="font-mono text-base text-orange-700">
+                  {formatCurrency(overtimeRate || hourlyRate)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
+                <span className="text-sm text-orange-700">Overtime Pay</span>
+                <span className="font-mono text-base text-orange-700">
+                  {formatCurrency(overtimeEarnings)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
-        <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-          <span className="text-sm text-slate-600">Hourly Rate</span>
-          <span className="font-mono text-base">
-            {formatCurrency(hourlyRate)}
-          </span>
-        </div>
-        <div className="flex justify-between items-center bg-white/50 p-2 rounded-md border border-gray-200/50">
-          <span className="text-sm text-slate-600">Standard Pay</span>
-          <span className="font-mono text-base">
-            {formatCurrency(standardEarnings)}
-          </span>
-        </div>
-        {overtimeDuration.totalMinutes > 0 && (
-          <>
-            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-              <span className="text-sm text-orange-700">Overtime Hours</span>
-              <span className="font-mono text-base text-orange-700">
-                {formatDurationWithMinutes(overtimeDuration)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-              <span className="text-sm text-orange-700">Overtime Rate</span>
-              <span className="font-mono text-base text-orange-700">
-                {formatCurrency(overtimeRate || hourlyRate)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center bg-orange-50 p-2 rounded-md border border-orange-200/50">
-              <span className="text-sm text-orange-700">Overtime Pay</span>
-              <span className="font-mono text-base text-orange-700">
-                {formatCurrency(overtimeEarnings)}
-              </span>
-            </div>
-          </>
-        )}
       </div>
 
-      <div className="flex-shrink-0 border-t border-slate-200 pt-3 pb-3 mt-3">
+      {/* Fixed total section - guaranteed to be visible */}
+      <div
+        ref={totalSectionRef}
+        className="flex-shrink-0 border-t border-slate-200 pt-3 pb-3 mt-3"
+      >
         <div className="flex justify-between items-center">
           <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">
             TOTAL WAGE
