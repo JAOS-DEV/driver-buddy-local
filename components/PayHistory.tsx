@@ -175,6 +175,42 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     }).format(amount);
   };
 
+  // Pay Goal Progress Bar Component
+  const PayGoalProgressBar: React.FC<{
+    current: number;
+    goal: number;
+    label: string;
+  }> = ({ current, goal, label }) => {
+    const percentage = Math.min((current / goal) * 100, 100);
+    const isOver = current > goal;
+
+    return (
+      <div>
+        <div className="flex justify-between mb-1">
+          <span className="text-xs font-medium text-slate-700">{label}</span>
+          <span
+            className={`text-xs font-medium ${
+              isOver ? "text-green-600" : "text-slate-500"
+            }`}
+          >
+            {formatCurrency(current)} / {formatCurrency(goal)}
+          </span>
+        </div>
+        <div className="w-full bg-slate-200 rounded-full h-2">
+          <div
+            className={`h-2 rounded-full ${
+              isOver ? "bg-green-500" : "bg-[#003D5B]"
+            }`}
+            style={{ width: `${percentage}%` }}
+          ></div>
+        </div>
+        {isOver && (
+          <p className="text-green-600 text-xs mt-1">Goal achieved! 🎉</p>
+        )}
+      </div>
+    );
+  };
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
@@ -526,6 +562,26 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               </>
             )}
           </div>
+
+          {/* Pay Goals Progress Bars */}
+          {selectedPeriod === "week" && settings.weeklyGoal > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <PayGoalProgressBar
+                current={periodTotals.totalPay}
+                goal={settings.weeklyGoal}
+                label="Weekly Goal"
+              />
+            </div>
+          )}
+          {selectedPeriod === "month" && settings.monthlyGoal > 0 && (
+            <div className="mt-3 pt-3 border-t border-gray-200">
+              <PayGoalProgressBar
+                current={periodTotals.totalPay}
+                goal={settings.monthlyGoal}
+                label="Monthly Goal"
+              />
+            </div>
+          )}
         </div>
 
         {/* Actions */}
