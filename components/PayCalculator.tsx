@@ -215,6 +215,15 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         </div>
 
         <div className="p-4 space-y-3">
+          {/* Standard Hours */}
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-slate-600">Standard Hours:</span>
+            <span className="font-mono text-base font-medium text-slate-800">
+              {duration.hours}:{duration.minutes.toString().padStart(2, "0")} @{" "}
+              {formatCurrency(hourlyRate)}
+            </span>
+          </div>
+
           {/* Standard Pay */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-slate-600">Standard Pay:</span>
@@ -229,12 +238,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               <div className="flex justify-between items-center">
                 <span className="text-sm text-orange-600">Overtime Hours:</span>
                 <span className="font-mono text-base font-medium text-orange-600">
-                  {formatDurationWithMinutes(overtimeDuration)}
-                </span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-orange-600">Overtime Rate:</span>
-                <span className="font-mono text-base font-medium text-orange-600">
+                  {overtimeDuration.hours}:
+                  {overtimeDuration.minutes.toString().padStart(2, "0")} @{" "}
                   {formatCurrency(overtimeRate || hourlyRate)}
                 </span>
               </div>
