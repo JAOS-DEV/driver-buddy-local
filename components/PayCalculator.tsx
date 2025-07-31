@@ -84,7 +84,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         minutes: manualMinutes,
         totalMinutes: manualHours * 60 + manualMinutes,
       }
-    : decimalHoursToDuration(totalMinutes / 60);
+    : {
+        hours: Math.floor(totalMinutes / 60),
+        minutes: totalMinutes % 60,
+        totalMinutes: totalMinutes,
+      };
 
   const overtimeDuration = {
     hours: overtimeHours,

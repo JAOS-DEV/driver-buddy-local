@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import useLocalStorage from "../hooks/useLocalStorage";
 import { Settings as SettingsType } from "../types";
 
 interface SettingsProps {
@@ -98,6 +97,21 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
     if (confirm("This will permanently delete all saved pay. Are you sure?")) {
       localStorage.removeItem("payHistory");
       alert("All pay history has been cleared.");
+    }
+  };
+
+  // Clear all data (entries, pay history, settings, etc.)
+  const clearAllData = () => {
+    if (
+      confirm(
+        "This will permanently delete ALL data including time entries, pay history, and settings. This action cannot be undone. Are you sure?"
+      )
+    ) {
+      localStorage.clear();
+      alert("All data has been cleared. The page will reload.");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 
@@ -355,8 +369,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
               >
                 Clear All Pay History
               </button>
+              <button
+                onClick={clearAllData}
+                className="w-full bg-red-700 text-white font-bold py-2 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
+              >
+                Clear All Data
+              </button>
               <p className="text-xs text-slate-500">
-                Export your data for tax purposes or clear all saved pay.
+                Export your data for tax purposes or clear all saved data.
               </p>
             </div>
           </div>

@@ -1,17 +1,46 @@
 import React from "react";
-import { TimeEntry, WorkTab, DailySubmission, Settings } from "../types";
+import { TimeEntry, DailySubmission, Settings } from "../types";
 import TimeTracker from "./TimeTracker";
-import PayCalculator from "./PayCalculator";
-import LawLimits from "./LawLimits";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
 import useLocalStorage from "../hooks/useLocalStorage";
 
 interface WorkLogProps {
   settings: Settings;
+  entries: TimeEntry[];
+  setEntries: (entries: TimeEntry[]) => void;
 }
 
-const WorkLog: React.FC<WorkLogProps> = ({ settings }) => {
-  const [entries, setEntries] = useLocalStorage<TimeEntry[]>("timeEntries", []);
+const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
+  // Clear any existing default data on first load only
+  React.useEffect(() => {
+    const hasClearedDefault = localStorage.getItem("hasClearedDefault");
+    if (!hasClearedDefault) {
+      const existingEntries = localStorage.getItem("timeEntries");
+      if (existingEntries) {
+        try {
+          const parsed = JSON.parse(existingEntries);
+          // If there are entries that look like default data, clear them
+          if (parsed.length > 0) {
+            const hasDefaultData = parsed.some(
+              (entry: any) =>
+                entry.startTime === "0900" ||
+                entry.startTime === "0600" ||
+                entry.endTime === "0950" ||
+                entry.endTime === "0800"
+            );
+            if (hasDefaultData) {
+              setEntries([]);
+            }
+          }
+        } catch (e) {
+          // If parsing fails, clear the localStorage
+          setEntries([]);
+        }
+      }
+      // Mark that we've cleared default data
+      localStorage.setItem("hasClearedDefault", "true");
+    }
+  }, [setEntries]);
   const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]

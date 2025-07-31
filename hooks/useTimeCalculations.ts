@@ -88,8 +88,21 @@ export const useTimeCalculations = (entries: TimeEntry[]) => {
   const totalDuration = useMemo<Duration>(() => {
     const totalMinutes = entries.reduce((acc, entry) => {
       if (!entry.startTime || !entry.endTime) return acc;
+
+      // Format times from HHMM to HH:MM for calculation
+      const formatTimeForCalculation = (time: string) => {
+        if (time.length === 4) {
+          return `${time.substring(0, 2)}:${time.substring(2, 4)}`;
+        }
+        return time;
+      };
+
+      const formattedStartTime = formatTimeForCalculation(entry.startTime);
+      const formattedEndTime = formatTimeForCalculation(entry.endTime);
+
       return (
-        acc + calculateDuration(entry.startTime, entry.endTime).totalMinutes
+        acc +
+        calculateDuration(formattedStartTime, formattedEndTime).totalMinutes
       );
     }, 0);
 

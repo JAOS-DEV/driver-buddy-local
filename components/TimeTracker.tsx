@@ -79,9 +79,10 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         const totalHeight = totalRef.current.offsetHeight;
         const entriesHeaderHeight = entriesHeaderRef.current.offsetHeight;
 
-        // Account for navigation bar height (64px) and some padding
-        const navBarHeight = 64;
-        const padding = 16;
+        // Account for navigation bar height and padding
+        // Bottom nav is typically 80px + some padding
+        const navBarHeight = 80;
+        const bottomPadding = 32; // Account for the pb-8 and mb-2 on total section
 
         // Calculate available space for entries
         const availableHeight =
@@ -90,7 +91,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           totalHeight -
           entriesHeaderHeight -
           navBarHeight -
-          padding;
+          bottomPadding;
 
         // Ensure minimum height and set the height
         const finalHeight = Math.max(availableHeight, 100);
@@ -110,9 +111,17 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   }, [activeTab]); // Recalculate when tab changes
 
   const isValidTime = (time: string, allow24: boolean = false): boolean => {
-    if (!time || time.length !== 4) return false;
-    const hours = parseInt(time.substring(0, 2));
-    const minutes = parseInt(time.substring(2, 4));
+    if (!time) return false;
+
+    // Handle both HHMM and HH:MM formats
+    let timeStr = time;
+    if (time.includes(":")) {
+      timeStr = time.replace(":", "");
+    }
+
+    if (timeStr.length !== 4) return false;
+    const hours = parseInt(timeStr.substring(0, 2));
+    const minutes = parseInt(timeStr.substring(2, 4));
     if (isNaN(hours) || isNaN(minutes)) return false;
     if (minutes < 0 || minutes > 59) return false;
     if (allow24) {
@@ -122,7 +131,18 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   };
 
   const formatTimeInput = (value: string): string => {
-    return value.replace(/[^0-9]/g, "").substring(0, 4);
+    // Remove all non-numeric characters
+    const numbers = value.replace(/[^0-9]/g, "");
+
+    // Limit to 4 digits
+    const limited = numbers.substring(0, 4);
+
+    // Add colon after 2 digits if we have more than 2 digits
+    if (limited.length > 2) {
+      return `${limited.substring(0, 2)}:${limited.substring(2)}`;
+    }
+
+    return limited;
   };
 
   const handleStartTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,9 +150,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setStartTime(value);
     setStartTimeError("");
 
-    if (value.length === 4) {
+    if (value.length === 4 || value.length === 5) {
       if (!isValidTime(value)) {
-        setStartTimeError("Invalid time format (HHMM)");
+        setStartTimeError("Invalid time format (HH:MM)");
       } else {
         // Auto-focus end time input
         setTimeout(() => {
@@ -147,16 +167,16 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setEndTime(value);
     setEndTimeError("");
 
-    if (value.length === 4) {
+    if (value.length === 4 || value.length === 5) {
       if (!isValidTime(value, true)) {
-        setEndTimeError("Invalid time format (HHMM)");
+        setEndTimeError("Invalid time format (HH:MM)");
       }
     }
   };
 
   const isFormValid =
-    startTime.length === 4 &&
-    endTime.length === 4 &&
+    (startTime.length === 4 || startTime.length === 5) &&
+    (endTime.length === 4 || endTime.length === 5) &&
     !startTimeError &&
     !endTimeError;
 
@@ -164,7 +184,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     e.preventDefault();
     if (!isFormValid) return;
 
-    addEntry(startTime, endTime);
+    // Convert formatted times back to HHMM format for storage
+    const formatForStorage = (time: string) => {
+      return time.replace(":", "");
+    };
+
+    addEntry(formatForStorage(startTime), formatForStorage(endTime));
     setStartTime("");
     setEndTime("");
     setStartTimeError("");
@@ -294,8 +319,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     name="start-time"
                     type="text"
                     inputMode="numeric"
-                    title="Enter time in HHMM format (e.g., 0930)"
-                    placeholder="HHMM"
+                    title="Enter time in HH:MM format (e.g., 09:30)"
+                    placeholder="HH:MM"
                     maxLength={5}
                     value={startTime}
                     onChange={handleStartTimeChange}
@@ -322,8 +347,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     name="end-time"
                     type="text"
                     inputMode="numeric"
-                    title="Enter time in HHMM format (e.g., 1700 or 2400)"
-                    placeholder="HHMM"
+                    title="Enter time in HH:MM format (e.g., 17:00 or 24:00)"
+                    placeholder="HH:MM"
                     maxLength={5}
                     value={endTime}
                     onChange={handleEndTimeChange}
@@ -367,9 +392,27 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     </p>
                   ) : (
                     entries.map((entry) => {
-                      const duration = calculateDuration(
-                        entry.startTime,
+                      // Format the times for display (HHMM to HH:MM)
+                      const formatTimeForDisplay = (time: string) => {
+                        if (time.length === 4) {
+                          return `${time.substring(0, 2)}:${time.substring(
+                            2,
+                            4
+                          )}`;
+                        }
+                        return time;
+                      };
+
+                      const displayStartTime = formatTimeForDisplay(
+                        entry.startTime
+                      );
+                      const displayEndTime = formatTimeForDisplay(
                         entry.endTime
+                      );
+
+                      const duration = calculateDuration(
+                        displayStartTime,
+                        displayEndTime
                       );
                       return (
                         <div
@@ -377,9 +420,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                           className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
                         >
                           <div className="flex items-center space-x-2 text-base">
-                            <span>{entry.startTime}</span>
+                            <span>{displayStartTime}</span>
                             <span className="text-slate-400">&mdash;</span>
-                            <span>{entry.endTime}</span>
+                            <span>{displayEndTime}</span>
                           </div>
                           <div className="flex items-center gap-4">
                             <span className="font-mono text-base text-slate-600">
@@ -389,7 +432,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                               onClick={() => removeEntry(entry.id)}
                               className="text-red-500 hover:text-red-700"
                             >
-                              <TrashIcon className="h-4 w-4" />
+                              ✕
                             </button>
                           </div>
                         </div>
@@ -404,7 +447,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           {/* Fixed total section - guaranteed to be visible */}
           <div
             ref={totalRef}
-            className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-6 px-4"
+            className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-8 px-4 mb-2"
           >
             <div className="flex justify-between items-center">
               <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">
@@ -501,15 +544,34 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                       }
                                       className="text-red-500 hover:text-red-700"
                                     >
-                                      <TrashIcon className="h-3 w-3" />
+                                      ✕
                                     </button>
                                   </div>
                                 </div>
                                 <div className="space-y-1">
                                   {submission.entries.map((entry) => {
-                                    const duration = calculateDuration(
-                                      entry.startTime,
+                                    // Format the times for display (HHMM to HH:MM)
+                                    const formatTimeForDisplay = (
+                                      time: string
+                                    ) => {
+                                      if (time.length === 4) {
+                                        return `${time.substring(
+                                          0,
+                                          2
+                                        )}:${time.substring(2, 4)}`;
+                                      }
+                                      return time;
+                                    };
+
+                                    const displayStartTime =
+                                      formatTimeForDisplay(entry.startTime);
+                                    const displayEndTime = formatTimeForDisplay(
                                       entry.endTime
+                                    );
+
+                                    const duration = calculateDuration(
+                                      displayStartTime,
+                                      displayEndTime
                                     );
                                     return (
                                       <div
@@ -517,7 +579,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                         className="flex justify-between items-center text-xs text-slate-600"
                                       >
                                         <span>
-                                          {entry.startTime} - {entry.endTime}
+                                          {displayStartTime} - {displayEndTime}
                                         </span>
                                         <span className="font-mono">
                                           {formatDurationWithMinutes(duration)}
