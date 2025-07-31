@@ -11,9 +11,9 @@ export interface DailySubmission {
   totalMinutes: number;
 }
 
-export interface DailyWage {
+export interface DailyPay {
   id: string; // Unique submission ID
-  date: string; // YYYY-MM-DD format - the date the wage is for
+  date: string; // YYYY-MM-DD format - the date the pay is for
   timestamp: string; // ISO string of when submitted
   submissionTime: string; // Time of submission (HH:MM format)
   standardHours: number;
@@ -24,16 +24,16 @@ export interface DailyWage {
   overtimeMinutes: number;
   overtimeRate: number;
   overtimePay: number;
-  totalWage: number;
+  totalPay: number;
   calculationMethod: "timeTracker" | "manualHours";
   taxAmount?: number; // Tax amount if tax calculations were enabled
-  afterTaxWage?: number; // After-tax wage if tax calculations were enabled
+  afterTaxPay?: number; // After-tax pay if tax calculations were enabled
   taxRate?: number; // Tax rate used for calculation
   notes?: string; // Optional notes for the user
 }
 
-export interface WageHistory {
-  dailyWages: DailyWage[];
+export interface PayHistory {
+  dailyPays: DailyPay[];
 }
 
 export interface Settings {
@@ -63,12 +63,12 @@ export enum View {
   WORK = "work",
   CHAT = "chat",
   SETTINGS = "settings",
-  WAGE = "wage",
+  PAY = "pay",
   LAW_LIMITS = "law_limits",
 }
 
 export enum WorkTab {
   TRACKER = "tracker",
-  WAGE = "wage",
+  PAY = "pay",
   LAW = "law",
 }

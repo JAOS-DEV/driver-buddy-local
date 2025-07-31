@@ -26,9 +26,9 @@ const BottomNav: React.FC<BottomNavProps> = ({ activeView, setActiveView }) => {
         />
         <NavItem
           icon={<CalculatorIcon />}
-          label="Wage"
-          isActive={activeView === View.WAGE}
-          onClick={() => setActiveView(View.WAGE)}
+          label="Pay"
+          isActive={activeView === View.PAY}
+          onClick={() => setActiveView(View.PAY)}
         />
         <NavItem
           icon={<ShieldIcon />}

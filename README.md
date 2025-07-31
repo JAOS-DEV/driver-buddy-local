@@ -1,13 +1,13 @@
 # Driver Buddy Web App
 
-Driver Buddy is a modern, responsive web application designed for professional drivers in the UK. It serves as a digital assistant to help track work hours, calculate wages, monitor compliance with legal driving limits, and provide instant advice from an AI union representative.
+Driver Buddy is a modern, responsive web application designed for professional drivers in the UK. It serves as a digital assistant to help track work hours, calculate pay, monitor compliance with legal driving limits, and provide instant advice from an AI union representative.
 
 ## Features
 
 ### Core Functionality
 
 - **Time Tracker**: Easily add and remove work shifts using start and end times (HH:MM format). The app automatically calculates the duration for each entry and the total time worked for the day.
-- **Wage Calculator**: Input your hourly rate to get an estimated daily wage based on the total hours tracked.
+- **Pay Calculator**: Input your hourly rate to get an estimated daily pay based on the total hours tracked.
 - **Law Limits**: Visual progress bars help you monitor your daily, weekly, and fortnightly driving hours against standard UK legal limits, preventing accidental non-compliance.
 - **AI Union Rep**: A powerful chatbot powered by the Google Gemini API. It's primed with a system instruction to act as an expert on UK driving laws, union rules (specifically Unite's 'Big Red Book'), and employment rights, providing clear and supportive answers.
 
@@ -104,7 +104,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 │   ├── LawLimits.tsx  # Driving time limits with progress bars
 │   ├── TimeTracker.tsx # Main time tracking interface
 │   ├── UnionChatbot.tsx # AI union representative chatbot
-│   ├── WageCalculator.tsx # Wage calculation with manual hours option
+│   ├── PayCalculator.tsx # Pay calculation with manual hours option
 │   └── WorkLog.tsx    # Main work log container with tabs
 ├── hooks/              # Custom React hooks
 │   ├── useLocalStorage.ts # Data persistence hook
@@ -131,13 +131,13 @@ Follow these instructions to get a copy of the project up and running on your lo
 - **Daily Submissions**: Submit completed days with timestamps for historical tracking
 - **History View**: Toggle between current entries and submitted day history
 
-### Wage Calculator
+### Pay Calculator
 
 - **Dual Modes**: Time Tracker integration or manual hours input
 - **Toggle Switch**: Easy switching between calculation modes
 - **Side-by-side Inputs**: Hourly rate and manual hours displayed efficiently
 - **Clean Display**: Shows hours and minutes instead of decimal hours
-- **Real-time Calculation**: Updates wage estimate as you type
+- **Real-time Calculation**: Updates pay estimate as you type
 
 ### Law Limits
 
@@ -159,7 +159,7 @@ Follow these instructions to get a copy of the project up and running on your lo
 All user data is automatically saved to the browser's Local Storage:
 
 - Time entries and daily submissions
-- Hourly rate and wage calculator settings
+- Hourly rate and pay calculator settings
 - Active tab selection
 - Historical driving data
 

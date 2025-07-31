@@ -1,7 +1,7 @@
 import React from "react";
 import { TimeEntry, WorkTab, DailySubmission, Settings } from "../types";
 import TimeTracker from "./TimeTracker";
-import WageCalculator from "./WageCalculator";
+import PayCalculator from "./PayCalculator";
 import LawLimits from "./LawLimits";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
 import useLocalStorage from "../hooks/useLocalStorage";
@@ -16,10 +16,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings }) => {
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
   >("dailySubmissions", []);
-  const [wageHistory, setWageHistory] = useLocalStorage<any[]>(
-    "wageHistory",
-    []
-  );
+  const [payHistory, setPayHistory] = useLocalStorage<any[]>("payHistory", []);
   const { totalDuration } = useTimeCalculations(entries);
 
   const addEntry = (startTime: string, endTime: string) => {
@@ -47,7 +44,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <main className="flex-1 pt-4">
+      <main className="flex-1">
         <TimeTracker
           entries={entries}
           addEntry={addEntry}

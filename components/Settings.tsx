@@ -23,13 +23,13 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
     }).format(amount);
   };
 
-  // Export wage history to CSV
-  const exportWageHistory = () => {
-    // Get wage history from localStorage
-    const wageHistory = JSON.parse(localStorage.getItem("wageHistory") || "[]");
+  // Export pay history to CSV
+  const exportPayHistory = () => {
+    // Get pay history from localStorage
+    const payHistory = JSON.parse(localStorage.getItem("payHistory") || "[]");
 
-    if (wageHistory.length === 0) {
-      alert("No wage history to export.");
+    if (payHistory.length === 0) {
+      alert("No pay history to export.");
       return;
     }
 
@@ -46,31 +46,31 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
       "Overtime Minutes",
       "Overtime Rate",
       "Overtime Pay",
-      "Total Wage",
+      "Total Pay",
       "Tax Amount",
-      "After Tax Wage",
+      "After Tax Pay",
       "Tax Rate",
       "Notes",
     ];
 
     // Create CSV rows
-    const rows = wageHistory.map((wage: any) => [
-      wage.date,
-      wage.submissionTime,
-      wage.calculationMethod,
-      wage.standardHours,
-      wage.standardMinutes,
-      wage.standardRate,
-      wage.standardPay,
-      wage.overtimeHours,
-      wage.overtimeMinutes,
-      wage.overtimeRate,
-      wage.overtimePay,
-      wage.totalWage,
-      wage.taxAmount || "",
-      wage.afterTaxWage || "",
-      wage.taxRate || "",
-      wage.notes || "",
+    const rows = payHistory.map((pay: any) => [
+      pay.date,
+      pay.submissionTime,
+      pay.calculationMethod,
+      pay.standardHours,
+      pay.standardMinutes,
+      pay.standardRate,
+      pay.standardPay,
+      pay.overtimeHours,
+      pay.overtimeMinutes,
+      pay.overtimeRate,
+      pay.overtimePay,
+      pay.totalPay,
+      pay.taxAmount || "",
+      pay.afterTaxPay || "",
+      pay.taxRate || "",
+      pay.notes || "",
     ]);
 
     // Combine header and rows
@@ -85,7 +85,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `wage_history_${new Date().toISOString().split("T")[0]}.csv`
+      `pay_history_${new Date().toISOString().split("T")[0]}.csv`
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -93,13 +93,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
     document.body.removeChild(link);
   };
 
-  // Clear all wage history
-  const clearWageHistory = () => {
-    if (
-      confirm("This will permanently delete all saved wages. Are you sure?")
-    ) {
-      localStorage.removeItem("wageHistory");
-      alert("All wage history has been cleared.");
+  // Clear all pay history
+  const clearPayHistory = () => {
+    if (confirm("This will permanently delete all saved pay. Are you sure?")) {
+      localStorage.removeItem("payHistory");
+      alert("All pay history has been cleared.");
     }
   };
 
@@ -145,7 +143,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   <option value="sunday">Sunday</option>
                 </select>
                 <p className="text-xs text-slate-500 mt-2">
-                  This affects how weekly totals are calculated in wage history.
+                  This affects how weekly totals are calculated in pay history.
                 </p>
               </div>
             </div>
@@ -180,7 +178,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
                 <p className="text-xs text-slate-500 mt-1">
-                  This will auto-fill the hourly rate in the Wage Calculator.
+                  This will auto-fill the hourly rate in the Pay Calculator.
                 </p>
               </div>
               <div>
@@ -206,7 +204,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
                 <p className="text-xs text-slate-500 mt-1">
-                  This will auto-fill the overtime rate in the Wage Calculator.
+                  This will auto-fill the overtime rate in the Pay Calculator.
                 </p>
               </div>
             </div>
@@ -224,7 +222,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     Enable Tax Calculations
                   </span>
                   <p className="text-xs text-slate-500">
-                    Show after-tax earnings in wage breakdown
+                    Show after-tax earnings in pay breakdown
                   </p>
                 </div>
                 <button
@@ -334,7 +332,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                 />
               </div>
               <p className="text-xs text-slate-500">
-                Set goals to track your progress in the wage history view.
+                Set goals to track your progress in the pay history view.
               </p>
             </div>
           </div>
@@ -346,19 +344,19 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
             </h3>
             <div className="space-y-3">
               <button
-                onClick={exportWageHistory}
+                onClick={exportPayHistory}
                 className="w-full bg-blue-500 text-white font-bold py-2 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"
               >
-                Export Wage History (CSV)
+                Export Pay History (CSV)
               </button>
               <button
-                onClick={clearWageHistory}
+                onClick={clearPayHistory}
                 className="w-full bg-red-500 text-white font-bold py-2 px-3 rounded-md hover:bg-red-600 transition-colors text-sm"
               >
-                Clear All Wage History
+                Clear All Pay History
               </button>
               <p className="text-xs text-slate-500">
-                Export your data for tax purposes or clear all saved wages.
+                Export your data for tax purposes or clear all saved pay.
               </p>
             </div>
           </div>
