@@ -564,7 +564,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   ([dateA], [dateB]) =>
                     new Date(dateB).getTime() - new Date(dateA).getTime()
                 )
-                .map(([date, pays]) => (
+                .map(([date, pays]: [string, DailyPay[]]) => (
                   <div
                     key={date}
                     className="bg-white/50 p-3 rounded-lg border border-gray-200/80"
@@ -607,7 +607,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                            <div
+                              className={`text-xs text-slate-600 ${
+                                pay.overtimeHours > 0 || pay.overtimeMinutes > 0
+                                  ? "grid grid-cols-2 gap-2"
+                                  : ""
+                              }`}
+                            >
                               <div>
                                 <span>Standard:</span>
                                 <div className="font-mono">
@@ -636,17 +642,17 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                     {formatCurrency(pay.overtimePay)}
                                   </div>
                                 </div>
-                              ) : (
-                                <div></div>
-                              )}
+                              ) : null}
                             </div>
 
-                            {pay.taxAmount && pay.taxAmount > 0 && (
-                              <div className="mt-1 text-xs text-red-600">
-                                Tax: -{formatCurrency(pay.taxAmount)} | After
-                                Tax: {formatCurrency(pay.afterTaxPay || 0)}
-                              </div>
-                            )}
+                            {settings.enableTaxCalculations &&
+                              pay.taxAmount &&
+                              pay.taxAmount > 0 && (
+                                <div className="mt-1 text-xs text-red-600">
+                                  Tax: -{formatCurrency(pay.taxAmount)} | After
+                                  Tax: {formatCurrency(pay.afterTaxPay || 0)}
+                                </div>
+                              )}
                           </div>
                         ))}
                     </div>
