@@ -441,52 +441,56 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               </div>
 
               {/* Overtime Section */}
-              <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-                <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
-                  OVERTIME RATE (£)
-                </label>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="0"
-                  value={overtimeRate || ""}
-                  onChange={(e) =>
-                    setOvertimeRate(parseFloat(e.target.value) || 0)
-                  }
-                  placeholder="e.g., 27.75"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {/* Overtime Rate Input */}
+                <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+                  <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
+                    OVERTIME RATE (£)
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="0"
+                    value={overtimeRate || ""}
+                    onChange={(e) =>
+                      setOvertimeRate(parseFloat(e.target.value) || 0)
+                    }
+                    placeholder="e.g., 27.75"
+                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  />
+                </div>
 
-              <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-                <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
-                  OVERTIME HOURS
-                </label>
-                <div className="grid grid-cols-2 gap-1">
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min="0"
-                    value={overtimeHours || ""}
-                    onChange={(e) =>
-                      setOvertimeHours(parseInt(e.target.value) || 0)
-                    }
-                    placeholder="Hours"
-                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                  />
-                  <input
-                    type="number"
-                    inputMode="numeric"
-                    min="0"
-                    max="59"
-                    value={overtimeMinutes || ""}
-                    onChange={(e) =>
-                      setOvertimeMinutes(parseInt(e.target.value) || 0)
-                    }
-                    placeholder="Minutes"
-                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                  />
+                {/* Overtime Hours Input */}
+                <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+                  <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
+                    OVERTIME HOURS
+                  </label>
+                  <div className="grid grid-cols-2 gap-1">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      value={overtimeHours || ""}
+                      onChange={(e) =>
+                        setOvertimeHours(parseInt(e.target.value) || 0)
+                      }
+                      placeholder="Hours"
+                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    />
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min="0"
+                      max="59"
+                      value={overtimeMinutes || ""}
+                      onChange={(e) =>
+                        setOvertimeMinutes(parseInt(e.target.value) || 0)
+                      }
+                      placeholder="Minutes"
+                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
