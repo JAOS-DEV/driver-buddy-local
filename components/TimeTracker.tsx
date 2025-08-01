@@ -58,12 +58,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   // Calculate available space for entries
   useEffect(() => {
     const calculateEntriesHeight = () => {
-      if (
-        containerRef.current &&
-        formRef.current &&
-        totalRef.current &&
-        entriesHeaderRef.current
-      ) {
+      if (containerRef.current && entriesHeaderRef.current) {
         // Get the actual viewport height
         const viewportHeight = window.innerHeight;
 
@@ -74,28 +69,41 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         // Calculate the available height from container top to viewport bottom
         const availableViewportHeight = viewportHeight - containerTop;
 
-        // Get the heights of fixed elements
-        const formHeight = formRef.current.offsetHeight;
-        const totalHeight = totalRef.current.offsetHeight;
+        // Get the header height
         const entriesHeaderHeight = entriesHeaderRef.current.offsetHeight;
 
         // Account for navigation bar height and padding
-        // Bottom nav is typically 80px + some padding
         const navBarHeight = 80;
-        const bottomPadding = 32; // Account for the pb-8 and mb-2 on total section
+        const bottomPadding = 32;
 
-        // Calculate available space for entries
-        const availableHeight =
-          availableViewportHeight -
-          formHeight -
-          totalHeight -
-          entriesHeaderHeight -
-          navBarHeight -
-          bottomPadding;
+        if (activeTab === "tracker") {
+          // For tracker view, account for form and total sections
+          if (formRef.current && totalRef.current) {
+            const formHeight = formRef.current.offsetHeight;
+            const totalHeight = totalRef.current.offsetHeight;
 
-        // Ensure minimum height and set the height
-        const finalHeight = Math.max(availableHeight, 100);
-        setEntriesHeight(finalHeight);
+            const availableHeight =
+              availableViewportHeight -
+              formHeight -
+              totalHeight -
+              entriesHeaderHeight -
+              navBarHeight -
+              bottomPadding;
+
+            const finalHeight = Math.max(availableHeight, 100);
+            setEntriesHeight(finalHeight);
+          }
+        } else {
+          // For history view, only account for header and navigation
+          const availableHeight =
+            availableViewportHeight -
+            entriesHeaderHeight -
+            navBarHeight -
+            bottomPadding;
+
+          const finalHeight = Math.max(availableHeight, 100);
+          setEntriesHeight(finalHeight);
+        }
       }
     };
 
@@ -150,7 +158,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setStartTime(value);
     setStartTimeError("");
 
-    if (value.length === 4 || value.length === 5) {
+    // Only validate when the input is complete (5 characters with colon format)
+    if (value.length === 5 && value.includes(":")) {
       if (!isValidTime(value)) {
         setStartTimeError("Invalid time format (HH:MM)");
       } else {
@@ -167,7 +176,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setEndTime(value);
     setEndTimeError("");
 
-    if (value.length === 4 || value.length === 5) {
+    // Only validate when the input is complete (5 characters with colon format)
+    if (value.length === 5 && value.includes(":")) {
       if (!isValidTime(value, true)) {
         setEndTimeError("Invalid time format (HH:MM)");
       }
@@ -175,8 +185,10 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   };
 
   const isFormValid =
-    (startTime.length === 4 || startTime.length === 5) &&
-    (endTime.length === 4 || endTime.length === 5) &&
+    startTime.length === 5 &&
+    endTime.length === 5 &&
+    startTime.includes(":") &&
+    endTime.includes(":") &&
     !startTimeError &&
     !endTimeError;
 
@@ -447,7 +459,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           {/* Fixed total section - guaranteed to be visible */}
           <div
             ref={totalRef}
-            className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-8 px-4 mb-2"
+            className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-3 px-4 mb-2"
           >
             <div className="flex justify-between items-center">
               <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">

@@ -34,16 +34,6 @@ const App: React.FC = () => {
   );
   const { totalDuration } = useTimeCalculations(entries);
 
-  // Debug: Log current state to console
-  React.useEffect(() => {
-    console.log("Debug - Current state:", {
-      entries: entries,
-      hourlyRate: hourlyRate,
-      totalDuration: totalDuration,
-      payHistory: payHistory,
-    });
-  }, [entries, hourlyRate, totalDuration, payHistory]);
-
   return (
     <div className="h-[100dvh] w-full flex items-center justify-center bg-[#FAF7F0] overflow-hidden">
       {/* Mobile container - full height on mobile, larger fixed height on desktop */}

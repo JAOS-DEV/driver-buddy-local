@@ -527,14 +527,14 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           >
             {/* Date Picker */}
             <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-              <label className="text-xs font-medium text-slate-600 block mb-1">
+              <label className="text-xs font-medium text-slate-600 block mb-1 text-center">
                 Select date ({submissionsForDate.length} submissions)
               </label>
               <input
                 type="date"
                 value={payDate}
                 onChange={(e) => setPayDate(e.target.value)}
-                className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                className="w-5/6 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
               />
             </div>
 

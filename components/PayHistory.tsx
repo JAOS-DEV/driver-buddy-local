@@ -299,12 +299,23 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         totals.totalPay += pay.totalPay;
         totals.totalHours += pay.standardHours + pay.overtimeHours;
         totals.totalMinutes += pay.standardMinutes + pay.overtimeMinutes;
-        if (pay.taxAmount) {
-          totals.totalTax += pay.taxAmount;
+
+        // Calculate tax for existing entries if tax calculations are enabled
+        if (settings.enableTaxCalculations) {
+          const taxAmount = pay.taxAmount || pay.totalPay * settings.taxRate;
+          const afterTaxPay = pay.afterTaxPay || pay.totalPay - taxAmount;
+          totals.totalTax += taxAmount;
+          totals.afterTaxPay += afterTaxPay;
+        } else {
+          // Use stored values if tax calculations are disabled
+          if (pay.taxAmount) {
+            totals.totalTax += pay.taxAmount;
+          }
+          if (pay.afterTaxPay) {
+            totals.afterTaxPay += pay.afterTaxPay;
+          }
         }
-        if (pay.afterTaxPay) {
-          totals.afterTaxPay += pay.afterTaxPay;
-        }
+
         return totals;
       },
       {
@@ -315,7 +326,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         afterTaxPay: 0,
       }
     );
-  }, [filteredPays]);
+  }, [filteredPays, settings.enableTaxCalculations, settings.taxRate]);
 
   // Group pays by date
   const paysByDate = useMemo(() => {
@@ -702,13 +713,19 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                             </div>
 
                             {settings.enableTaxCalculations &&
-                              pay.taxAmount &&
-                              pay.taxAmount > 0 && (
-                                <div className="mt-1 text-xs text-red-600">
-                                  Tax: -{formatCurrency(pay.taxAmount)} | After
-                                  Tax: {formatCurrency(pay.afterTaxPay || 0)}
-                                </div>
-                              )}
+                              (() => {
+                                const taxAmount =
+                                  pay.taxAmount ||
+                                  pay.totalPay * settings.taxRate;
+                                const afterTaxPay =
+                                  pay.afterTaxPay || pay.totalPay - taxAmount;
+                                return taxAmount > 0 ? (
+                                  <div className="mt-1 text-xs text-red-600">
+                                    Tax: -{formatCurrency(taxAmount)} | After
+                                    Tax: {formatCurrency(afterTaxPay)}
+                                  </div>
+                                ) : null;
+                              })()}
                           </div>
                         ))}
                     </div>

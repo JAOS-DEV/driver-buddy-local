@@ -65,12 +65,6 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
     setEntries([]);
   };
 
-  const handleDailySubmit = (submission: DailySubmission) => {
-    // This will be called when a day is submitted
-    // The submission is already saved in TimeTracker component
-    console.log("Day submitted:", submission);
-  };
-
   return (
     <div className="h-full flex flex-col">
       <main className="flex-1">
@@ -78,7 +72,6 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
           entries={entries}
           addEntry={addEntry}
           removeEntry={removeEntry}
-          onDailySubmit={handleDailySubmit}
           clearEntries={clearEntries}
         />
       </main>
