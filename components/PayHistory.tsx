@@ -31,7 +31,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     };
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = today.getDay();
-    const daysToSubtract = currentDay - weekStartDay;
+
+    // Calculate days to subtract to get to the start of the current week
+    let daysToSubtract = currentDay - weekStartDay;
+    if (daysToSubtract < 0) {
+      daysToSubtract += 7;
+    }
+
     const weekStart = new Date(today);
     weekStart.setDate(weekStart.getDate() - daysToSubtract);
     return weekStart.toISOString().split("T")[0];
@@ -51,7 +57,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     };
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = today.getDay();
-    const daysToSubtract = currentDay - weekStartDay;
+
+    // Calculate days to subtract to get to the start of the current week
+    let daysToSubtract = currentDay - weekStartDay;
+    if (daysToSubtract < 0) {
+      daysToSubtract += 7;
+    }
+
     const weekStart = new Date(today);
     weekStart.setDate(weekStart.getDate() - daysToSubtract);
     return weekStart;
@@ -93,7 +105,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     };
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = selectedDateObj.getDay();
-    const daysToSubtract = currentDay - weekStartDay;
+
+    // Calculate days to subtract to get to the start of the current week
+    let daysToSubtract = currentDay - weekStartDay;
+    if (daysToSubtract < 0) {
+      daysToSubtract += 7;
+    }
+
     const currentWeekStart = new Date(selectedDateObj);
     currentWeekStart.setDate(currentWeekStart.getDate() - daysToSubtract);
 
@@ -234,8 +252,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
     switch (selectedPeriod) {
       case "week":
-        const weekStart = new Date(selectedDateObj);
-        // Use the week start day from settings
+        // Calculate the week start based on the selected date and week start day setting
         const weekStartDayMap: Record<string, number> = {
           sunday: 0,
           monday: 1,
@@ -246,8 +263,15 @@ const PayHistory: React.FC<PayHistoryProps> = ({
           saturday: 6,
         };
         const weekStartDay = weekStartDayMap[settings.weekStartDay];
-        const currentDay = weekStart.getDay();
-        const daysToSubtract = currentDay - weekStartDay;
+        const currentDay = selectedDateObj.getDay();
+
+        // Calculate days to subtract to get to the start of the current week
+        let daysToSubtract = currentDay - weekStartDay;
+        if (daysToSubtract < 0) {
+          daysToSubtract += 7;
+        }
+
+        const weekStart = new Date(selectedDateObj);
         weekStart.setDate(weekStart.getDate() - daysToSubtract);
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6); // 7 days total
@@ -399,7 +423,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         };
         const weekStartDay = weekStartDayMap[settings.weekStartDay];
         const currentDay = weekStart.getDay();
-        const daysToSubtract = currentDay - weekStartDay;
+
+        // Calculate days to subtract to get to the start of the current week
+        let daysToSubtract = currentDay - weekStartDay;
+        if (daysToSubtract < 0) {
+          daysToSubtract += 7;
+        }
+
         weekStart.setDate(weekStart.getDate() - daysToSubtract);
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
