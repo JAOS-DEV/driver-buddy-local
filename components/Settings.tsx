@@ -128,15 +128,15 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Week Start Day */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               Week Configuration
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
                 <label
                   htmlFor="week-start-day"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                 >
                   WEEK START DAY
                 </label>
@@ -146,7 +146,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   onChange={(e) =>
                     updateSettings({ weekStartDay: e.target.value as any })
                   }
-                  className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 >
                   <option value="monday">Monday</option>
                   <option value="tuesday">Tuesday</option>
@@ -156,7 +156,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   <option value="saturday">Saturday</option>
                   <option value="sunday">Sunday</option>
                 </select>
-                <p className="text-xs text-slate-500 mt-2">
+                <p className="text-xs text-slate-500 mt-1">
                   This affects how weekly totals are calculated in pay history.
                 </p>
               </div>
@@ -164,15 +164,15 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Default Rates */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               Default Rates
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
                 <label
                   htmlFor="default-hourly-rate"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                 >
                   DEFAULT HOURLY RATE (£)
                 </label>
@@ -189,16 +189,16 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 18.50"
-                  className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-0.5">
                   This will auto-fill the hourly rate in the Pay Calculator.
                 </p>
               </div>
               <div>
                 <label
                   htmlFor="default-overtime-rate"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                 >
                   DEFAULT OVERTIME RATE (£)
                 </label>
@@ -215,9 +215,9 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 27.75"
-                  className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-0.5">
                   This will auto-fill the overtime rate in the Pay Calculator.
                 </p>
               </div>
@@ -225,11 +225,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Tax Calculations */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               Tax Calculations
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium text-slate-700">
@@ -261,10 +261,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                 </button>
               </div>
               {showTaxSection && (
-                <div className="pt-3 border-t border-gray-200">
+                <div className="pt-2 border-t border-gray-200">
                   <label
                     htmlFor="tax-rate"
-                    className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                    className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                   >
                     TAX RATE (%)
                   </label>
@@ -282,9 +282,9 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       })
                     }
                     placeholder="e.g., 20"
-                    className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                   />
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Standard UK tax rate is 20%. This will show after-tax
                     earnings.
                   </p>
@@ -294,11 +294,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* NI Calculations */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               National Insurance
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium text-slate-700">
@@ -328,7 +328,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   />
                 </button>
               </div>
-              <div className="pt-3 border-t border-gray-200">
+              <div className="pt-2 border-t border-gray-200">
                 <p className="text-xs text-slate-500">
                   UK NI rates: 12% on earnings between £12,570-£50,270, 2% above
                   £50,270. This will show after-NI earnings.
@@ -338,15 +338,15 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Earning Goals */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               Earning Goals
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div>
                 <label
                   htmlFor="weekly-goal"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                 >
                   WEEKLY GOAL (£)
                 </label>
@@ -363,13 +363,13 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 800"
-                  className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
               </div>
               <div>
                 <label
                   htmlFor="monthly-goal"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
                 >
                   MONTHLY GOAL (£)
                 </label>
@@ -386,7 +386,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 3200"
-                  className="w-full p-2 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                 />
               </div>
               <p className="text-xs text-slate-500">
@@ -396,26 +396,26 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Data Management */}
-          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               Data Management
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={exportPayHistory}
-                className="w-full bg-blue-500 text-white font-bold py-2 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"
+                className="w-full bg-blue-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"
               >
                 Export Pay History (CSV)
               </button>
               <button
                 onClick={clearPayHistory}
-                className="w-full bg-red-500 text-white font-bold py-2 px-3 rounded-md hover:bg-red-600 transition-colors text-sm"
+                className="w-full bg-red-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-600 transition-colors text-sm"
               >
                 Clear All Pay History
               </button>
               <button
                 onClick={clearAllData}
-                className="w-full bg-red-700 text-white font-bold py-2 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
+                className="w-full bg-red-700 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
               >
                 Clear All Data
               </button>
@@ -426,11 +426,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* App Info */}
-          <div className="bg-slate-50 p-4 rounded-lg border border-slate-200/80">
-            <h3 className="text-sm font-bold mb-3 text-slate-700">
+          <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
               About Driver Buddy
             </h3>
-            <div className="space-y-2 text-xs text-slate-600">
+            <div className="space-y-1.5 text-xs text-slate-600">
               <p>Version: 1.0.0</p>
               <p>Designed for UK professional drivers</p>
               <p>Data is stored locally on your device</p>

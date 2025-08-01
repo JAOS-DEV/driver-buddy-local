@@ -537,13 +537,13 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
 
           {/* Total Pay Display */}
-          <div className="flex-1 px-4 flex items-center justify-center min-h-0">
-            <div className="bg-white/80 p-4 rounded-lg border shadow-sm w-full max-w-sm flex flex-col justify-center min-h-[120px]">
+          <div className="flex-1 px-3 flex items-center justify-center min-h-0">
+            <div className="bg-white/80 p-3 rounded-lg border shadow-sm w-full max-w-sm flex flex-col justify-center min-h-[100px]">
               <div className="text-center">
-                <h3 className="text-sm font-bold text-slate-700 mb-2">
+                <h3 className="text-sm font-bold text-slate-700 mb-1.5">
                   Total Pay
                 </h3>
-                <p className="text-2xl font-bold text-[#003D5B] font-mono mb-3">
+                <p className="text-xl font-bold text-[#003D5B] font-mono mb-2">
                   {formatCurrency(
                     settings.enableTaxCalculations
                       ? afterTaxEarnings
@@ -552,7 +552,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </p>
                 <button
                   onClick={() => setShowBreakdownModal(true)}
-                  className="w-full bg-slate-100 text-slate-700 py-2 px-3 rounded-md hover:bg-slate-200 transition-colors text-sm font-medium"
+                  className="w-full bg-slate-100 text-slate-700 py-1.5 px-3 rounded-md hover:bg-slate-200 transition-colors text-sm font-medium"
                 >
                   View Breakdown
                 </button>
@@ -563,18 +563,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           {/* Save Section */}
           <div
             ref={totalSectionRef}
-            className="flex-shrink-0 p-3 space-y-1.5 pb-6"
+            className="flex-shrink-0 p-3 space-y-1.5 pb-4"
           >
             {/* Date Picker */}
-            <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-              <label className="text-xs font-medium text-slate-600 block mb-1 text-center">
+            <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
+              <label className="text-xs font-medium text-slate-600 block mb-0.5 text-center">
                 Select date ({submissionsForDate.length} submissions)
               </label>
               <input
                 type="date"
                 value={payDate}
                 onChange={(e) => setPayDate(e.target.value)}
-                className="w-5/6 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
+                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
               />
             </div>
 
@@ -582,7 +582,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             <button
               onClick={handleSavePay}
               disabled={totalEarnings <= 0}
-              className={`w-full py-2 px-4 rounded-lg font-bold transition-colors text-sm ${
+              className={`w-full py-1.5 px-3 rounded-lg font-bold transition-colors text-sm ${
                 totalEarnings > 0
                   ? "bg-[#003D5B] text-white hover:bg-[#002D4B]"
                   : "bg-slate-300 text-slate-500 cursor-not-allowed"

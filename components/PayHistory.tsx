@@ -457,67 +457,15 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     }
   };
 
-  const exportToCSV = () => {
-    const csvContent = [
-      [
-        "Date",
-        "Standard Hours",
-        "Standard Pay",
-        "Overtime Hours",
-        "Overtime Pay",
-        "Total Pay",
-        "Tax",
-        "After Tax Pay",
-      ],
-      ...filteredPays.map((pay) => [
-        pay.date,
-        `${pay.standardHours}:${pay.standardMinutes
-          .toString()
-          .padStart(2, "0")}`,
-        formatCurrency(pay.standardPay),
-        `${pay.overtimeHours}:${pay.overtimeMinutes
-          .toString()
-          .padStart(2, "0")}`,
-        formatCurrency(pay.overtimePay),
-        formatCurrency(pay.totalPay),
-        pay.taxAmount ? formatCurrency(pay.taxAmount) : "N/A",
-        pay.afterTaxPay ? formatCurrency(pay.afterTaxPay) : "N/A",
-      ]),
-    ];
-
-    const csvString = csvContent.map((row) => row.join(",")).join("\n");
-    const blob = new Blob([csvString], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `pay-history-${selectedPeriod}-${
-      new Date().toISOString().split("T")[0]
-    }.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    window.URL.revokeObjectURL(url);
-  };
-
-  const clearPayHistory = () => {
-    if (
-      window.confirm(
-        "Are you sure you want to clear all pay history? This action cannot be undone."
-      )
-    ) {
-      setPayHistory([]);
-    }
-  };
-
   return (
     <div
       ref={containerRef}
       className="h-full flex flex-col text-[#003D5B] overflow-hidden"
     >
       {/* Header */}
-      <div ref={headerRef} className="flex-shrink-0 p-4 space-y-3">
+      <div ref={headerRef} className="flex-shrink-0 p-3 space-y-2">
         {/* Period Selection */}
-        <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+        <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-bold tracking-wider uppercase text-slate-500">
               PERIOD
@@ -608,8 +556,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         </div>
 
         {/* Summary */}
-        <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-          <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+          <div className="grid grid-cols-2 gap-1.5 text-xs">
             <div>
               <span className="text-slate-500">Total Pay:</span>
               <div className="font-bold text-[#003D5B]">
@@ -689,7 +637,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
           {/* Pay Goals Progress Bars */}
           {selectedPeriod === "week" && settings.weeklyGoal > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-2 pt-2 border-t border-gray-200">
               <PayGoalProgressBar
                 current={periodTotals.totalPay}
                 goal={settings.weeklyGoal}
@@ -698,7 +646,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             </div>
           )}
           {selectedPeriod === "month" && settings.monthlyGoal > 0 && (
-            <div className="mt-3 pt-3 border-t border-gray-200">
+            <div className="mt-2 pt-2 border-t border-gray-200">
               <PayGoalProgressBar
                 current={periodTotals.totalPay}
                 goal={settings.monthlyGoal}
@@ -707,38 +655,22 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             </div>
           )}
         </div>
-
-        {/* Actions */}
-        <div className="flex gap-2">
-          <button
-            onClick={exportToCSV}
-            className="flex-1 bg-slate-100 text-slate-700 py-2 px-3 rounded-md hover:bg-slate-200 transition-colors text-xs font-medium"
-          >
-            Export CSV
-          </button>
-          <button
-            onClick={clearPayHistory}
-            className="flex-1 bg-red-100 text-red-700 py-2 px-3 rounded-md hover:bg-red-200 transition-colors text-xs font-medium"
-          >
-            Clear All
-          </button>
-        </div>
       </div>
 
       {/* Pay List */}
-      <div className="flex-1 px-4 overflow-hidden">
+      <div className="flex-1 px-3 overflow-hidden">
         <div
           className="overflow-y-auto h-full"
           style={{ height: `${payListHeight}px` }}
         >
           {Object.keys(paysByDate).length === 0 ? (
-            <div className="text-center py-8">
+            <div className="text-center py-6">
               <p className="text-slate-500">
                 No pay history found for this period.
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {Object.entries(paysByDate)
                 .sort(
                   ([dateA], [dateB]) =>
@@ -747,9 +679,9 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 .map(([date, pays]: [string, DailyPay[]]) => (
                   <div
                     key={date}
-                    className="bg-white/50 p-3 rounded-lg border border-gray-200/80"
+                    className="bg-white/50 p-2 rounded-lg border border-gray-200/80"
                   >
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-center mb-1.5">
                       <span className="font-medium text-slate-700">
                         {formatDate(date)}
                       </span>
@@ -758,7 +690,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                       </span>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       {pays
                         .sort(
                           (a, b) =>

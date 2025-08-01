@@ -30,6 +30,10 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     visible: false,
   });
 
+  const [submitDate, setSubmitDate] = useState<string>(
+    new Date().toISOString().split("T")[0]
+  );
+
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
   >("dailySubmissions", []);
@@ -77,15 +81,19 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         const bottomPadding = 32;
 
         if (activeTab === "tracker") {
-          // For tracker view, account for form and total sections
+          // For tracker view, account for form, total, and submit sections
           if (formRef.current && totalRef.current) {
             const formHeight = formRef.current.offsetHeight;
             const totalHeight = totalRef.current.offsetHeight;
+
+            // Account for submit day section (approximate height)
+            const submitSectionHeight = 120; // Date picker + button + padding
 
             const availableHeight =
               availableViewportHeight -
               formHeight -
               totalHeight -
+              submitSectionHeight -
               entriesHeaderHeight -
               navBarHeight -
               bottomPadding;
@@ -208,11 +216,16 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setEndTimeError("");
   };
 
+  // Count submissions for the selected date
+  const submissionsForDate = dailySubmissions.filter(
+    (submission) => submission.date === submitDate
+  );
+
   const handleSubmitDay = () => {
     if (entries.length === 0) return;
 
     const submission: DailySubmission = {
-      date: new Date().toISOString().split("T")[0],
+      date: submitDate,
       timestamp: new Date().toISOString(),
       entries: [...entries],
       totalMinutes: totalDuration.totalMinutes,
@@ -251,8 +264,6 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       minute: "2-digit",
     });
   };
-
-  const canSubmitToday = entries.length > 0;
 
   return (
     <div
@@ -298,28 +309,19 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       {activeTab === "tracker" ? (
         <>
           {/* Fixed form section */}
-          <div ref={formRef} className="flex-shrink-0 p-4">
+          <div ref={formRef} className="flex-shrink-0 p-3">
             <div className="flex justify-between items-center mb-3">
               <h2 className="text-xs font-bold tracking-wider uppercase text-slate-500">
                 TODAY'S ENTRIES
               </h2>
-              {canSubmitToday && (
-                <button
-                  type="button"
-                  onClick={handleSubmitDay}
-                  className="text-xs bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition-colors"
-                >
-                  Submit Day
-                </button>
-              )}
             </div>
 
             <form
               onSubmit={handleAddEntry}
-              className="bg-white/50 p-2 rounded-lg border border-gray-200/80 mb-3"
+              className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80 mb-2"
             >
-              <div className="grid grid-cols-2 gap-3 mb-2">
-                <div className="min-h-[4rem]">
+              <div className="grid grid-cols-2 gap-2 mb-1.5">
+                <div className="min-h-[2rem]">
                   <label
                     htmlFor="start-time"
                     className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -336,17 +338,17 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     maxLength={5}
                     value={startTime}
                     onChange={handleStartTimeChange}
-                    className={`mt-1 w-full p-1 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                       startTimeError ? "border-red-500" : "border-slate-300"
                     }`}
                   />
                   {startTimeError && (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p className="mt-0.5 text-xs text-red-500">
                       {startTimeError}
                     </p>
                   )}
                 </div>
-                <div className="min-h-[4rem]">
+                <div className="min-h-[2rem]">
                   <label
                     htmlFor="end-time"
                     className="text-xs font-bold tracking-wider uppercase text-slate-500"
@@ -364,32 +366,34 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     maxLength={5}
                     value={endTime}
                     onChange={handleEndTimeChange}
-                    className={`mt-1 w-full p-1 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
                       endTimeError ? "border-red-500" : "border-slate-300"
                     }`}
                   />
                   {endTimeError && (
-                    <p className="mt-1 text-xs text-red-500">{endTimeError}</p>
+                    <p className="mt-0.5 text-xs text-red-500">
+                      {endTimeError}
+                    </p>
                   )}
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={!isFormValid}
-                className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-1.5 px-3 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-1 px-2 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
               >
-                <PlusIcon className="h-4 w-4" />
+                <PlusIcon className="h-3 w-3" />
                 Add Entry
               </button>
             </form>
           </div>
 
           {/* Entries section with calculated height */}
-          <div className="flex-1 overflow-hidden px-4">
+          <div className="flex-1 overflow-hidden px-3">
             <div>
               <h2
                 ref={entriesHeaderRef}
-                className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
+                className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-1.5"
               >
                 ENTRIES
               </h2>
@@ -397,9 +401,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 className="overflow-y-auto"
                 style={{ height: `${entriesHeight}px` }}
               >
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   {entries.length === 0 ? (
-                    <p className="text-center text-slate-500 py-4">
+                    <p className="text-center text-slate-500 py-3">
                       No entries yet.
                     </p>
                   ) : (
@@ -429,20 +433,20 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       return (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between bg-white/50 p-2 rounded-md border border-gray-200/50"
+                          className="flex items-center justify-between bg-white/50 p-1.5 rounded-md border border-gray-200/50"
                         >
-                          <div className="flex items-center space-x-2 text-base">
+                          <div className="flex items-center space-x-2 text-sm">
                             <span>{displayStartTime}</span>
                             <span className="text-slate-400">&mdash;</span>
                             <span>{displayEndTime}</span>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="font-mono text-base text-slate-600">
+                          <div className="flex items-center gap-3">
+                            <span className="font-mono text-sm text-slate-600">
                               {formatDurationWithMinutes(duration)}
                             </span>
                             <button
                               onClick={() => removeEntry(entry.id)}
-                              className="text-red-500 hover:text-red-700"
+                              className="text-red-500 hover:text-red-700 text-sm"
                             >
                               ✕
                             </button>
@@ -459,16 +463,45 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           {/* Fixed total section - guaranteed to be visible */}
           <div
             ref={totalRef}
-            className="flex-shrink-0 border-t border-slate-200 pt-2 mt-2 pb-3 px-4 mb-2"
+            className="flex-shrink-0 border-t border-slate-200 pt-1.5 mt-1.5 pb-2 px-4 mb-1.5"
           >
             <div className="flex justify-between items-center">
-              <h2 className="text-md font-bold tracking-wider uppercase text-slate-500">
+              <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
                 TOTAL
               </h2>
-              <p className="text-2xl font-bold text-[#003D5B] font-mono">
+              <p className="text-xl font-bold text-[#003D5B] font-mono">
                 {formatDurationWithMinutes(totalDuration)}
               </p>
             </div>
+          </div>
+
+          {/* Submit Day Section */}
+          <div className="flex-shrink-0 px-4 pb-3 space-y-1.5">
+            {/* Date Picker */}
+            <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
+              <label className="text-xs font-medium text-slate-600 block mb-0.5 text-center">
+                Select date ({submissionsForDate.length} submissions)
+              </label>
+              <input
+                type="date"
+                value={submitDate}
+                onChange={(e) => setSubmitDate(e.target.value)}
+                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmitDay}
+              disabled={entries.length === 0}
+              className={`w-full py-1.5 px-3 rounded-lg font-bold transition-colors text-sm ${
+                entries.length > 0
+                  ? "bg-[#003D5B] text-white hover:bg-[#002D4B]"
+                  : "bg-slate-300 text-slate-500 cursor-not-allowed"
+              }`}
+            >
+              Submit Day
+            </button>
           </div>
         </>
       ) : (
