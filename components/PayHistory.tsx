@@ -303,7 +303,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         // Calculate tax for existing entries if tax calculations are enabled
         if (settings.enableTaxCalculations) {
           const taxAmount = pay.taxAmount || pay.totalPay * settings.taxRate;
-          const afterTaxPay = pay.afterTaxPay || pay.totalPay - taxAmount;
+          // Always recalculate after-tax amount when tax calculations are enabled
+          const afterTaxPay = pay.totalPay - taxAmount;
           totals.totalTax += taxAmount;
           totals.afterTaxPay += afterTaxPay;
         } else {
@@ -316,6 +317,37 @@ const PayHistory: React.FC<PayHistoryProps> = ({
           }
         }
 
+        // Calculate NI for existing entries if NI calculations are enabled
+        if (settings.enableNiCalculations) {
+          const calculateNI = (earnings: number): number => {
+            // For daily pay calculations, we need to adjust the threshold
+            // £12,570 / 365 ≈ £34.44 per day threshold
+            const dailyNiThreshold = 34.44; // Daily equivalent of annual threshold
+            const niRate = 0.12; // 12% for earnings above threshold
+
+            if (earnings <= dailyNiThreshold) return 0;
+
+            const taxableEarnings = earnings - dailyNiThreshold;
+            const niAmount = taxableEarnings * niRate;
+
+            return niAmount;
+          };
+
+          const niAmount = pay.niAmount || calculateNI(pay.totalPay);
+          // Always recalculate after-NI amount when NI calculations are enabled
+          const afterNiPay = pay.totalPay - niAmount;
+          totals.totalNI += niAmount;
+          totals.afterNiPay += afterNiPay;
+        } else {
+          // Use stored values if NI calculations are disabled
+          if (pay.niAmount) {
+            totals.totalNI += pay.niAmount;
+          }
+          if (pay.afterNiPay) {
+            totals.afterNiPay += pay.afterNiPay;
+          }
+        }
+
         return totals;
       },
       {
@@ -324,9 +356,16 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         totalMinutes: 0,
         totalTax: 0,
         afterTaxPay: 0,
+        totalNI: 0,
+        afterNiPay: 0,
       }
     );
-  }, [filteredPays, settings.enableTaxCalculations, settings.taxRate]);
+  }, [
+    filteredPays,
+    settings.enableTaxCalculations,
+    settings.taxRate,
+    settings.enableNiCalculations,
+  ]);
 
   // Group pays by date
   const paysByDate = useMemo(() => {
@@ -556,7 +595,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 h {periodTotals.totalMinutes % 60}m
               </div>
             </div>
-            {periodTotals.totalTax > 0 && (
+            {/* Show individual breakdowns when only one is enabled */}
+            {periodTotals.totalTax > 0 && periodTotals.totalNI === 0 && (
               <>
                 <div>
                   <span className="text-slate-500">Total Tax:</span>
@@ -568,6 +608,49 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   <span className="text-slate-500">After Tax:</span>
                   <div className="font-bold text-green-600">
                     {formatCurrency(periodTotals.afterTaxPay)}
+                  </div>
+                </div>
+              </>
+            )}
+            {periodTotals.totalNI > 0 && periodTotals.totalTax === 0 && (
+              <>
+                <div>
+                  <span className="text-slate-500">Total NI:</span>
+                  <div className="font-bold text-orange-600">
+                    {formatCurrency(periodTotals.totalNI)}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-500">After NI:</span>
+                  <div className="font-bold text-green-600">
+                    {formatCurrency(periodTotals.afterNiPay)}
+                  </div>
+                </div>
+              </>
+            )}
+            {/* Show simplified breakdown when both are enabled */}
+            {periodTotals.totalTax > 0 && periodTotals.totalNI > 0 && (
+              <>
+                <div>
+                  <span className="text-slate-500">Total Tax:</span>
+                  <div className="font-bold text-red-600">
+                    {formatCurrency(periodTotals.totalTax)}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-500">Total NI:</span>
+                  <div className="font-bold text-orange-600">
+                    {formatCurrency(periodTotals.totalNI)}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-500">Final Total:</span>
+                  <div className="font-bold text-green-600">
+                    {formatCurrency(
+                      periodTotals.totalPay -
+                        periodTotals.totalTax -
+                        periodTotals.totalNI
+                    )}
                   </div>
                 </div>
               </>
@@ -712,18 +795,78 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                               ) : null}
                             </div>
 
+                            {/* Show individual breakdowns when only one is enabled */}
                             {settings.enableTaxCalculations &&
+                              !settings.enableNiCalculations &&
                               (() => {
                                 const taxAmount =
                                   pay.taxAmount ||
                                   pay.totalPay * settings.taxRate;
-                                const afterTaxPay =
-                                  pay.afterTaxPay || pay.totalPay - taxAmount;
+                                const afterTaxPay = pay.totalPay - taxAmount;
                                 return taxAmount > 0 ? (
                                   <div className="mt-1 text-xs text-red-600">
                                     Tax: -{formatCurrency(taxAmount)} | After
                                     Tax: {formatCurrency(afterTaxPay)}
                                   </div>
+                                ) : null;
+                              })()}
+                            {settings.enableNiCalculations &&
+                              !settings.enableTaxCalculations &&
+                              (() => {
+                                const calculateNI = (
+                                  earnings: number
+                                ): number => {
+                                  const dailyNiThreshold = 34.44;
+                                  const niRate = 0.12;
+                                  if (earnings <= dailyNiThreshold) return 0;
+                                  const taxableEarnings =
+                                    earnings - dailyNiThreshold;
+                                  const niAmount = taxableEarnings * niRate;
+                                  return niAmount;
+                                };
+                                const niAmount =
+                                  pay.niAmount || calculateNI(pay.totalPay);
+                                const afterNiPay = pay.totalPay - niAmount;
+                                return niAmount > 0 ? (
+                                  <div className="mt-1 text-xs text-orange-600">
+                                    NI: -{formatCurrency(niAmount)} | After NI:{" "}
+                                    {formatCurrency(afterNiPay)}
+                                  </div>
+                                ) : null;
+                              })()}
+                            {/* Show simplified breakdown when both are enabled */}
+                            {settings.enableTaxCalculations &&
+                              settings.enableNiCalculations &&
+                              (() => {
+                                const taxAmount =
+                                  pay.taxAmount ||
+                                  pay.totalPay * settings.taxRate;
+                                const calculateNI = (
+                                  earnings: number
+                                ): number => {
+                                  const dailyNiThreshold = 34.44;
+                                  const niRate = 0.12;
+                                  if (earnings <= dailyNiThreshold) return 0;
+                                  const taxableEarnings =
+                                    earnings - dailyNiThreshold;
+                                  return taxableEarnings * niRate;
+                                };
+                                const niAmount =
+                                  pay.niAmount || calculateNI(pay.totalPay);
+                                const finalTotal =
+                                  pay.totalPay - taxAmount - niAmount;
+                                return taxAmount > 0 && niAmount > 0 ? (
+                                  <>
+                                    <div className="mt-1 text-xs text-red-600">
+                                      Tax: -{formatCurrency(taxAmount)}
+                                    </div>
+                                    <div className="mt-1 text-xs text-orange-600">
+                                      NI: -{formatCurrency(niAmount)}
+                                    </div>
+                                    <div className="mt-1 text-xs text-green-600">
+                                      Final Total: {formatCurrency(finalTotal)}
+                                    </div>
+                                  </>
                                 ) : null;
                               })()}
                           </div>

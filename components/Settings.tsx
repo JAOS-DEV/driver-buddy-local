@@ -293,6 +293,50 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
             </div>
           </div>
 
+          {/* NI Calculations */}
+          <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-3 text-slate-700">
+              National Insurance
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium text-slate-700">
+                    Enable NI Calculations
+                  </span>
+                  <p className="text-xs text-slate-500">
+                    Show after-NI earnings in pay breakdown
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    const newValue = !settings.enableNiCalculations;
+                    updateSettings({ enableNiCalculations: newValue });
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    settings.enableNiCalculations
+                      ? "bg-[#003D5B]"
+                      : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      settings.enableNiCalculations
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="pt-3 border-t border-gray-200">
+                <p className="text-xs text-slate-500">
+                  UK NI rates: 12% on earnings between £12,570-£50,270, 2% above
+                  £50,270. This will show after-NI earnings.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Earning Goals */}
           <div className="bg-white/50 p-4 rounded-lg border border-gray-200/80">
             <h3 className="text-sm font-bold mb-3 text-slate-700">

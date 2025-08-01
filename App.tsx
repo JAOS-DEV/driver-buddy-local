@@ -20,6 +20,7 @@ const App: React.FC = () => {
     defaultOvertimeRate: 0,
     enableTaxCalculations: false,
     taxRate: 0.2,
+    enableNiCalculations: false,
     currency: "GBP",
     weeklyGoal: 0,
     monthlyGoal: 0,

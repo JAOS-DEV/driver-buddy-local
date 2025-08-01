@@ -29,6 +29,8 @@ export interface DailyPay {
   taxAmount?: number; // Tax amount if tax calculations were enabled
   afterTaxPay?: number; // After-tax pay if tax calculations were enabled
   taxRate?: number; // Tax rate used for calculation
+  niAmount?: number; // NI amount if NI calculations were enabled
+  afterNiPay?: number; // After-NI pay if NI calculations were enabled
   notes?: string; // Optional notes for the user
 }
 
@@ -49,6 +51,7 @@ export interface Settings {
   defaultOvertimeRate: number;
   enableTaxCalculations: boolean;
   taxRate: number; // Percentage as decimal (0.20 for 20%)
+  enableNiCalculations: boolean;
   currency: string;
   weeklyGoal: number;
   monthlyGoal: number;

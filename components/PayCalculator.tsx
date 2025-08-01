@@ -108,6 +108,27 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     : 0;
   const afterTaxEarnings = totalEarnings - taxAmount;
 
+  // NI calculations (UK National Insurance)
+  const calculateNI = (earnings: number): number => {
+    if (!settings.enableNiCalculations) return 0;
+
+    // For daily pay calculations, we need to adjust the threshold
+    // Assuming this is daily pay, we'll use a daily threshold
+    // £12,570 / 365 ≈ £34.44 per day threshold
+    const dailyNiThreshold = 34.44; // Daily equivalent of annual threshold
+    const niRate = 0.12; // 12% for earnings above threshold
+
+    if (earnings <= dailyNiThreshold) return 0;
+
+    const taxableEarnings = earnings - dailyNiThreshold;
+    const niAmount = taxableEarnings * niRate;
+
+    return niAmount;
+  };
+
+  const niAmount = calculateNI(totalEarnings);
+  const afterNiEarnings = totalEarnings - niAmount;
+
   // Get submissions for the selected date
   const submissionsForDate = payHistory.filter((pay) => pay.date === payDate);
 
@@ -140,6 +161,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
       taxAmount,
       afterTaxPay: afterTaxEarnings,
       taxRate: settings.taxRate,
+      niAmount,
+      afterNiPay: afterNiEarnings,
     };
 
     setPayHistory([...payHistory, newPay]);
@@ -266,6 +289,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             </div>
           )}
 
+          {/* NI Section - only show if NI calculations are enabled */}
+          {settings.enableNiCalculations && niAmount > 0 && (
+            <div className="pt-2 border-t border-orange-200 mt-2">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-sm text-orange-600">NI (12%/2%)</span>
+                <span className="font-mono text-base font-medium text-orange-700">
+                  -{formatCurrency(niAmount)}
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Total Pay */}
           <div className="pt-2 border-t border-slate-200 mt-2">
             <div className="flex justify-between items-center">
@@ -274,8 +309,13 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               </span>
               <span className="font-mono text-xl font-bold text-slate-800">
                 {formatCurrency(
-                  settings.enableTaxCalculations
+                  settings.enableTaxCalculations &&
+                    settings.enableNiCalculations
+                    ? totalEarnings - taxAmount - niAmount
+                    : settings.enableTaxCalculations
                     ? afterTaxEarnings
+                    : settings.enableNiCalculations
+                    ? afterNiEarnings
                     : totalEarnings
                 )}
               </span>
