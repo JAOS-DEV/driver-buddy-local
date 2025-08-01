@@ -38,6 +38,20 @@ export interface PayHistory {
   dailyPays: DailyPay[];
 }
 
+export interface StandardRate {
+  id: string;
+  name: string;
+  rate: number;
+  isDefault: boolean;
+}
+
+export interface OvertimeRate {
+  id: string;
+  name: string;
+  rate: number;
+  isDefault: boolean;
+}
+
 export interface Settings {
   weekStartDay:
     | "monday"
@@ -47,8 +61,8 @@ export interface Settings {
     | "friday"
     | "saturday"
     | "sunday";
-  defaultHourlyRate: number;
-  defaultOvertimeRate: number;
+  standardRates: StandardRate[];
+  overtimeRates: OvertimeRate[];
   enableTaxCalculations: boolean;
   taxRate: number; // Percentage as decimal (0.20 for 20%)
   enableNiCalculations: boolean;

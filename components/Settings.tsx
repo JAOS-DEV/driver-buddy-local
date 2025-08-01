@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings as SettingsType } from "../types";
+import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
 
 interface SettingsProps {
   settings: SettingsType;
@@ -163,64 +163,209 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
             </div>
           </div>
 
-          {/* Default Rates */}
+          {/* Standard Rates */}
           <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
             <h3 className="text-sm font-bold mb-2 text-slate-700">
-              Default Rates
+              Standard Rates
             </h3>
             <div className="space-y-2">
-              <div>
-                <label
-                  htmlFor="default-hourly-rate"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+              {settings.standardRates?.map((rate, index) => (
+                <div
+                  key={rate.id}
+                  className="border border-slate-200 rounded p-2"
                 >
-                  DEFAULT HOURLY RATE (£)
-                </label>
-                <input
-                  id="default-hourly-rate"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="0"
-                  value={settings.defaultHourlyRate || ""}
-                  onChange={(e) =>
-                    updateSettings({
-                      defaultHourlyRate: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  placeholder="e.g., 18.50"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                />
-                <p className="text-xs text-slate-500 mt-0.5">
-                  This will auto-fill the hourly rate in the Pay Calculator.
-                </p>
-              </div>
-              <div>
-                <label
-                  htmlFor="default-overtime-rate"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-slate-700">
+                      {rate.name}
+                    </span>
+                    <div className="flex gap-1">
+                      {rate.isDefault && (
+                        <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
+                          Default
+                        </span>
+                      )}
+                      <button
+                        onClick={() => {
+                          const newRates =
+                            settings.standardRates?.filter(
+                              (_, i) => i !== index
+                            ) || [];
+                          updateSettings({ standardRates: newRates });
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={rate.rate || ""}
+                      onChange={(e) => {
+                        const newRates = [...(settings.standardRates || [])];
+                        newRates[index].rate = parseFloat(e.target.value) || 0;
+                        updateSettings({ standardRates: newRates });
+                      }}
+                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                      placeholder="0.00"
+                    />
+                    <button
+                      onClick={() => {
+                        const newRates = (settings.standardRates || []).map(
+                          (r, i) => ({
+                            ...r,
+                            isDefault: i === index,
+                          })
+                        );
+                        updateSettings({ standardRates: newRates });
+                      }}
+                      disabled={rate.isDefault}
+                      className={`text-xs px-2 py-0.5 rounded ${
+                        rate.isDefault
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                      }`}
+                    >
+                      Set Default
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={rate.name}
+                    onChange={(e) => {
+                      const newRates = [...(settings.standardRates || [])];
+                      newRates[index].name = e.target.value;
+                      updateSettings({ standardRates: newRates });
+                    }}
+                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                    placeholder="Rate name"
+                  />
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  const newRate: StandardRate = {
+                    id: Date.now().toString(),
+                    name: `Standard Rate ${
+                      (settings.standardRates?.length || 0) + 1
+                    }`,
+                    rate: 0,
+                    isDefault: false,
+                  };
+                  updateSettings({
+                    standardRates: [...(settings.standardRates || []), newRate],
+                  });
+                }}
+                className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+              >
+                + Add Standard Rate
+              </button>
+            </div>
+          </div>
+
+          {/* Overtime Rates */}
+          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
+            <h3 className="text-sm font-bold mb-2 text-slate-700">
+              Overtime Rates
+            </h3>
+            <div className="space-y-2">
+              {settings.overtimeRates?.map((rate, index) => (
+                <div
+                  key={rate.id}
+                  className="border border-slate-200 rounded p-2"
                 >
-                  DEFAULT OVERTIME RATE (£)
-                </label>
-                <input
-                  id="default-overtime-rate"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="0"
-                  value={settings.defaultOvertimeRate || ""}
-                  onChange={(e) =>
-                    updateSettings({
-                      defaultOvertimeRate: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  placeholder="e.g., 27.75"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                />
-                <p className="text-xs text-slate-500 mt-0.5">
-                  This will auto-fill the overtime rate in the Pay Calculator.
-                </p>
-              </div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-slate-700">
+                      {rate.name}
+                    </span>
+                    <div className="flex gap-1">
+                      {rate.isDefault && (
+                        <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
+                          Default
+                        </span>
+                      )}
+                      <button
+                        onClick={() => {
+                          const newRates =
+                            settings.overtimeRates?.filter(
+                              (_, i) => i !== index
+                            ) || [];
+                          updateSettings({ overtimeRates: newRates });
+                        }}
+                        className="text-red-500 hover:text-red-700 text-xs"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={rate.rate || ""}
+                      onChange={(e) => {
+                        const newRates = [...(settings.overtimeRates || [])];
+                        newRates[index].rate = parseFloat(e.target.value) || 0;
+                        updateSettings({ overtimeRates: newRates });
+                      }}
+                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                      placeholder="0.00"
+                    />
+                    <button
+                      onClick={() => {
+                        const newRates = (settings.overtimeRates || []).map(
+                          (r, i) => ({
+                            ...r,
+                            isDefault: i === index,
+                          })
+                        );
+                        updateSettings({ overtimeRates: newRates });
+                      }}
+                      disabled={rate.isDefault}
+                      className={`text-xs px-2 py-0.5 rounded ${
+                        rate.isDefault
+                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                          : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                      }`}
+                    >
+                      Set Default
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={rate.name}
+                    onChange={(e) => {
+                      const newRates = [...(settings.overtimeRates || [])];
+                      newRates[index].name = e.target.value;
+                      updateSettings({ overtimeRates: newRates });
+                    }}
+                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                    placeholder="Rate name"
+                  />
+                </div>
+              ))}
+              <button
+                onClick={() => {
+                  const newRate: OvertimeRate = {
+                    id: Date.now().toString(),
+                    name: `Overtime Rate ${
+                      (settings.overtimeRates?.length || 0) + 1
+                    }`,
+                    rate: 0,
+                    isDefault: false,
+                  };
+                  updateSettings({
+                    overtimeRates: [...(settings.overtimeRates || []), newRate],
+                  });
+                }}
+                className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+              >
+                + Add Overtime Rate
+              </button>
             </div>
           </div>
 

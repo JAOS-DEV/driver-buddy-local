@@ -64,15 +64,33 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   // Apply default rates from settings
   useEffect(() => {
-    if (settings.defaultHourlyRate > 0 && hourlyRate === 0) {
-      setHourlyRate(settings.defaultHourlyRate);
+    if (settings.standardRates) {
+      const defaultStandardRate = settings.standardRates.find(
+        (rate) => rate.isDefault
+      );
+      if (
+        defaultStandardRate &&
+        defaultStandardRate.rate > 0 &&
+        hourlyRate === 0
+      ) {
+        setHourlyRate(defaultStandardRate.rate);
+      }
     }
-    if (settings.defaultOvertimeRate > 0 && overtimeRate === 0) {
-      setOvertimeRate(settings.defaultOvertimeRate);
+    if (settings.overtimeRates) {
+      const defaultOvertimeRate = settings.overtimeRates.find(
+        (rate) => rate.isDefault
+      );
+      if (
+        defaultOvertimeRate &&
+        defaultOvertimeRate.rate > 0 &&
+        overtimeRate === 0
+      ) {
+        setOvertimeRate(defaultOvertimeRate.rate);
+      }
     }
   }, [
-    settings.defaultHourlyRate,
-    settings.defaultOvertimeRate,
+    settings.standardRates,
+    settings.overtimeRates,
     hourlyRate,
     overtimeRate,
     setHourlyRate,
@@ -426,19 +444,42 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                   >
                     HOURLY RATE (£)
                   </label>
-                  <input
-                    id="hourly-rate"
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
-                    value={hourlyRate || ""}
-                    onChange={(e) =>
-                      setHourlyRate(parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="e.g., 18.50"
-                    className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                  />
+                  <div className="flex gap-1">
+                    <input
+                      id="hourly-rate"
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      min="0"
+                      value={hourlyRate || ""}
+                      onChange={(e) =>
+                        setHourlyRate(parseFloat(e.target.value) || 0)
+                      }
+                      placeholder="e.g., 18.50"
+                      className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
+                    />
+                    {settings.standardRates &&
+                      settings.standardRates.length > 1 && (
+                        <select
+                          onChange={(e) => {
+                            const selectedRate = settings.standardRates.find(
+                              (rate) => rate.id === e.target.value
+                            );
+                            if (selectedRate) {
+                              setHourlyRate(selectedRate.rate);
+                            }
+                          }}
+                          className="mt-1 p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
+                        >
+                          <option value="">Select...</option>
+                          {settings.standardRates.map((rate) => (
+                            <option key={rate.id} value={rate.id}>
+                              {rate.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                  </div>
                 </div>
 
                 {/* Manual Hours Input */}
@@ -487,18 +528,41 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                   <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
                     OVERTIME RATE (£)
                   </label>
-                  <input
-                    type="number"
-                    inputMode="decimal"
-                    step="0.01"
-                    min="0"
-                    value={overtimeRate || ""}
-                    onChange={(e) =>
-                      setOvertimeRate(parseFloat(e.target.value) || 0)
-                    }
-                    placeholder="e.g., 27.75"
-                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
-                  />
+                  <div className="flex gap-1">
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      step="0.01"
+                      min="0"
+                      value={overtimeRate || ""}
+                      onChange={(e) =>
+                        setOvertimeRate(parseFloat(e.target.value) || 0)
+                      }
+                      placeholder="e.g., 27.75"
+                      className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
+                    />
+                    {settings.overtimeRates &&
+                      settings.overtimeRates.length > 1 && (
+                        <select
+                          onChange={(e) => {
+                            const selectedRate = settings.overtimeRates.find(
+                              (rate) => rate.id === e.target.value
+                            );
+                            if (selectedRate) {
+                              setOvertimeRate(selectedRate.rate);
+                            }
+                          }}
+                          className="p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
+                        >
+                          <option value="">Select...</option>
+                          {settings.overtimeRates.map((rate) => (
+                            <option key={rate.id} value={rate.id}>
+                              {rate.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                  </div>
                 </div>
 
                 {/* Overtime Hours Input */}
