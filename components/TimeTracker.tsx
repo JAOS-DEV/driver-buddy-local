@@ -29,6 +29,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     message: "",
     visible: false,
   });
+  const [showTimeFormatModal, setShowTimeFormatModal] = useState(false);
 
   const [submitDate, setSubmitDate] = useState<string>(
     new Date().toISOString().split("T")[0]
@@ -311,9 +312,28 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           {/* Fixed form section */}
           <div ref={formRef} className="flex-shrink-0 p-3">
             <div className="flex justify-between items-center mb-3">
-              <h2 className="text-xs font-bold tracking-wider uppercase text-slate-500">
-                TODAY'S ENTRIES
-              </h2>
+              <div className="flex items-center gap-1">
+                <h2 className="text-xs font-bold tracking-wider uppercase text-slate-500">
+                  TODAY'S ENTRIES
+                </h2>
+                <button
+                  onClick={() => setShowTimeFormatModal(true)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  title="How to enter time format"
+                >
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <form
@@ -643,6 +663,80 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             </div>
           </div>
         </>
+      )}
+
+      {/* Time Format Modal */}
+      {showTimeFormatModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-sm w-full">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-slate-800">
+                  Time Input Format
+                </h3>
+                <button
+                  onClick={() => setShowTimeFormatModal(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-3">
+              <div>
+                <h4 className="font-medium text-slate-700 mb-2">
+                  24-Hour Format
+                </h4>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  Enter times using 24-hour format (HH:MM). This means 1:00 PM
+                  is 13:00, 2:30 PM is 14:30, and midnight is 00:00.
+                </p>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-slate-700 mb-2">
+                  Valid Examples
+                </h4>
+                <div className="text-sm text-slate-600 space-y-1">
+                  <p>
+                    • <strong>09:30</strong> - 9:30 AM
+                  </p>
+                  <p>
+                    • <strong>13:45</strong> - 1:45 PM
+                  </p>
+                  <p>
+                    • <strong>17:00</strong> - 5:00 PM
+                  </p>
+                  <p>
+                    • <strong>00:00</strong> - Midnight
+                  </p>
+                  <p>
+                    • <strong>23:59</strong> - 11:59 PM
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-slate-700 mb-2">
+                  Common Mistakes
+                </h4>
+                <div className="text-sm text-slate-600 space-y-1">
+                  <p>• Don't use AM/PM (use 13:00, not 1:00 PM)</p>
+                  <p>• Always use two digits (09:30, not 9:30)</p>
+                  <p>• Use colon separator (09:30, not 0930)</p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-gray-200">
+                <p className="text-xs text-slate-500">
+                  💡 <strong>Tip:</strong> For overnight shifts, end time can be
+                  after midnight (e.g., 06:00 for 6 AM the next day).
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

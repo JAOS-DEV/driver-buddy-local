@@ -53,6 +53,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   );
   const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showDateInfoModal, setShowDateInfoModal] = useState(false);
+  const [showTaxInfoModal, setShowTaxInfoModal] = useState(false);
   const [payDate, setPayDate] = useLocalStorage<string>(
     "payDate",
     new Date().toISOString().split("T")[0]
@@ -344,6 +347,181 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     </div>
   );
 
+  // Info Modal Component
+  const InfoModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-sm w-full">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-800">
+              Calculation Methods
+            </h3>
+            <button
+              onClick={() => setShowInfoModal(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              Time Tracker Mode
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Automatically calculates your pay based on the total time tracked
+              in the Time Tracker. This uses the accumulated hours and minutes
+              from your time entries.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              Manual Hours Mode
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Manually enter your hours and minutes worked. Useful when you want
+              to calculate pay for a specific period or when you have your hours
+              from another source.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-slate-500">
+              💡 <strong>Tip:</strong> Use Time Tracker for automatic
+              calculations from your tracked time, or Manual Hours when you have
+              specific hours to calculate.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Date Info Modal Component
+  const DateInfoModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-sm w-full">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-800">
+              Pay Date Selection
+            </h3>
+            <button
+              onClick={() => setShowDateInfoModal(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              What is the Pay Date?
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              This is the date that the pay calculation represents. It's the day
+              you worked, not when you're saving the calculation.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              Why is it Important?
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              The date helps organize your pay history and ensures you don't
+              accidentally save multiple pay calculations for the same day.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              Submissions Counter
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              The number in parentheses shows how many pay calculations you've
+              already saved for this date. This helps you avoid duplicates.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-slate-500">
+              💡 <strong>Tip:</strong> Use today's date for current work, or
+              select a past date if you're catching up on previous pay
+              calculations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Tax Info Modal Component
+  const TaxInfoModal = () => (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg max-w-sm w-full">
+        <div className="p-4 border-b border-gray-200">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-800">
+              Tax & NI Calculations
+            </h3>
+            <button
+              onClick={() => setShowTaxInfoModal(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-3">
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">Income Tax</h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              UK standard rate of 20% applied to your total earnings. This gives
+              you an estimate of your take-home pay after tax deductions.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              National Insurance
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              NI is calculated at 12% on earnings above £34.44 per day
+              (equivalent to the annual threshold). This is simplified for daily
+              calculations.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">
+              Combined Calculations
+            </h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              When both tax and NI are enabled, you'll see the final total after
+              both deductions. This gives you the most accurate take-home pay
+              estimate.
+            </p>
+          </div>
+
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-slate-500">
+              💡 <strong>Note:</strong> These are estimates for planning
+              purposes. Actual tax and NI may vary based on your specific
+              circumstances.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div
       ref={containerRef}
@@ -362,6 +540,15 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
       {/* Breakdown Modal */}
       {showBreakdownModal && <BreakdownModal />}
+
+      {/* Info Modal */}
+      {showInfoModal && <InfoModal />}
+
+      {/* Date Info Modal */}
+      {showDateInfoModal && <DateInfoModal />}
+
+      {/* Tax Info Modal */}
+      {showTaxInfoModal && <TaxInfoModal />}
 
       {/* Internal Navigation Tabs */}
       <div className="flex-shrink-0 bg-white/50 border-b border-gray-200/80">
@@ -395,9 +582,28 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           <div ref={inputSectionRef} className="flex-shrink-0 space-y-1 p-3">
             {/* Toggle Section */}
             <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-              <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
-                CALCULATION METHOD
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold tracking-wider uppercase text-slate-500">
+                  CALCULATION METHOD
+                </label>
+                <button
+                  onClick={() => setShowInfoModal(true)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  title="How calculation methods work"
+                >
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
               <div className="flex items-center justify-between">
                 <span
                   className={`text-xs font-medium ${
@@ -604,13 +810,40 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           <div className="flex-1 px-3 flex items-center justify-center min-h-0">
             <div className="bg-white/80 p-3 rounded-lg border shadow-sm w-full max-w-sm flex flex-col justify-center min-h-[100px]">
               <div className="text-center">
-                <h3 className="text-sm font-bold text-slate-700 mb-1.5">
-                  Total Pay
-                </h3>
+                <div className="flex items-center justify-center gap-1 mb-1.5">
+                  <h3 className="text-sm font-bold text-slate-700">
+                    Total Pay
+                  </h3>
+                  {(settings.enableTaxCalculations ||
+                    settings.enableNiCalculations) && (
+                    <button
+                      onClick={() => setShowTaxInfoModal(true)}
+                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      title="About tax and NI calculations"
+                    >
+                      <svg
+                        className="w-3 h-3"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  )}
+                </div>
                 <p className="text-xl font-bold text-[#003D5B] font-mono mb-2">
                   {formatCurrency(
-                    settings.enableTaxCalculations
+                    settings.enableTaxCalculations &&
+                      settings.enableNiCalculations
+                      ? totalEarnings - taxAmount - niAmount
+                      : settings.enableTaxCalculations
                       ? afterTaxEarnings
+                      : settings.enableNiCalculations
+                      ? afterNiEarnings
                       : totalEarnings
                   )}
                 </p>
@@ -631,9 +864,28 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           >
             {/* Date Picker */}
             <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
-              <label className="text-xs font-medium text-slate-600 block mb-0.5 text-center">
-                Select date ({submissionsForDate.length} submissions)
-              </label>
+              <div className="flex items-center justify-center gap-1 mb-0.5">
+                <label className="text-xs font-medium text-slate-600 text-center">
+                  Select date ({submissionsForDate.length} submissions)
+                </label>
+                <button
+                  onClick={() => setShowDateInfoModal(true)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  title="About pay date selection"
+                >
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
               <input
                 type="date"
                 value={payDate}
