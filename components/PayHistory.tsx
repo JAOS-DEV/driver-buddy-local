@@ -589,7 +589,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
     return (
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
-        <div className="bg-white rounded-lg w-full max-w-sm mx-auto max-h-[90vh] overflow-y-auto">
+        <div className="bg-white rounded-lg w-full max-w-sm mx-auto max-h-[80vh] overflow-y-auto">
           <div className="p-3 border-b border-gray-200">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-bold text-slate-800">
@@ -614,7 +614,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange("date", e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-sm"
               />
             </div>
 
