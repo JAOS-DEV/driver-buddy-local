@@ -244,9 +244,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   // Breakdown Modal Component
   const BreakdownModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+      <div className="bg-white rounded-lg w-full max-w-sm mx-auto max-h-[90vh] overflow-y-auto">
+        <div className="p-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800">Pay Breakdown</h3>
             <button
@@ -258,7 +258,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="p-3 space-y-3">
           {/* Standard Hours */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-slate-600">Standard Hours:</span>
@@ -349,9 +349,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   // Info Modal Component
   const InfoModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-sm w-full">
-        <div className="p-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+      <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
+        <div className="p-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800">
               Calculation Methods
@@ -365,7 +365,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="p-3 space-y-3">
           <div>
             <h4 className="font-medium text-slate-700 mb-2">
               Time Tracker Mode
@@ -402,9 +402,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   // Date Info Modal Component
   const DateInfoModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-sm w-full">
-        <div className="p-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+      <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
+        <div className="p-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800">
               Pay Date Selection
@@ -418,7 +418,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="p-3 space-y-3">
           <div>
             <h4 className="font-medium text-slate-700 mb-2">
               What is the Pay Date?
@@ -463,9 +463,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   // Tax Info Modal Component
   const TaxInfoModal = () => (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-sm w-full">
-        <div className="p-4 border-b border-gray-200">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+      <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
+        <div className="p-3 border-b border-gray-200">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-bold text-slate-800">
               Tax & NI Calculations
@@ -479,7 +479,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
         </div>
 
-        <div className="p-4 space-y-3">
+        <div className="p-3 space-y-3">
           <div>
             <h4 className="font-medium text-slate-700 mb-2">Income Tax</h4>
             <p className="text-sm text-slate-600 leading-relaxed">

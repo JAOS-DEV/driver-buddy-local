@@ -769,9 +769,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
       {/* Edit Modal */}
       {showEditModal && editingSubmission && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-4 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-lg w-full max-w-sm mx-auto max-h-[90vh] overflow-y-auto">
+            <div className="p-3 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-bold text-slate-800">
                   Edit Time Submission
@@ -785,7 +785,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
             </div>
 
-            <div className="p-4 space-y-4">
+            <div className="p-3 space-y-3">
               {/* Date */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
@@ -841,6 +841,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                           </label>
                           <input
                             type="text"
+                            inputMode="numeric"
                             value={
                               entry.startTime.length === 4
                                 ? `${entry.startTime.substring(
@@ -943,6 +944,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                           </label>
                           <input
                             type="text"
+                            inputMode="numeric"
                             value={
                               entry.endTime.length === 4
                                 ? `${entry.endTime.substring(
@@ -1089,7 +1091,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
             </div>
 
-            <div className="p-4 border-t border-gray-200 flex gap-2">
+            <div className="p-3 border-t border-gray-200 flex gap-2">
               <button
                 onClick={handleCancelEdit}
                 className="flex-1 py-2 px-4 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors"
@@ -1188,9 +1190,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
       {/* Time Format Modal */}
       {showTimeFormatModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-sm w-full">
-            <div className="p-4 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
+            <div className="p-3 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-bold text-slate-800">
                   Time Input Format
@@ -1204,7 +1206,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
             </div>
 
-            <div className="p-4 space-y-3">
+            <div className="p-3 space-y-3">
               <div>
                 <h4 className="font-medium text-slate-700 mb-2">
                   24-Hour Format
