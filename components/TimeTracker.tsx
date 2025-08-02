@@ -801,7 +801,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     };
                     setEditingSubmission(updatedSubmission);
                   }}
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs bg-white min-w-0"
                 />
               </div>
 

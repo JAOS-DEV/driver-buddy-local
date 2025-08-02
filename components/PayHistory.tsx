@@ -614,7 +614,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange("date", e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs min-w-0"
               />
             </div>
 
