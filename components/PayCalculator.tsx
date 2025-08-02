@@ -510,6 +510,16 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             </p>
           </div>
 
+          <div>
+            <h4 className="font-medium text-slate-700 mb-2">How to Enable</h4>
+            <p className="text-sm text-slate-600 leading-relaxed">
+              Go to <strong>Settings</strong> →{" "}
+              <strong>Tax Calculations </strong>
+              and <strong>NI Calculations</strong> sections. Toggle the switches
+              to enable tax and NI calculations for your pay history.
+            </p>
+          </div>
+
           <div className="pt-2 border-t border-gray-200">
             <p className="text-xs text-slate-500">
               💡 <strong>Note:</strong> These are estimates for planning

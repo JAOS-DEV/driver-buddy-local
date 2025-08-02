@@ -31,6 +31,14 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   });
   const [showTimeFormatModal, setShowTimeFormatModal] = useState(false);
 
+  // Edit modal state
+  const [editingSubmission, setEditingSubmission] =
+    useState<DailySubmission | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editTimeErrors, setEditTimeErrors] = useState<{
+    [key: string]: string;
+  }>({});
+
   const [submitDate, setSubmitDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -247,6 +255,93 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setDailySubmissions((prev) =>
       prev.filter((submission) => submission.timestamp !== timestamp)
     );
+  };
+
+  const handleEditSubmission = (submission: DailySubmission) => {
+    setEditingSubmission(submission);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = (updatedSubmission: DailySubmission) => {
+    setDailySubmissions(
+      dailySubmissions.map((sub) =>
+        sub.timestamp === updatedSubmission.timestamp ? updatedSubmission : sub
+      )
+    );
+    setShowEditModal(false);
+    setEditingSubmission(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingSubmission(null);
+    setEditTimeErrors({});
+  };
+
+  // Edit modal validation functions
+  const validateEditTimeInput = (
+    time: string,
+    entryIndex: number,
+    field: "startTime" | "endTime"
+  ): boolean => {
+    if (!time) return false;
+
+    // Handle both HHMM and HH:MM formats
+    let timeStr = time;
+    if (time.includes(":")) {
+      timeStr = time.replace(":", "");
+    }
+
+    if (timeStr.length !== 4) return false;
+    const hours = parseInt(timeStr.substring(0, 2));
+    const minutes = parseInt(timeStr.substring(2, 4));
+    if (isNaN(hours) || isNaN(minutes)) return false;
+    if (minutes < 0 || minutes > 59) return false;
+
+    const allow24 = field === "endTime";
+    if (allow24) {
+      return hours >= 0 && hours <= 24;
+    }
+    return hours >= 0 && hours <= 23;
+  };
+
+  const formatEditTimeInput = (value: string): string => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/[^0-9]/g, "");
+
+    // Limit to 4 digits
+    const limited = numbers.substring(0, 4);
+
+    // Add colon after 2 digits if we have more than 2 digits
+    if (limited.length > 2) {
+      return `${limited.substring(0, 2)}:${limited.substring(2)}`;
+    }
+
+    return limited;
+  };
+
+  // Helper function to calculate total duration from entries
+  const calculateTotalDuration = (entries: TimeEntry[]) => {
+    const totalMinutes = entries.reduce((total, entry) => {
+      const startTime =
+        entry.startTime.length === 4
+          ? `${entry.startTime.substring(0, 2)}:${entry.startTime.substring(
+              2,
+              4
+            )}`
+          : entry.startTime;
+      const endTime =
+        entry.endTime.length === 4
+          ? `${entry.endTime.substring(0, 2)}:${entry.endTime.substring(2, 4)}`
+          : entry.endTime;
+      return total + calculateDuration(startTime, endTime).totalMinutes;
+    }, 0);
+
+    return {
+      hours: Math.floor(totalMinutes / 60),
+      minutes: totalMinutes % 60,
+      totalMinutes,
+    };
   };
 
   const formatDate = (dateStr: string) => {
@@ -595,14 +690,21 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                   </span>
                                   <div className="flex items-center gap-2">
                                     <span className="font-mono text-sm text-slate-600">
-                                      {formatDurationWithMinutes({
-                                        hours: Math.floor(
-                                          submission.totalMinutes / 60
-                                        ),
-                                        minutes: submission.totalMinutes % 60,
-                                        totalMinutes: submission.totalMinutes,
-                                      })}
+                                      {formatDurationWithMinutes(
+                                        calculateTotalDuration(
+                                          submission.entries
+                                        )
+                                      )}
                                     </span>
+                                    <button
+                                      onClick={() =>
+                                        handleEditSubmission(submission)
+                                      }
+                                      className="text-slate-500 hover:text-slate-700"
+                                      title="Edit submission"
+                                    >
+                                      ✏️
+                                    </button>
                                     <button
                                       onClick={() =>
                                         handleClearDay(submission.timestamp)
@@ -663,6 +765,425 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             </div>
           </div>
         </>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && editingSubmission && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-slate-800">
+                  Edit Time Submission
+                </h3>
+                <button
+                  onClick={handleCancelEdit}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+              {/* Date */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={editingSubmission.date}
+                  disabled
+                  className="w-full p-2 border border-slate-300 rounded-md bg-slate-50 text-slate-500"
+                />
+              </div>
+
+              {/* Time Entries */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Time Entries
+                </label>
+                <div className="space-y-2">
+                  {editingSubmission.entries.map((entry, index) => (
+                    <div
+                      key={entry.id}
+                      className="border border-slate-200 rounded-md p-3"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-medium text-slate-700">
+                          Entry {index + 1}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const updatedEntries =
+                              editingSubmission.entries.filter(
+                                (_, i) => i !== index
+                              );
+                            const updatedSubmission = {
+                              ...editingSubmission,
+                              entries: updatedEntries,
+                              totalMinutes:
+                                calculateTotalDuration(updatedEntries)
+                                  .totalMinutes,
+                            };
+                            setEditingSubmission(updatedSubmission);
+                          }}
+                          className="text-red-500 hover:text-red-700 text-sm"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-xs text-slate-600 mb-1">
+                            Start Time
+                          </label>
+                          <input
+                            type="text"
+                            value={
+                              entry.startTime.length === 4
+                                ? `${entry.startTime.substring(
+                                    0,
+                                    2
+                                  )}:${entry.startTime.substring(2, 4)}`
+                                : entry.startTime
+                            }
+                            onChange={(e) => {
+                              const formattedValue = formatEditTimeInput(
+                                e.target.value
+                              );
+                              const formattedTime = formattedValue.replace(
+                                /:/g,
+                                ""
+                              );
+
+                              // Validate the time input
+                              const errorKey = `startTime-${index}`;
+                              if (
+                                formattedValue.length === 5 &&
+                                formattedValue.includes(":")
+                              ) {
+                                if (
+                                  !validateEditTimeInput(
+                                    formattedValue,
+                                    index,
+                                    "startTime"
+                                  )
+                                ) {
+                                  setEditTimeErrors((prev) => ({
+                                    ...prev,
+                                    [errorKey]: "Invalid time format (HH:MM)",
+                                  }));
+                                } else {
+                                  setEditTimeErrors((prev) => ({
+                                    ...prev,
+                                    [errorKey]: "",
+                                  }));
+                                }
+                              } else {
+                                setEditTimeErrors((prev) => ({
+                                  ...prev,
+                                  [errorKey]: "",
+                                }));
+                              }
+
+                              const updatedEntries = [
+                                ...editingSubmission.entries,
+                              ];
+                              updatedEntries[index] = {
+                                ...entry,
+                                startTime: formattedTime,
+                              };
+                              const updatedSubmission = {
+                                ...editingSubmission,
+                                entries: updatedEntries,
+                                totalMinutes: updatedEntries.reduce(
+                                  (total, e) => {
+                                    const startTime =
+                                      e.startTime.length === 4
+                                        ? `${e.startTime.substring(
+                                            0,
+                                            2
+                                          )}:${e.startTime.substring(2, 4)}`
+                                        : e.startTime;
+                                    const endTime =
+                                      e.endTime.length === 4
+                                        ? `${e.endTime.substring(
+                                            0,
+                                            2
+                                          )}:${e.endTime.substring(2, 4)}`
+                                        : e.endTime;
+                                    return (
+                                      total +
+                                      calculateDuration(startTime, endTime)
+                                    );
+                                  },
+                                  0
+                                ),
+                              };
+                              setEditingSubmission(updatedSubmission);
+                            }}
+                            className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                              editTimeErrors[`startTime-${index}`]
+                                ? "border-red-300 bg-red-50"
+                                : "border-slate-300"
+                            }`}
+                            placeholder="HH:MM"
+                          />
+                          {editTimeErrors[`startTime-${index}`] && (
+                            <p className="text-xs text-red-600 mt-1">
+                              {editTimeErrors[`startTime-${index}`]}
+                            </p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs text-slate-600 mb-1">
+                            End Time
+                          </label>
+                          <input
+                            type="text"
+                            value={
+                              entry.endTime.length === 4
+                                ? `${entry.endTime.substring(
+                                    0,
+                                    2
+                                  )}:${entry.endTime.substring(2, 4)}`
+                                : entry.endTime
+                            }
+                            onChange={(e) => {
+                              const formattedValue = formatEditTimeInput(
+                                e.target.value
+                              );
+                              const formattedTime = formattedValue.replace(
+                                /:/g,
+                                ""
+                              );
+
+                              // Validate the time input
+                              const errorKey = `endTime-${index}`;
+                              if (
+                                formattedValue.length === 5 &&
+                                formattedValue.includes(":")
+                              ) {
+                                if (
+                                  !validateEditTimeInput(
+                                    formattedValue,
+                                    index,
+                                    "endTime"
+                                  )
+                                ) {
+                                  setEditTimeErrors((prev) => ({
+                                    ...prev,
+                                    [errorKey]: "Invalid time format (HH:MM)",
+                                  }));
+                                } else {
+                                  setEditTimeErrors((prev) => ({
+                                    ...prev,
+                                    [errorKey]: "",
+                                  }));
+                                }
+                              } else {
+                                setEditTimeErrors((prev) => ({
+                                  ...prev,
+                                  [errorKey]: "",
+                                }));
+                              }
+
+                              const updatedEntries = [
+                                ...editingSubmission.entries,
+                              ];
+                              updatedEntries[index] = {
+                                ...entry,
+                                endTime: formattedTime,
+                              };
+                              const updatedSubmission = {
+                                ...editingSubmission,
+                                entries: updatedEntries,
+                                totalMinutes:
+                                  calculateTotalDuration(updatedEntries)
+                                    .totalMinutes,
+                              };
+                              setEditingSubmission(updatedSubmission);
+                            }}
+                            className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                              editTimeErrors[`endTime-${index}`]
+                                ? "border-red-300 bg-red-50"
+                                : "border-slate-300"
+                            }`}
+                            placeholder="HH:MM"
+                          />
+                          {editTimeErrors[`endTime-${index}`] && (
+                            <p className="text-xs text-red-600 mt-1">
+                              {editTimeErrors[`endTime-${index}`]}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Add New Entry */}
+              <div>
+                <button
+                  onClick={() => {
+                    const newEntry: TimeEntry = {
+                      id: Date.now(),
+                      startTime: "",
+                      endTime: "",
+                    };
+                    const updatedSubmission = {
+                      ...editingSubmission,
+                      entries: [...editingSubmission.entries, newEntry],
+                    };
+                    setEditingSubmission(updatedSubmission);
+                  }}
+                  className="w-full py-2 px-4 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors"
+                >
+                  + Add Entry
+                </button>
+              </div>
+
+              {/* Preview */}
+              <div className="bg-slate-50 p-3 rounded-md">
+                <h4 className="text-sm font-medium text-slate-700 mb-2">
+                  Preview
+                </h4>
+                <div className="text-sm text-slate-600 space-y-1">
+                  {editingSubmission.entries.map((entry, index) => {
+                    const startTime =
+                      entry.startTime.length === 4
+                        ? `${entry.startTime.substring(
+                            0,
+                            2
+                          )}:${entry.startTime.substring(2, 4)}`
+                        : entry.startTime;
+                    const endTime =
+                      entry.endTime.length === 4
+                        ? `${entry.endTime.substring(
+                            0,
+                            2
+                          )}:${entry.endTime.substring(2, 4)}`
+                        : entry.endTime;
+                    const duration = calculateDuration(startTime, endTime);
+                    return (
+                      <div key={index} className="flex justify-between">
+                        <span>
+                          {startTime} - {endTime}
+                        </span>
+                        <span className="font-mono">
+                          {formatDurationWithMinutes(duration)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                  <div className="font-medium pt-1 border-t border-slate-200">
+                    Total:{" "}
+                    {formatDurationWithMinutes(
+                      calculateTotalDuration(editingSubmission.entries)
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-gray-200 flex gap-2">
+              <button
+                onClick={handleCancelEdit}
+                className="flex-1 py-2 px-4 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  // Check if there are any validation errors
+                  const hasErrors = Object.values(editTimeErrors).some(
+                    (error) => error !== ""
+                  );
+                  if (hasErrors) {
+                    return; // Don't save if there are validation errors
+                  }
+
+                  // Check if all entries have complete, valid times
+                  const hasIncompleteEntries = editingSubmission.entries.some(
+                    (entry) => {
+                      const startTimeFormatted =
+                        entry.startTime.length === 4
+                          ? `${entry.startTime.substring(
+                              0,
+                              2
+                            )}:${entry.startTime.substring(2, 4)}`
+                          : entry.startTime;
+                      const endTimeFormatted =
+                        entry.endTime.length === 4
+                          ? `${entry.endTime.substring(
+                              0,
+                              2
+                            )}:${entry.endTime.substring(2, 4)}`
+                          : entry.endTime;
+
+                      return (
+                        !validateEditTimeInput(
+                          startTimeFormatted,
+                          0,
+                          "startTime"
+                        ) ||
+                        !validateEditTimeInput(
+                          endTimeFormatted,
+                          0,
+                          "endTime"
+                        ) ||
+                        startTimeFormatted.length !== 5 ||
+                        endTimeFormatted.length !== 5
+                      );
+                    }
+                  );
+
+                  if (hasIncompleteEntries) {
+                    return; // Don't save if any entries are incomplete
+                  }
+
+                  handleSaveEdit(editingSubmission);
+                }}
+                disabled={
+                  Object.values(editTimeErrors).some((error) => error !== "") ||
+                  editingSubmission.entries.some((entry) => {
+                    const startTimeFormatted =
+                      entry.startTime.length === 4
+                        ? `${entry.startTime.substring(
+                            0,
+                            2
+                          )}:${entry.startTime.substring(2, 4)}`
+                        : entry.startTime;
+                    const endTimeFormatted =
+                      entry.endTime.length === 4
+                        ? `${entry.endTime.substring(
+                            0,
+                            2
+                          )}:${entry.endTime.substring(2, 4)}`
+                        : entry.endTime;
+
+                    return (
+                      !validateEditTimeInput(
+                        startTimeFormatted,
+                        0,
+                        "startTime"
+                      ) ||
+                      !validateEditTimeInput(endTimeFormatted, 0, "endTime") ||
+                      startTimeFormatted.length !== 5 ||
+                      endTimeFormatted.length !== 5
+                    );
+                  })
+                }
+                className="flex-1 py-2 px-4 bg-[#003D5B] text-white rounded-md hover:bg-[#002D4B] transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Time Format Modal */}

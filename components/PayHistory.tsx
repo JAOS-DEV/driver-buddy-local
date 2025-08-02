@@ -43,6 +43,10 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     return weekStart.toISOString().split("T")[0];
   });
 
+  // Edit modal state
+  const [editingPay, setEditingPay] = useState<DailyPay | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
   // Get the current week start date based on settings
   const getCurrentWeekStart = () => {
     const today = new Date();
@@ -407,6 +411,24 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     setPayHistory(payHistory.filter((pay) => pay.id !== payId));
   };
 
+  const handleEditPay = (pay: DailyPay) => {
+    setEditingPay(pay);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = (updatedPay: DailyPay) => {
+    setPayHistory(
+      payHistory.map((pay) => (pay.id === updatedPay.id ? updatedPay : pay))
+    );
+    setShowEditModal(false);
+    setEditingPay(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditModal(false);
+    setEditingPay(null);
+  };
+
   const getPeriodLabel = () => {
     const date = new Date(selectedDate);
     switch (selectedPeriod) {
@@ -457,11 +479,327 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     }
   };
 
+  // Edit Modal Component
+  const EditPayModal = () => {
+    if (!editingPay) return null;
+
+    const [formData, setFormData] = useState({
+      date: editingPay.date,
+      standardHours: editingPay.standardHours,
+      standardMinutes: editingPay.standardMinutes,
+      standardRate: editingPay.standardRate,
+      overtimeHours: editingPay.overtimeHours,
+      overtimeMinutes: editingPay.overtimeMinutes,
+      overtimeRate: editingPay.overtimeRate,
+      notes: editingPay.notes || "",
+    });
+
+    const handleInputChange = (field: string, value: string | number) => {
+      // For number fields, allow empty string but convert to 0 for calculations
+      if (
+        typeof value === "string" &&
+        (field.includes("Hours") ||
+          field.includes("Minutes") ||
+          field.includes("Rate"))
+      ) {
+        const numValue = value === "" ? 0 : parseFloat(value) || 0;
+        setFormData((prev) => ({
+          ...prev,
+          [field]: value === "" ? "" : numValue,
+        }));
+      } else {
+        setFormData((prev) => ({ ...prev, [field]: value }));
+      }
+    };
+
+    const handleSave = () => {
+      // Calculate totals - handle empty strings by converting to 0
+      const standardHours =
+        typeof formData.standardHours === "string"
+          ? 0
+          : formData.standardHours || 0;
+      const standardMinutes =
+        typeof formData.standardMinutes === "string"
+          ? 0
+          : formData.standardMinutes || 0;
+      const standardRate =
+        typeof formData.standardRate === "string"
+          ? 0
+          : formData.standardRate || 0;
+      const overtimeHours =
+        typeof formData.overtimeHours === "string"
+          ? 0
+          : formData.overtimeHours || 0;
+      const overtimeMinutes =
+        typeof formData.overtimeMinutes === "string"
+          ? 0
+          : formData.overtimeMinutes || 0;
+      const overtimeRate =
+        typeof formData.overtimeRate === "string"
+          ? 0
+          : formData.overtimeRate || 0;
+
+      const standardTotalMinutes = standardHours * 60 + standardMinutes;
+      const overtimeTotalMinutes = overtimeHours * 60 + overtimeMinutes;
+
+      const standardPay = (standardTotalMinutes / 60) * standardRate;
+      const overtimePay = (overtimeTotalMinutes / 60) * overtimeRate;
+      const totalPay = standardPay + overtimePay;
+
+      // Calculate tax and NI if enabled
+      const taxAmount = settings.enableTaxCalculations
+        ? totalPay * settings.taxRate
+        : 0;
+      const afterTaxPay = totalPay - taxAmount;
+
+      const calculateNI = (earnings: number): number => {
+        const dailyNiThreshold = 34.44;
+        const niRate = 0.12;
+        if (earnings <= dailyNiThreshold) return 0;
+        const taxableEarnings = earnings - dailyNiThreshold;
+        return taxableEarnings * niRate;
+      };
+
+      const niAmount = settings.enableNiCalculations
+        ? calculateNI(totalPay)
+        : 0;
+      const afterNiPay = totalPay - niAmount;
+
+      const updatedPay: DailyPay = {
+        ...editingPay,
+        date: formData.date,
+        standardHours,
+        standardMinutes,
+        standardRate,
+        standardPay,
+        overtimeHours,
+        overtimeMinutes,
+        overtimeRate,
+        overtimePay,
+        totalPay,
+        taxAmount,
+        afterTaxPay,
+        niAmount,
+        afterNiPay,
+        notes: formData.notes,
+      };
+
+      handleSaveEdit(updatedPay);
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="p-4 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-bold text-slate-800">
+                Edit Pay Entry
+              </h3>
+              <button
+                onClick={handleCancelEdit}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <div className="p-4 space-y-4">
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Date
+              </label>
+              <input
+                type="date"
+                value={formData.date}
+                onChange={(e) => handleInputChange("date", e.target.value)}
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+              />
+            </div>
+
+            {/* Standard Hours */}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Standard Hours
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="24"
+                  value={formData.standardHours}
+                  onChange={(e) =>
+                    handleInputChange("standardHours", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Minutes
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={formData.standardMinutes}
+                  onChange={(e) =>
+                    handleInputChange("standardMinutes", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Rate (£)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.standardRate}
+                  onChange={(e) =>
+                    handleInputChange("standardRate", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+            </div>
+
+            {/* Overtime Hours */}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Overtime Hours
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="24"
+                  value={formData.overtimeHours}
+                  onChange={(e) =>
+                    handleInputChange("overtimeHours", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Minutes
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={formData.overtimeMinutes}
+                  onChange={(e) =>
+                    handleInputChange("overtimeMinutes", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Rate (£)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={formData.overtimeRate}
+                  onChange={(e) =>
+                    handleInputChange("overtimeRate", e.target.value)
+                  }
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                />
+              </div>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1">
+                Notes (Optional)
+              </label>
+              <textarea
+                value={formData.notes}
+                onChange={(e) => handleInputChange("notes", e.target.value)}
+                rows={3}
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                placeholder="Add any notes about this pay entry..."
+              />
+            </div>
+
+            {/* Preview */}
+            <div className="bg-slate-50 p-3 rounded-md">
+              <h4 className="text-sm font-medium text-slate-700 mb-2">
+                Preview
+              </h4>
+              <div className="text-sm text-slate-600 space-y-1">
+                <div>
+                  Standard: {formData.standardHours || 0}h{" "}
+                  {formData.standardMinutes || 0}m @ £
+                  {formData.standardRate || 0} = £
+                  {(
+                    ((formData.standardHours || 0) +
+                      (formData.standardMinutes || 0) / 60) *
+                    (formData.standardRate || 0)
+                  ).toFixed(2)}
+                </div>
+                {(formData.overtimeHours || 0) > 0 ||
+                (formData.overtimeMinutes || 0) > 0 ? (
+                  <div>
+                    Overtime: {formData.overtimeHours || 0}h{" "}
+                    {formData.overtimeMinutes || 0}m @ £
+                    {formData.overtimeRate || 0} = £
+                    {(
+                      ((formData.overtimeHours || 0) +
+                        (formData.overtimeMinutes || 0) / 60) *
+                      (formData.overtimeRate || 0)
+                    ).toFixed(2)}
+                  </div>
+                ) : null}
+                <div className="font-medium">
+                  Total: £
+                  {(
+                    ((formData.standardHours || 0) +
+                      (formData.standardMinutes || 0) / 60) *
+                      (formData.standardRate || 0) +
+                    ((formData.overtimeHours || 0) +
+                      (formData.overtimeMinutes || 0) / 60) *
+                      (formData.overtimeRate || 0)
+                  ).toFixed(2)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 border-t border-gray-200 flex gap-2">
+            <button
+              onClick={handleCancelEdit}
+              className="flex-1 py-2 px-4 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="flex-1 py-2 px-4 bg-[#003D5B] text-white rounded-md hover:bg-[#002D4B] transition-colors"
+            >
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       ref={containerRef}
       className="h-full flex flex-col text-[#003D5B] overflow-hidden"
     >
+      {/* Edit Modal */}
+      {showEditModal && <EditPayModal />}
       {/* Header */}
       <div ref={headerRef} className="flex-shrink-0 p-3 space-y-2">
         {/* Period Selection */}
@@ -711,8 +1049,16 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                   {formatCurrency(pay.totalPay)}
                                 </span>
                                 <button
+                                  onClick={() => handleEditPay(pay)}
+                                  className="text-slate-500 hover:text-slate-700"
+                                  title="Edit pay entry"
+                                >
+                                  ✏️
+                                </button>
+                                <button
                                   onClick={() => handleDeletePay(pay.id)}
                                   className="text-red-500 hover:text-red-700"
+                                  title="Delete pay entry"
                                 >
                                   ✕
                                 </button>
@@ -831,6 +1177,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                   </>
                                 ) : null;
                               })()}
+
+                            {/* Show notes if they exist */}
+                            {pay.notes && pay.notes.trim() !== "" && (
+                              <div className="mt-1 text-xs text-slate-500 italic">
+                                💬 {pay.notes}
+                              </div>
+                            )}
                           </div>
                         ))}
                     </div>
