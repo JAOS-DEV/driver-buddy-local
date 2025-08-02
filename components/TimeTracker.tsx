@@ -794,8 +794,14 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 <input
                   type="date"
                   value={editingSubmission.date}
-                  disabled
-                  className="w-full p-2 border border-slate-300 rounded-md bg-slate-50 text-slate-500 text-sm"
+                  onChange={(e) => {
+                    const updatedSubmission = {
+                      ...editingSubmission,
+                      date: e.target.value,
+                    };
+                    setEditingSubmission(updatedSubmission);
+                  }}
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs"
                 />
               </div>
 
