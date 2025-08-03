@@ -21,7 +21,6 @@ const App: React.FC = () => {
         id: "default",
         name: "Default Standard Rate",
         rate: 0,
-        isDefault: true,
       },
     ],
     overtimeRates: [
@@ -29,7 +28,6 @@ const App: React.FC = () => {
         id: "default",
         name: "Default Overtime Rate",
         rate: 0,
-        isDefault: true,
       },
     ],
     enableTaxCalculations: false,
@@ -40,43 +38,6 @@ const App: React.FC = () => {
     monthlyGoal: 0,
   });
 
-  // Migrate old settings structure to new pay rates structure
-  React.useEffect(() => {
-    const currentSettings = settings as any;
-    if (
-      currentSettings.defaultHourlyRate !== undefined ||
-      currentSettings.defaultOvertimeRate !== undefined
-    ) {
-      // Migrate old settings to new structure
-      const migratedSettings: Settings = {
-        weekStartDay: currentSettings.weekStartDay || "monday",
-        standardRates: [
-          {
-            id: "default",
-            name: "Default Standard Rate",
-            rate: currentSettings.defaultHourlyRate || 0,
-            isDefault: true,
-          },
-        ],
-        overtimeRates: [
-          {
-            id: "default",
-            name: "Default Overtime Rate",
-            rate: currentSettings.defaultOvertimeRate || 0,
-            isDefault: true,
-          },
-        ],
-        enableTaxCalculations: currentSettings.enableTaxCalculations || false,
-        taxRate: currentSettings.taxRate || 0.2,
-        enableNiCalculations: currentSettings.enableNiCalculations || false,
-        currency: currentSettings.currency || "GBP",
-        weeklyGoal: currentSettings.weeklyGoal || 0,
-        monthlyGoal: currentSettings.monthlyGoal || 0,
-      };
-      setSettings(migratedSettings);
-    }
-  }, []);
-
   // Get time entries for pay calculations
   const [entries, setEntries] = useLocalStorage<TimeEntry[]>("timeEntries", []);
   const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
@@ -84,10 +45,9 @@ const App: React.FC = () => {
     "payHistory",
     []
   );
-  const [dailySubmissions, setDailySubmissions] = useLocalStorage<DailySubmission[]>(
-    "dailySubmissions",
-    []
-  );
+  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
+    DailySubmission[]
+  >("dailySubmissions", []);
   const { totalDuration } = useTimeCalculations(entries);
 
   return (

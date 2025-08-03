@@ -63,14 +63,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     new Date().toISOString().split("T")[0]
   );
 
-  // Track if user has manually interacted with rate inputs
-  const [userHasInteractedWithHourlyRate, setUserHasInteractedWithHourlyRate] =
-    useState(false);
-  const [
-    userHasInteractedWithOvertimeRate,
-    setUserHasInteractedWithOvertimeRate,
-  ] = useState(false);
-
   // Track selected rate IDs for dropdowns
   const [selectedStandardRateId, setSelectedStandardRateId] =
     useLocalStorage<string>("selectedStandardRateId", "");
@@ -80,50 +72,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const totalSectionRef = useRef<HTMLDivElement>(null);
-
-  // Apply default rates from settings
-  useEffect(() => {
-    if (settings.standardRates) {
-      const defaultStandardRate = settings.standardRates.find(
-        (rate) => rate.isDefault
-      );
-      if (
-        defaultStandardRate &&
-        defaultStandardRate.rate > 0 &&
-        hourlyRate === 0 &&
-        !userHasInteractedWithHourlyRate
-      ) {
-        setHourlyRate(defaultStandardRate.rate);
-      }
-    }
-    if (settings.overtimeRates) {
-      const defaultOvertimeRate = settings.overtimeRates.find(
-        (rate) => rate.isDefault
-      );
-      if (
-        defaultOvertimeRate &&
-        defaultOvertimeRate.rate > 0 &&
-        overtimeRate === 0 &&
-        !userHasInteractedWithOvertimeRate
-      ) {
-        setOvertimeRate(defaultOvertimeRate.rate);
-      }
-    }
-  }, [
-    settings.standardRates,
-    settings.overtimeRates,
-    hourlyRate,
-    overtimeRate,
-    setHourlyRate,
-    userHasInteractedWithHourlyRate,
-    userHasInteractedWithOvertimeRate,
-  ]);
-
-  // Reset interaction flags when settings change (allows new defaults to be applied)
-  useEffect(() => {
-    setUserHasInteractedWithHourlyRate(false);
-    setUserHasInteractedWithOvertimeRate(false);
-  }, [settings.standardRates, settings.overtimeRates]);
 
   // Sync selected rate IDs with current rates and validate selections
   useEffect(() => {
@@ -768,13 +716,14 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       value={hourlyRate || ""}
                       onChange={(e) => {
                         setHourlyRate(parseFloat(e.target.value) || 0);
-                        setUserHasInteractedWithHourlyRate(true);
+                        // Clear dropdown selection when user manually edits
+                        setSelectedStandardRateId("");
                       }}
                       placeholder="e.g., 18.50"
                       className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
                     />
                     {settings.standardRates &&
-                      settings.standardRates.length > 1 && (
+                      settings.standardRates.length > 0 && (
                         <select
                           value={selectedStandardRateId}
                           onChange={(e) => {
@@ -783,7 +732,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                             );
                             if (selectedRate) {
                               setHourlyRate(selectedRate.rate);
-                              setUserHasInteractedWithHourlyRate(true);
                               setSelectedStandardRateId(e.target.value);
                             } else {
                               setSelectedStandardRateId("");
@@ -820,7 +768,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         value={manualHours || ""}
                         onChange={(e) => {
                           setManualHours(parseInt(e.target.value) || 0);
-                          setUserHasInteractedWithHourlyRate(true);
                         }}
                         placeholder="Hours"
                         className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
@@ -833,7 +780,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         value={manualMinutes || ""}
                         onChange={(e) => {
                           setManualMinutes(parseInt(e.target.value) || 0);
-                          setUserHasInteractedWithHourlyRate(true);
                         }}
                         placeholder="Minutes"
                         className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
@@ -859,13 +805,14 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       value={overtimeRate || ""}
                       onChange={(e) => {
                         setOvertimeRate(parseFloat(e.target.value) || 0);
-                        setUserHasInteractedWithOvertimeRate(true);
+                        // Clear dropdown selection when user manually edits
+                        setSelectedOvertimeRateId("");
                       }}
                       placeholder="e.g., 27.75"
                       className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
                     />
                     {settings.overtimeRates &&
-                      settings.overtimeRates.length > 1 && (
+                      settings.overtimeRates.length > 0 && (
                         <select
                           value={selectedOvertimeRateId}
                           onChange={(e) => {
@@ -874,7 +821,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                             );
                             if (selectedRate) {
                               setOvertimeRate(selectedRate.rate);
-                              setUserHasInteractedWithOvertimeRate(true);
                               setSelectedOvertimeRateId(e.target.value);
                             } else {
                               setSelectedOvertimeRateId("");
@@ -906,7 +852,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       value={overtimeHours || ""}
                       onChange={(e) => {
                         setOvertimeHours(parseInt(e.target.value) || 0);
-                        setUserHasInteractedWithOvertimeRate(true);
                       }}
                       placeholder="Hours"
                       className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
@@ -919,7 +864,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       value={overtimeMinutes || ""}
                       onChange={(e) => {
                         setOvertimeMinutes(parseInt(e.target.value) || 0);
-                        setUserHasInteractedWithOvertimeRate(true);
                       }}
                       placeholder="Minutes"
                       className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"

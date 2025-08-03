@@ -178,25 +178,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     <span className="text-xs font-medium text-slate-700">
                       {rate.name}
                     </span>
-                    <div className="flex gap-1">
-                      {rate.isDefault && (
-                        <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
-                          Default
-                        </span>
-                      )}
-                      <button
-                        onClick={() => {
-                          const newRates =
-                            settings.standardRates?.filter(
-                              (_, i) => i !== index
-                            ) || [];
-                          updateSettings({ standardRates: newRates });
-                        }}
-                        className="text-red-500 hover:text-red-700 text-xs"
-                      >
-                        ✕
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        const newRates =
+                          settings.standardRates?.filter(
+                            (_, i) => i !== index
+                          ) || [];
+                        updateSettings({ standardRates: newRates });
+                      }}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      ✕
+                    </button>
                   </div>
                   <div className="flex gap-1">
                     <input
@@ -212,25 +205,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
                       placeholder="0.00"
                     />
-                    <button
-                      onClick={() => {
-                        const newRates = (settings.standardRates || []).map(
-                          (r, i) => ({
-                            ...r,
-                            isDefault: i === index,
-                          })
-                        );
-                        updateSettings({ standardRates: newRates });
-                      }}
-                      disabled={rate.isDefault}
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        rate.isDefault
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                          : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                      }`}
-                    >
-                      Set Default
-                    </button>
                   </div>
                   <input
                     type="text"
@@ -253,7 +227,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       (settings.standardRates?.length || 0) + 1
                     }`,
                     rate: 0,
-                    isDefault: false,
                   };
                   updateSettings({
                     standardRates: [...(settings.standardRates || []), newRate],
@@ -281,25 +254,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     <span className="text-xs font-medium text-slate-700">
                       {rate.name}
                     </span>
-                    <div className="flex gap-1">
-                      {rate.isDefault && (
-                        <span className="text-xs bg-green-100 text-green-700 px-1 rounded">
-                          Default
-                        </span>
-                      )}
-                      <button
-                        onClick={() => {
-                          const newRates =
-                            settings.overtimeRates?.filter(
-                              (_, i) => i !== index
-                            ) || [];
-                          updateSettings({ overtimeRates: newRates });
-                        }}
-                        className="text-red-500 hover:text-red-700 text-xs"
-                      >
-                        ✕
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        const newRates =
+                          settings.overtimeRates?.filter(
+                            (_, i) => i !== index
+                          ) || [];
+                        updateSettings({ overtimeRates: newRates });
+                      }}
+                      className="text-red-500 hover:text-red-700 text-xs"
+                    >
+                      ✕
+                    </button>
                   </div>
                   <div className="flex gap-1">
                     <input
@@ -315,25 +281,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
                       placeholder="0.00"
                     />
-                    <button
-                      onClick={() => {
-                        const newRates = (settings.overtimeRates || []).map(
-                          (r, i) => ({
-                            ...r,
-                            isDefault: i === index,
-                          })
-                        );
-                        updateSettings({ overtimeRates: newRates });
-                      }}
-                      disabled={rate.isDefault}
-                      className={`text-xs px-2 py-0.5 rounded ${
-                        rate.isDefault
-                          ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                          : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                      }`}
-                    >
-                      Set Default
-                    </button>
                   </div>
                   <input
                     type="text"
@@ -356,7 +303,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       (settings.overtimeRates?.length || 0) + 1
                     }`,
                     rate: 0,
-                    isDefault: false,
                   };
                   updateSettings({
                     overtimeRates: [...(settings.overtimeRates || []), newRate],

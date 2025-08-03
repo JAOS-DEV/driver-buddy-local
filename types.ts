@@ -42,14 +42,12 @@ export interface StandardRate {
   id: string;
   name: string;
   rate: number;
-  isDefault: boolean;
 }
 
 export interface OvertimeRate {
   id: string;
   name: string;
   rate: number;
-  isDefault: boolean;
 }
 
 export interface Settings {
