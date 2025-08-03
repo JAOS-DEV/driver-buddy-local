@@ -46,6 +46,9 @@ const PayHistory: React.FC<PayHistoryProps> = ({
   // Dropdown menu state
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
+  // Height state for scroll container
+  const [payListHeight, setPayListHeight] = useState(400);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
@@ -58,12 +61,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         const containerTop = containerRect.top;
         const availableViewportHeight = viewportHeight - containerTop;
         const headerHeight = headerRef.current.offsetHeight;
-        const navBarHeight = 64;
-        const padding = 16;
+        const navBarHeight = 120; // Increased from 64
+        const padding = 80; // Increased from 16
 
         const availableHeight =
           availableViewportHeight - headerHeight - navBarHeight - padding;
         const finalHeight = Math.max(availableHeight, 100);
+        setPayListHeight(finalHeight);
       }
     };
 
@@ -718,7 +722,10 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
       {/* Pay List */}
       <div className="flex-1 px-3 overflow-hidden">
-        <div className="overflow-y-auto" style={{ height: "400px" }}>
+        <div
+          className="overflow-y-auto"
+          style={{ height: `${payListHeight}px` }}
+        >
           {Object.keys(paysByDate).length === 0 ? (
             <div className="text-center py-6">
               <p className="text-slate-500">

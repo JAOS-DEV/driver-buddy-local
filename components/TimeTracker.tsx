@@ -117,8 +117,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         const entriesHeaderHeight = entriesHeaderRef.current.offsetHeight;
 
         // Account for navigation bar height and padding
-        const navBarHeight = 80;
-        const bottomPadding = 32;
+        const navBarHeight = 120; // Increased from 80
+        const bottomPadding = 80; // Increased from 32
 
         if (activeTab === "tracker") {
           // For tracker view, account for form, total, and submit sections
@@ -785,13 +785,18 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                 new Date(b.timestamp).getTime() -
                                 new Date(a.timestamp).getTime()
                             )
-                            .map((submission) => (
+                            .map((submission, index) => (
                               <div
                                 key={submission.timestamp}
-                                className="border-l-2 border-slate-200 pl-3 relative"
+                                className={`border-l-2 border-slate-200 pl-3 relative ${
+                                  index > 0
+                                    ? "mt-3 pt-3 border-t border-slate-100"
+                                    : ""
+                                }`}
                               >
                                 <div className="flex justify-between items-center mb-1">
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs text-slate-400">
+                                    Submitted at:{" "}
                                     {submission.timestamp
                                       .split("T")[1]
                                       .substring(0, 5)}
@@ -885,9 +890,35 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                       </div>
                                     );
                                   })}
+                                  {/* Total time for this submission */}
+                                  <div className="pt-1 border-t border-slate-200">
+                                    <div className="flex justify-between items-center text-xs font-medium text-slate-700">
+                                      <span>Total:</span>
+                                      <span className="font-mono">
+                                        {formatDurationWithMinutes(
+                                          calculateTotalDuration(
+                                            submission.entries
+                                          )
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             ))}
+                          {/* Total time for all submissions on this day */}
+                          <div className="pt-2 border-t-2 border-slate-300">
+                            <div className="flex justify-between items-center text-sm font-bold text-slate-800">
+                              <span>Day Total:</span>
+                              <span className="font-mono">
+                                {formatDurationWithMinutes(
+                                  calculateTotalDuration(
+                                    submissions.flatMap((sub) => sub.entries)
+                                  )
+                                )}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     ))
