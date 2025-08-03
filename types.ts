@@ -67,6 +67,7 @@ export interface Settings {
   currency: string;
   weeklyGoal: number;
   monthlyGoal: number;
+  darkMode: boolean;
 }
 
 export interface ChatMessage {

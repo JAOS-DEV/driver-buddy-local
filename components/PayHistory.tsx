@@ -117,7 +117,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         <div className="w-full bg-slate-200 rounded-full h-2">
           <div
             className={`h-2 rounded-full ${
-              isOver ? "bg-green-500" : "bg-[#003D5B]"
+              isOver ? "bg-green-500" : "bg-gray-700"
             }`}
             style={{ width: `${percentage}%` }}
           ></div>
@@ -429,7 +429,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 type="date"
                 value={formData.date}
                 onChange={(e) => handleInputChange("date", e.target.value)}
-                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs min-w-0 max-w-full"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 text-xs min-w-0 max-w-full"
               />
             </div>
 
@@ -448,7 +448,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("standardHours", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <div>
@@ -464,7 +464,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("standardMinutes", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <div>
@@ -480,7 +480,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("standardRate", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
             </div>
@@ -500,7 +500,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("overtimeHours", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <div>
@@ -516,7 +516,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("overtimeMinutes", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <div>
@@ -532,7 +532,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                   onChange={(e) =>
                     handleInputChange("overtimeRate", e.target.value)
                   }
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
             </div>
@@ -546,7 +546,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 value={formData.notes}
                 onChange={(e) => handleInputChange("notes", e.target.value)}
                 rows={3}
-                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 placeholder="Add any notes about this pay entry..."
               />
             </div>
@@ -604,7 +604,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             </button>
             <button
               onClick={handleSave}
-              className="flex-1 py-2 px-4 bg-[#003D5B] text-white rounded-md hover:bg-[#002D4B] transition-colors"
+              className="flex-1 py-2 px-4 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors"
             >
               Save Changes
             </button>
@@ -617,7 +617,9 @@ const PayHistory: React.FC<PayHistoryProps> = ({
   return (
     <div
       ref={containerRef}
-      className="h-full flex flex-col text-[#003D5B] overflow-hidden"
+      className={`h-full flex flex-col overflow-hidden ${
+        settings.darkMode ? "text-gray-100" : "text-gray-800"
+      }`}
     >
       {/* Edit Modal */}
       {showEditModal && <EditPayModal />}
@@ -641,18 +643,38 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         {/* Summary */}
         <div
           ref={summaryRef}
-          className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80"
+          className={`p-1.5 rounded-lg border ${
+            settings.darkMode
+              ? "bg-gray-700/50 border-gray-600"
+              : "bg-white/50 border-gray-200/80"
+          }`}
         >
           <div className="grid grid-cols-2 gap-1.5 text-xs">
             {/* Row 1: Standard Pay vs Overtime Pay */}
             <div>
-              <span className="text-slate-500">Total Standard Pay:</span>
-              <div className="font-bold text-[#003D5B]">
+              <span
+                className={
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }
+              >
+                Total Standard Pay:
+              </span>
+              <div
+                className={`font-bold ${
+                  settings.darkMode ? "text-gray-100" : "text-gray-800"
+                }`}
+              >
                 {formatCurrency(periodTotals.standardPay)}
               </div>
             </div>
             <div>
-              <span className="text-slate-500">Total Overtime Pay:</span>
+              <span
+                className={
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }
+              >
+                Total Overtime Pay:
+              </span>
               <div className="font-bold text-orange-600">
                 {formatCurrency(periodTotals.overtimePay)}
               </div>
@@ -662,13 +684,25 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             {(periodTotals.totalTax > 0 || periodTotals.totalNI > 0) && (
               <>
                 <div>
-                  <span className="text-slate-500">Total Tax:</span>
+                  <span
+                    className={
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }
+                  >
+                    Total Tax:
+                  </span>
                   <div className="font-bold text-red-600">
                     {formatCurrency(periodTotals.totalTax)}
                   </div>
                 </div>
                 <div>
-                  <span className="text-slate-500">Total NI:</span>
+                  <span
+                    className={
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }
+                  >
+                    Total NI:
+                  </span>
                   <div className="font-bold text-orange-600">
                     {formatCurrency(periodTotals.totalNI)}
                   </div>
@@ -678,8 +712,18 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
             {/* Row 3: Hours vs Final Total */}
             <div>
-              <span className="text-slate-500">Total Hours:</span>
-              <div className="font-bold text-[#003D5B]">
+              <span
+                className={
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }
+              >
+                Total Hours:
+              </span>
+              <div
+                className={`font-bold ${
+                  settings.darkMode ? "text-gray-100" : "text-gray-800"
+                }`}
+              >
                 {Math.floor(
                   periodTotals.totalHours + periodTotals.totalMinutes / 60
                 )}
@@ -687,7 +731,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               </div>
             </div>
             <div>
-              <span className="text-slate-500">Final Total:</span>
+              <span
+                className={
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }
+              >
+                Final Total:
+              </span>
               <div className="font-bold text-green-600">
                 {formatCurrency(
                   settings.enableTaxCalculations &&

@@ -58,7 +58,7 @@ const UnionChatbot: React.FC = () => {
             <div
               className={`max-w-[80%] px-3 py-2 rounded-2xl ${
                 msg.sender === "user"
-                  ? "bg-[#003D5B] text-white rounded-br-none"
+                  ? "bg-gray-700 text-white rounded-br-none"
                   : "bg-white text-slate-800 border border-slate-200 rounded-bl-none"
               }`}
             >
@@ -86,13 +86,13 @@ const UnionChatbot: React.FC = () => {
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your rights..."
-            className="flex-1 p-2.5 bg-white border border-slate-300 rounded-full focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] outline-none text-sm"
+            className="flex-1 p-2.5 bg-white border border-slate-300 rounded-full focus:ring-2 focus:ring-gray-600 focus:border-gray-600 outline-none text-sm"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
-            className="bg-[#003D5B] text-white rounded-full p-2.5 hover:bg-sky-800 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
+            className="bg-gray-700 text-white rounded-full p-2.5 hover:bg-gray-600 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

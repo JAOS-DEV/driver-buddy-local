@@ -51,8 +51,8 @@ const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
       </div>
       <div className="w-full bg-slate-200 rounded-full h-2.5">
         <div
-          className={`h-2.5 rounded-full ${
-            isOver ? "bg-red-500" : "bg-[#003D5B]"
+          className={`h-2 rounded-full ${
+            isOver ? "bg-red-500" : "bg-gray-700"
           }`}
           style={{ width: `${percentage}%` }}
         ></div>
@@ -113,7 +113,7 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
   };
 
   return (
-    <div className="space-y-6 text-[#003D5B]">
+    <div className="space-y-6 text-gray-800">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold">Driving Time Limits (UK Standard)</h2>
       </div>

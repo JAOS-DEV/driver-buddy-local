@@ -29,9 +29,19 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
   goToCurrentPeriod,
 }) => {
   return (
-    <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+    <div
+      className={`p-1.5 rounded-lg border ${
+        settings.darkMode
+          ? "bg-gray-700/50 border-gray-600"
+          : "bg-white/50 border-gray-200/80"
+      }`}
+    >
       <div className="flex items-center justify-between mb-2">
-        <span className="text-xs font-bold tracking-wider uppercase text-slate-500">
+        <span
+          className={`text-xs font-bold tracking-wider uppercase ${
+            settings.darkMode ? "text-gray-400" : "text-slate-500"
+          }`}
+        >
           PERIOD
         </span>
         <div className="flex gap-1">
@@ -43,7 +53,11 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
             }}
             className={`px-2 py-1 text-xs rounded transition-colors ${
               selectedPeriod === "week"
-                ? "bg-[#003D5B] text-white"
+                ? settings.darkMode
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-700 text-white"
+                : settings.darkMode
+                ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
                 : "bg-slate-200 text-slate-600 hover:bg-slate-300"
             }`}
           >
@@ -60,7 +74,11 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
             }}
             className={`px-2 py-1 text-xs rounded transition-colors ${
               selectedPeriod === "month"
-                ? "bg-[#003D5B] text-white"
+                ? settings.darkMode
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-700 text-white"
+                : settings.darkMode
+                ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
                 : "bg-slate-200 text-slate-600 hover:bg-slate-300"
             }`}
           >
@@ -70,7 +88,11 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
             onClick={() => onPeriodChange("all")}
             className={`px-2 py-1 text-xs rounded transition-colors ${
               selectedPeriod === "all"
-                ? "bg-[#003D5B] text-white"
+                ? settings.darkMode
+                  ? "bg-gray-600 text-white"
+                  : "bg-gray-700 text-white"
+                : settings.darkMode
+                ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
                 : "bg-slate-200 text-slate-600 hover:bg-slate-300"
             }`}
           >
@@ -81,7 +103,13 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
 
       {/* Date Selection */}
       <div className="flex items-center justify-between">
-        <span className="text-xs text-slate-600">{getPeriodLabel()}</span>
+        <span
+          className={`text-xs ${
+            settings.darkMode ? "text-gray-400" : "text-slate-600"
+          }`}
+        >
+          {getPeriodLabel()}
+        </span>
         {selectedPeriod !== "all" && (
           <div className="flex items-center gap-2">
             <button
@@ -90,14 +118,22 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                   ? navigateWeek("prev")
                   : navigateMonth("prev")
               }
-              className="p-1 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
+              className={`p-1 rounded transition-colors ${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-600"
+                  : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
+              }`}
               title={`Previous ${selectedPeriod}`}
             >
               ←
             </button>
             <button
               onClick={goToCurrentPeriod}
-              className="px-2 py-1 text-xs bg-slate-200 text-slate-600 hover:bg-slate-300 rounded transition-colors"
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                settings.darkMode
+                  ? "bg-gray-600 text-gray-300 hover:bg-gray-500"
+                  : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+              }`}
               title={`Go to current ${selectedPeriod}`}
             >
               {selectedPeriod === "week" ? "This Week" : "This Month"}
@@ -108,7 +144,11 @@ const PeriodSelector: React.FC<PeriodSelectorProps> = ({
                   ? navigateWeek("next")
                   : navigateMonth("next")
               }
-              className="p-1 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
+              className={`p-1 rounded transition-colors ${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200 hover:bg-gray-600"
+                  : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"
+              }`}
               title={`Next ${selectedPeriod}`}
             >
               →

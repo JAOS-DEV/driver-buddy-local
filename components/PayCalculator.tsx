@@ -298,13 +298,31 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   // Breakdown Modal Component
   const BreakdownModal = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
-      <div className="bg-white rounded-lg w-full max-w-sm mx-auto max-h-[90vh] overflow-y-auto">
-        <div className="p-3 border-b border-gray-200">
+      <div
+        className={`rounded-lg w-full max-w-sm mx-auto max-h-[90vh] overflow-y-auto ${
+          settings.darkMode ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        <div
+          className={`p-3 border-b ${
+            settings.darkMode ? "border-gray-600" : "border-gray-200"
+          }`}
+        >
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-slate-800">Pay Breakdown</h3>
+            <h3
+              className={`text-lg font-bold ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
+              Pay Breakdown
+            </h3>
             <button
               onClick={() => setShowBreakdownModal(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className={`transition-colors ${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
             >
               ✕
             </button>
@@ -315,14 +333,32 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           {/* Time Breakdown - only show if not manual hours and there are both submitted and unsubmitted entries */}
           {!useManualHours &&
             (timeBreakdown.submitted > 0 || timeBreakdown.unsubmitted > 0) && (
-              <div className="mb-3 p-2 bg-slate-50 rounded-md">
-                <div className="text-xs font-medium text-slate-600 mb-2">
+              <div
+                className={`mb-3 p-2 rounded-md ${
+                  settings.darkMode ? "bg-gray-700" : "bg-slate-50"
+                }`}
+              >
+                <div
+                  className={`text-xs font-medium mb-2 ${
+                    settings.darkMode ? "text-gray-300" : "text-slate-600"
+                  }`}
+                >
                   Time Breakdown:
                 </div>
                 {timeBreakdown.submitted > 0 && (
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Submitted:</span>
-                    <span className="font-mono text-slate-600">
+                    <span
+                      className={
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }
+                    >
+                      Submitted:
+                    </span>
+                    <span
+                      className={`font-mono ${
+                        settings.darkMode ? "text-gray-300" : "text-slate-600"
+                      }`}
+                    >
                       {formatDurationWithMinutes({
                         hours: Math.floor(timeBreakdown.submitted / 60),
                         minutes: timeBreakdown.submitted % 60,
@@ -333,8 +369,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 )}
                 {timeBreakdown.unsubmitted > 0 && (
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500">Unsubmitted:</span>
-                    <span className="font-mono text-slate-600">
+                    <span
+                      className={
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }
+                    >
+                      Unsubmitted:
+                    </span>
+                    <span
+                      className={`font-mono ${
+                        settings.darkMode ? "text-gray-300" : "text-slate-600"
+                      }`}
+                    >
                       {formatDurationWithMinutes({
                         hours: Math.floor(timeBreakdown.unsubmitted / 60),
                         minutes: timeBreakdown.unsubmitted % 60,
@@ -343,9 +389,23 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between items-center text-xs font-medium mt-1 pt-1 border-t border-slate-200">
-                  <span className="text-slate-700">Total:</span>
-                  <span className="font-mono text-slate-800">
+                <div
+                  className={`flex justify-between items-center text-xs font-medium mt-1 pt-1 border-t ${
+                    settings.darkMode ? "border-gray-600" : "border-slate-200"
+                  }`}
+                >
+                  <span
+                    className={
+                      settings.darkMode ? "text-gray-200" : "text-slate-700"
+                    }
+                  >
+                    Total:
+                  </span>
+                  <span
+                    className={`font-mono ${
+                      settings.darkMode ? "text-gray-100" : "text-slate-800"
+                    }`}
+                  >
                     {formatDurationWithMinutes({
                       hours: Math.floor(timeBreakdown.total / 60),
                       minutes: timeBreakdown.total % 60,
@@ -358,8 +418,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
           {/* Standard Hours */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-600">Standard Hours:</span>
-            <span className="font-mono text-base font-medium text-slate-800">
+            <span
+              className={`text-sm ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
+              Standard Hours:
+            </span>
+            <span
+              className={`font-mono text-base font-medium ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
               {duration.hours}:{duration.minutes.toString().padStart(2, "0")} @{" "}
               {formatCurrency(hourlyRate)}
             </span>
@@ -367,8 +437,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
           {/* Standard Pay */}
           <div className="flex justify-between items-center">
-            <span className="text-sm text-slate-600">Standard Pay:</span>
-            <span className="font-mono text-base font-medium text-slate-800">
+            <span
+              className={`text-sm ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
+              Standard Pay:
+            </span>
+            <span
+              className={`font-mono text-base font-medium ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
               {formatCurrency(standardEarnings)}
             </span>
           </div>
@@ -420,12 +500,24 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           )}
 
           {/* Total Pay */}
-          <div className="pt-2 border-t border-slate-200 mt-2">
+          <div
+            className={`pt-2 border-t mt-2 ${
+              settings.darkMode ? "border-gray-600" : "border-slate-200"
+            }`}
+          >
             <div className="flex justify-between items-center">
-              <span className="text-base font-bold text-slate-700">
+              <span
+                className={`text-base font-bold ${
+                  settings.darkMode ? "text-gray-200" : "text-slate-700"
+                }`}
+              >
                 Total Pay:
               </span>
-              <span className="font-mono text-xl font-bold text-slate-800">
+              <span
+                className={`font-mono text-xl font-bold ${
+                  settings.darkMode ? "text-gray-100" : "text-slate-800"
+                }`}
+              >
                 {formatCurrency(
                   settings.enableTaxCalculations &&
                     settings.enableNiCalculations
@@ -447,15 +539,31 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   // Info Modal Component
   const InfoModal = () => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
-      <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
-        <div className="p-3 border-b border-gray-200">
+      <div
+        className={`rounded-lg w-full max-w-sm mx-auto ${
+          settings.darkMode ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        <div
+          className={`p-3 border-b ${
+            settings.darkMode ? "border-gray-600" : "border-gray-200"
+          }`}
+        >
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-bold text-slate-800">
+            <h3
+              className={`text-lg font-bold ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
               Calculation Methods
             </h3>
             <button
               onClick={() => setShowInfoModal(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className={`transition-colors ${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
             >
               ✕
             </button>
@@ -464,10 +572,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
         <div className="p-3 space-y-3">
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               Time Tracker Mode
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               Automatically calculates your pay based on the total time tracked
               in the Time Tracker. This uses the accumulated hours and minutes
               from your time entries.
@@ -475,18 +591,34 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               Manual Hours Mode
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               Manually enter your hours and minutes worked. Useful when you want
               to calculate pay for a specific period or when you have your hours
               from another source.
             </p>
           </div>
 
-          <div className="pt-2 border-t border-gray-200">
-            <p className="text-xs text-slate-500">
+          <div
+            className={`pt-2 border-t ${
+              settings.darkMode ? "border-gray-600" : "border-gray-200"
+            }`}
+          >
+            <p
+              className={`text-xs ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               💡 <strong>Tip:</strong> Use Time Tracker for automatic
               calculations from your tracked time, or Manual Hours when you have
               specific hours to calculate.
@@ -631,9 +763,51 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   return (
     <div
-      ref={containerRef}
-      className="h-full flex flex-col text-[#003D5B] overflow-hidden relative"
+      className={`h-full flex flex-col ${
+        settings.darkMode ? "bg-gray-800" : "bg-[#FAF7F0]"
+      }`}
     >
+      {/* Header */}
+      <div className="flex-shrink-0 p-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2
+              className={`text-lg font-bold ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
+              Pay Calculator
+            </h2>
+            <p
+              className={`text-xs ${
+                settings.darkMode ? "text-gray-400" : "text-slate-600"
+              }`}
+            >
+              Calculate your earnings
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowInfoModal(true)}
+              className={`p-1 rounded-md transition-colors ${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+              title="About calculation methods"
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Success Toast */}
       {showSaveSuccess && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
@@ -664,7 +838,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             onClick={() => setActiveTab("calculator")}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "calculator"
-                ? "text-[#003D5B] border-b-2 border-[#003D5B]"
+                ? settings.darkMode
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-800 border-b-2 border-gray-800"
+                : settings.darkMode
+                ? "text-gray-400 hover:text-gray-200"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -674,7 +852,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             onClick={() => setActiveTab("history")}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "history"
-                ? "text-[#003D5B] border-b-2 border-[#003D5B]"
+                ? settings.darkMode
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-800 border-b-2 border-gray-800"
+                : settings.darkMode
+                ? "text-gray-400 hover:text-gray-200"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -688,9 +870,25 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         <>
           <div ref={inputSectionRef} className="flex-shrink-0 space-y-1 p-3">
             {/* Toggle Section */}
-            <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+            <div
+              className={`p-1.5 rounded-lg border ${
+                settings.darkMode
+                  ? "bg-gray-700/50 border-gray-600"
+                  : "bg-white/50 border-gray-200/80"
+              }`}
+            >
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-bold tracking-wider uppercase text-slate-500">
+                <label
+                  className={`text-xs font-bold tracking-wider uppercase ${
+                    !useManualHours
+                      ? settings.darkMode
+                        ? "text-gray-100"
+                        : "text-gray-800"
+                      : settings.darkMode
+                      ? "text-gray-400"
+                      : "text-slate-500"
+                  }`}
+                >
                   CALCULATION METHOD
                 </label>
                 <button
@@ -721,13 +919,13 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </span>
                 <button
                   onClick={() => setUseManualHours(!useManualHours)}
-                  className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${
-                    useManualHours ? "bg-[#003D5B]" : "bg-slate-300"
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    useManualHours ? "bg-gray-700" : "bg-slate-300"
                   }`}
                 >
                   <span
-                    className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                      useManualHours ? "translate-x-4" : "translate-x-0.5"
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      useManualHours ? "translate-x-6" : "translate-x-1"
                     }`}
                   />
                 </button>
@@ -750,10 +948,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 } gap-1`}
               >
                 {/* Hourly Rate Input */}
-                <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+                <div
+                  className={`p-1.5 rounded-lg border ${
+                    settings.darkMode
+                      ? "bg-gray-700/50 border-gray-600"
+                      : "bg-white/50 border-gray-200/80"
+                  }`}
+                >
                   <label
                     htmlFor="hourly-rate"
-                    className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                    className={`text-xs font-bold tracking-wider uppercase block mb-1 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
                   >
                     HOURLY RATE (£)
                   </label>
@@ -771,7 +977,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setSelectedStandardRateId("");
                       }}
                       placeholder="e.g., 18.50"
-                      className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
+                      className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0"
                     />
                     {settings.standardRates &&
                       settings.standardRates.length > 0 && (
@@ -788,7 +994,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                               setSelectedStandardRateId("");
                             }
                           }}
-                          className="mt-1 p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
+                          className="mt-1 p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0"
                         >
                           <option value="">Select...</option>
                           {settings.standardRates.map((rate) => (
@@ -803,10 +1009,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
                 {/* Manual Hours Input */}
                 {useManualHours && (
-                  <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+                  <div
+                    className={`p-1.5 rounded-lg border ${
+                      settings.darkMode
+                        ? "bg-gray-700/50 border-gray-600"
+                        : "bg-white/50 border-gray-200/80"
+                    }`}
+                  >
                     <label
                       htmlFor="manual-hours"
-                      className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1"
+                      className={`text-xs font-bold tracking-wider uppercase block mb-1 ${
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }`}
                     >
                       MANUAL HOURS
                     </label>
@@ -821,7 +1035,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                           setManualHours(parseInt(e.target.value) || 0);
                         }}
                         placeholder="Hours"
-                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                       />
                       <input
                         type="number"
@@ -833,7 +1047,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                           setManualMinutes(parseInt(e.target.value) || 0);
                         }}
                         placeholder="Minutes"
-                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                       />
                     </div>
                   </div>
@@ -843,8 +1057,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               {/* Overtime Section */}
               <div className="grid grid-cols-2 gap-1">
                 {/* Overtime Rate Input */}
-                <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-                  <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
+                <div
+                  className={`p-1.5 rounded-lg border ${
+                    settings.darkMode
+                      ? "bg-gray-700/50 border-gray-600"
+                      : "bg-white/50 border-gray-200/80"
+                  }`}
+                >
+                  <label
+                    className={`text-xs font-bold tracking-wider uppercase block mb-1 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     OVERTIME RATE (£)
                   </label>
                   <div className="flex gap-1">
@@ -860,7 +1084,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setSelectedOvertimeRateId("");
                       }}
                       placeholder="e.g., 27.75"
-                      className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
+                      className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0"
                     />
                     {settings.overtimeRates &&
                       settings.overtimeRates.length > 0 && (
@@ -877,7 +1101,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                               setSelectedOvertimeRateId("");
                             }
                           }}
-                          className="p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
+                          className="p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0"
                         >
                           <option value="">Select...</option>
                           {settings.overtimeRates.map((rate) => (
@@ -891,8 +1115,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </div>
 
                 {/* Overtime Hours Input */}
-                <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-                  <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
+                <div
+                  className={`p-1.5 rounded-lg border ${
+                    settings.darkMode
+                      ? "bg-gray-700/50 border-gray-600"
+                      : "bg-white/50 border-gray-200/80"
+                  }`}
+                >
+                  <label
+                    className={`text-xs font-bold tracking-wider uppercase block mb-1 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     OVERTIME HOURS
                   </label>
                   <div className="grid grid-cols-2 gap-1">
@@ -905,7 +1139,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setOvertimeHours(parseInt(e.target.value) || 0);
                       }}
                       placeholder="Hours"
-                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                     />
                     <input
                       type="number"
@@ -917,7 +1151,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setOvertimeMinutes(parseInt(e.target.value) || 0);
                       }}
                       placeholder="Minutes"
-                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                     />
                   </div>
                 </div>
@@ -927,10 +1161,20 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
           {/* Total Pay Display */}
           <div className="flex-1 px-3 flex items-center justify-center min-h-0">
-            <div className="bg-white/80 p-3 rounded-lg border shadow-sm w-full max-w-sm flex flex-col justify-center min-h-[100px]">
+            <div
+              className={`p-3 rounded-lg border shadow-sm w-full max-w-sm flex flex-col justify-center min-h-[100px] ${
+                settings.darkMode
+                  ? "bg-gray-700/50 border-gray-600"
+                  : "bg-white/80 border-gray-200"
+              }`}
+            >
               <div className="text-center">
                 <div className="flex items-center justify-center gap-1 mb-1.5">
-                  <h3 className="text-sm font-bold text-slate-700">
+                  <h3
+                    className={`text-sm font-bold ${
+                      settings.darkMode ? "text-gray-100" : "text-slate-700"
+                    }`}
+                  >
                     Total Pay
                   </h3>
                   {(settings.enableTaxCalculations ||
@@ -954,7 +1198,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                     </button>
                   )}
                 </div>
-                <p className="text-xl font-bold text-[#003D5B] font-mono mb-2">
+                <p className="text-xl font-bold text-gray-800 font-mono mb-2">
                   {formatCurrency(
                     settings.enableTaxCalculations &&
                       settings.enableNiCalculations
@@ -971,7 +1215,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 {!useManualHours &&
                   (timeBreakdown.submitted > 0 ||
                     timeBreakdown.unsubmitted > 0) && (
-                    <div className="mb-2 text-xs text-slate-500">
+                    <div
+                      className={`mb-2 text-xs ${
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }`}
+                    >
                       {timeBreakdown.submitted > 0 &&
                         timeBreakdown.unsubmitted > 0 && (
                           <span>
@@ -1016,7 +1264,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
                 <button
                   onClick={() => setShowBreakdownModal(true)}
-                  className="w-full bg-slate-100 text-slate-700 py-1.5 px-3 rounded-md hover:bg-slate-200 transition-colors text-sm font-medium"
+                  className={`w-full py-1.5 px-3 rounded-md transition-colors text-sm font-medium ${
+                    settings.darkMode
+                      ? "bg-gray-600 text-gray-100 hover:bg-gray-500"
+                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  }`}
                 >
                   View Breakdown
                 </button>
@@ -1057,7 +1309,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 type="date"
                 value={payDate}
                 onChange={(e) => setPayDate(e.target.value)}
-                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
+                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block"
               />
             </div>
 
@@ -1067,7 +1319,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               disabled={totalEarnings <= 0}
               className={`w-full py-1.5 px-3 rounded-lg font-bold transition-colors text-sm ${
                 totalEarnings > 0
-                  ? "bg-[#003D5B] text-white hover:bg-[#002D4B]"
+                  ? "bg-gray-700 text-white hover:bg-gray-600"
                   : "bg-slate-300 text-slate-500 cursor-not-allowed"
               }`}
             >

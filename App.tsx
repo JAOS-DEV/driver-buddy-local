@@ -36,6 +36,7 @@ const App: React.FC = () => {
     currency: "GBP",
     weeklyGoal: 0,
     monthlyGoal: 0,
+    darkMode: false,
   });
 
   // Get time entries for pay calculations
@@ -51,9 +52,19 @@ const App: React.FC = () => {
   const { totalDuration } = useTimeCalculations(entries);
 
   return (
-    <div className="h-[100dvh] w-full flex items-center justify-center bg-[#FAF7F0] overflow-hidden">
+    <div
+      className={`h-[100dvh] w-full flex items-center justify-center overflow-hidden ${
+        settings.darkMode ? "bg-gray-900" : "bg-[#FAF7F0]"
+      }`}
+    >
       {/* Mobile container - full height on mobile, larger fixed height on desktop */}
-      <div className="w-full h-full sm:h-[700px] sm:max-w-md bg-[#FAF7F0] sm:rounded-3xl sm:shadow-2xl sm:border sm:border-slate-200/50 flex flex-col overflow-hidden mx-auto">
+      <div
+        className={`w-full h-full sm:h-[700px] sm:max-w-md sm:rounded-3xl sm:shadow-2xl sm:border flex flex-col overflow-hidden mx-auto ${
+          settings.darkMode
+            ? "bg-gray-800 sm:border-gray-600/50"
+            : "bg-[#FAF7F0] sm:border-slate-200/50"
+        }`}
+      >
         <div className="flex-1 overflow-hidden pt-2 pr-6 pl-6 pb-0">
           {activeView === View.WORK && (
             <WorkLog
@@ -83,7 +94,11 @@ const App: React.FC = () => {
             <SettingsComponent settings={settings} setSettings={setSettings} />
           )}
         </div>
-        <BottomNav activeView={activeView} setActiveView={setActiveView} />
+        <BottomNav
+          activeView={activeView}
+          setActiveView={setActiveView}
+          settings={settings}
+        />
       </div>
     </div>
   );

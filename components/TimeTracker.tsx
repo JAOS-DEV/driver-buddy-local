@@ -453,7 +453,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   return (
     <div
       ref={containerRef}
-      className="h-full flex flex-col text-[#003D5B] overflow-hidden relative"
+      className={`h-full flex flex-col overflow-hidden relative ${
+        settings.darkMode ? "text-gray-100" : "text-gray-800"
+      }`}
     >
       {/* Toast Notification */}
       {toast.visible && (
@@ -465,13 +467,23 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       )}
 
       {/* Internal Navigation Tabs */}
-      <div className="flex-shrink-0 bg-white/50 border-b border-gray-200/80">
+      <div
+        className={`flex-shrink-0 border-b ${
+          settings.darkMode
+            ? "bg-gray-800/50 border-gray-600/80"
+            : "bg-white/50 border-gray-200/80"
+        }`}
+      >
         <div className="flex">
           <button
             onClick={() => setActiveTab("tracker")}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "tracker"
-                ? "text-[#003D5B] border-b-2 border-[#003D5B]"
+                ? settings.darkMode
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-800 border-b-2 border-gray-800"
+                : settings.darkMode
+                ? "text-gray-400 hover:text-gray-200"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -481,7 +493,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             onClick={() => setActiveTab("history")}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "history"
-                ? "text-[#003D5B] border-b-2 border-[#003D5B]"
+                ? settings.darkMode
+                  ? "text-white border-b-2 border-white"
+                  : "text-gray-800 border-b-2 border-gray-800"
+                : settings.darkMode
+                ? "text-gray-400 hover:text-gray-200"
                 : "text-slate-500 hover:text-slate-700"
             }`}
           >
@@ -497,12 +513,20 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <div ref={formRef} className="flex-shrink-0 p-3">
             <div className="flex justify-between items-center mb-3">
               <div className="flex items-center gap-1">
-                <h2 className="text-xs font-bold tracking-wider uppercase text-slate-500">
+                <h2
+                  className={`text-xs font-bold tracking-wider uppercase ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
+                >
                   TODAY'S ENTRIES
                 </h2>
                 <button
                   onClick={() => setShowTimeFormatModal(true)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className={`transition-colors ${
+                    settings.darkMode
+                      ? "text-gray-400 hover:text-gray-200"
+                      : "text-slate-400 hover:text-slate-600"
+                  }`}
                   title="How to enter time format"
                 >
                   <svg
@@ -522,13 +546,19 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
             <form
               onSubmit={handleAddEntry}
-              className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80 mb-2"
+              className={`p-1.5 rounded-lg border mb-2 ${
+                settings.darkMode
+                  ? "bg-gray-700/50 border-gray-600"
+                  : "bg-white/50 border-gray-200/80"
+              }`}
             >
               <div className="grid grid-cols-2 gap-2 mb-1.5">
                 <div className="min-h-[2rem]">
                   <label
                     htmlFor="start-time"
-                    className="text-xs font-bold tracking-wider uppercase text-slate-500"
+                    className={`text-xs font-bold tracking-wider uppercase ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
                   >
                     START TIME
                   </label>
@@ -542,8 +572,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     maxLength={5}
                     value={startTime}
                     onChange={handleStartTimeChange}
-                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
-                      startTimeError ? "border-red-500" : "border-slate-300"
+                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                      startTimeError
+                        ? "border-red-500"
+                        : settings.darkMode
+                        ? "border-gray-500"
+                        : "border-slate-300"
                     }`}
                   />
                   {startTimeError && (
@@ -555,7 +589,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 <div className="min-h-[2rem]">
                   <label
                     htmlFor="end-time"
-                    className="text-xs font-bold tracking-wider uppercase text-slate-500"
+                    className={`text-xs font-bold tracking-wider uppercase ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
                   >
                     END TIME
                   </label>
@@ -570,8 +606,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     maxLength={5}
                     value={endTime}
                     onChange={handleEndTimeChange}
-                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
-                      endTimeError ? "border-red-500" : "border-slate-300"
+                    className={`mt-0.5 w-full p-0.5 text-base bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                      endTimeError
+                        ? "border-red-500"
+                        : settings.darkMode
+                        ? "border-gray-500"
+                        : "border-slate-300"
                     }`}
                   />
                   {endTimeError && (
@@ -584,7 +624,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               <button
                 type="submit"
                 disabled={!isFormValid}
-                className="w-full flex items-center justify-center gap-2 bg-[#003D5B] text-white font-bold py-1 px-2 rounded-md hover:bg-sky-800 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-gray-700 text-white font-bold py-1 px-2 rounded-md hover:bg-gray-600 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed text-sm"
               >
                 <PlusIcon className="h-3 w-3" />
                 Add Entry
@@ -597,7 +637,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             <div>
               <h2
                 ref={entriesHeaderRef}
-                className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-1.5"
+                className={`text-xs font-bold tracking-wider uppercase mb-1.5 ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
               >
                 ENTRIES
               </h2>
@@ -607,7 +649,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               >
                 <div className="space-y-1.5">
                   {entries.length === 0 ? (
-                    <p className="text-center text-slate-500 py-3">
+                    <p
+                      className={`text-center py-3 ${
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }`}
+                    >
                       No entries yet.
                     </p>
                   ) : (
@@ -637,15 +683,33 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       return (
                         <div
                           key={entry.id}
-                          className="flex items-center justify-between bg-white/50 p-1.5 rounded-md border border-gray-200/50"
+                          className={`flex items-center justify-between p-1.5 rounded-md border ${
+                            settings.darkMode
+                              ? "bg-gray-700/50 border-gray-600/50"
+                              : "bg-white/50 border-gray-200/50"
+                          }`}
                         >
                           <div className="flex items-center space-x-2 text-sm">
                             <span>{displayStartTime}</span>
-                            <span className="text-slate-400">&mdash;</span>
+                            <span
+                              className={
+                                settings.darkMode
+                                  ? "text-gray-400"
+                                  : "text-slate-400"
+                              }
+                            >
+                              &mdash;
+                            </span>
                             <span>{displayEndTime}</span>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="font-mono text-sm text-slate-600">
+                            <span
+                              className={`font-mono text-sm ${
+                                settings.darkMode
+                                  ? "text-gray-300"
+                                  : "text-slate-600"
+                              }`}
+                            >
                               {formatDurationWithMinutes(duration)}
                             </span>
                             <button
@@ -673,7 +737,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
                 TOTAL
               </h2>
-              <p className="text-xl font-bold text-[#003D5B] font-mono">
+              <p className="text-xl font-bold text-gray-800 font-mono">
                 {formatDurationWithMinutes(totalDuration)}
               </p>
             </div>
@@ -690,7 +754,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 type="date"
                 value={submitDate}
                 onChange={(e) => setSubmitDate(e.target.value)}
-                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] mx-auto block"
+                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block"
               />
             </div>
 
@@ -700,7 +764,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               disabled={entries.length === 0}
               className={`w-full py-1.5 px-3 rounded-lg font-bold transition-colors text-sm ${
                 entries.length > 0
-                  ? "bg-[#003D5B] text-white hover:bg-[#002D4B]"
+                  ? "bg-gray-700 text-white hover:bg-gray-600"
                   : "bg-slate-300 text-slate-500 cursor-not-allowed"
               }`}
             >
@@ -963,7 +1027,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     };
                     setEditingSubmission(updatedSubmission);
                   }}
-                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] text-xs bg-white min-w-0 text-slate-700 max-w-full"
+                  className="w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 text-xs bg-white min-w-0 text-slate-700 max-w-full"
                 />
               </div>
 
@@ -1176,7 +1240,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                               };
                               setEditingSubmission(updatedSubmission);
                             }}
-                            className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] ${
+                            className={`w-full p-2 border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
                               editTimeErrors[`endTime-${index}`]
                                 ? "border-red-300 bg-red-50"
                                 : "border-slate-300"
@@ -1347,7 +1411,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     );
                   })
                 }
-                className="flex-1 py-2 px-4 bg-[#003D5B] text-white rounded-md hover:bg-[#002D4B] transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
+                className="flex-1 py-2 px-4 bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors disabled:bg-slate-400 disabled:cursor-not-allowed"
               >
                 Save Changes
               </button>

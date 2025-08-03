@@ -116,20 +116,46 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
   };
 
   return (
-    <div className="h-full flex flex-col text-[#003D5B]">
+    <div
+      className={`h-full flex flex-col ${
+        settings.darkMode
+          ? "text-gray-100 bg-gray-800"
+          : "text-[#003D5B] bg-[#FAF7F0]"
+      }`}
+    >
       <div className="flex-1 overflow-y-auto pb-6">
         <div className="space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h2 className="text-lg font-bold">Settings</h2>
-            <p className="text-xs text-slate-500 mt-1">
+            <h2
+              className={`text-lg font-bold ${
+                settings.darkMode ? "text-gray-100" : "text-slate-800"
+              }`}
+            >
+              Settings
+            </h2>
+            <p
+              className={`text-xs mt-1 ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               Configure your preferences
             </p>
           </div>
 
           {/* Week Start Day */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Week Configuration
             </h3>
             <div className="space-y-2">
@@ -146,7 +172,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                   onChange={(e) =>
                     updateSettings({ weekStartDay: e.target.value as any })
                   }
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 >
                   <option value="monday">Monday</option>
                   <option value="tuesday">Tuesday</option>
@@ -163,9 +189,70 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
             </div>
           </div>
 
+          {/* Dark Mode Toggle */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Appearance
+            </h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <label
+                    className={`text-xs font-bold tracking-wider uppercase block mb-0.5 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
+                    DARK MODE
+                  </label>
+                  <p
+                    className={`text-xs ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
+                    Switch between light and dark themes
+                  </p>
+                </div>
+                <button
+                  onClick={() =>
+                    updateSettings({ darkMode: !settings.darkMode })
+                  }
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    settings.darkMode ? "bg-gray-700" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      settings.darkMode ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Standard Rates */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Standard Rates
             </h3>
             <div className="space-y-2">
@@ -202,7 +289,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                         newRates[index].rate = parseFloat(e.target.value) || 0;
                         updateSettings({ standardRates: newRates });
                       }}
-                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
                       placeholder="0.00"
                     />
                   </div>
@@ -214,7 +301,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       newRates[index].name = e.target.value;
                       updateSettings({ standardRates: newRates });
                     }}
-                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
                     placeholder="Rate name"
                   />
                 </div>
@@ -240,8 +327,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Overtime Rates */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Overtime Rates
             </h3>
             <div className="space-y-2">
@@ -278,7 +375,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                         newRates[index].rate = parseFloat(e.target.value) || 0;
                         updateSettings({ overtimeRates: newRates });
                       }}
-                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
                       placeholder="0.00"
                     />
                   </div>
@@ -290,7 +387,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       newRates[index].name = e.target.value;
                       updateSettings({ overtimeRates: newRates });
                     }}
-                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-[#003D5B]"
+                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
                     placeholder="Rate name"
                   />
                 </div>
@@ -316,8 +413,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Tax Calculations */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Tax Calculations
             </h3>
             <div className="space-y-2">
@@ -373,7 +480,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                       })
                     }
                     placeholder="e.g., 20"
-                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                   />
                   <p className="text-xs text-slate-500 mt-0.5">
                     Standard UK tax rate is 20%. This will show after-tax
@@ -385,8 +492,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* NI Calculations */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               National Insurance
             </h3>
             <div className="space-y-2">
@@ -429,8 +546,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Earning Goals */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Earning Goals
             </h3>
             <div className="space-y-2">
@@ -454,7 +581,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 800"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <div>
@@ -477,7 +604,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
                     })
                   }
                   placeholder="e.g., 3200"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                 />
               </div>
               <p className="text-xs text-slate-500">
@@ -487,8 +614,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* Data Management */}
-          <div className="bg-white/50 p-2 rounded-lg border border-gray-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               Data Management
             </h3>
             <div className="space-y-2">
@@ -517,8 +654,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
           </div>
 
           {/* App Info */}
-          <div className="bg-slate-50 p-2 rounded-lg border border-slate-200/80">
-            <h3 className="text-sm font-bold mb-2 text-slate-700">
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
               About Driver Buddy
             </h3>
             <div className="space-y-1.5 text-xs text-slate-600">
