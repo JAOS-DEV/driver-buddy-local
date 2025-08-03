@@ -1,9 +1,11 @@
 import { useMemo } from "react";
+import { Settings } from "../types";
 
 export const usePeriodFilter = <T extends { date: string }>(
   data: T[],
   selectedPeriod: "week" | "month" | "all",
-  selectedDate: string
+  selectedDate: string,
+  settings: Settings
 ) => {
   const filteredData = useMemo(() => {
     if (selectedPeriod === "all") {
@@ -22,8 +24,8 @@ export const usePeriodFilter = <T extends { date: string }>(
     };
 
     if (selectedPeriod === "week") {
-      // Calculate week start based on the selected date
-      const weekStartDay = weekStartDayMap["monday"]; // Default to Monday for consistency
+      // Calculate week start based on the selected date and settings
+      const weekStartDay = weekStartDayMap[settings.weekStartDay];
       const currentDay = selectedDateObj.getDay();
 
       // Calculate days to subtract to get to the start of the current week
@@ -60,7 +62,7 @@ export const usePeriodFilter = <T extends { date: string }>(
     }
 
     return data;
-  }, [data, selectedPeriod, selectedDate]);
+  }, [data, selectedPeriod, selectedDate, settings]);
 
   return filteredData;
 };

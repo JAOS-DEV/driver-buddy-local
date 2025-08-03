@@ -44,6 +44,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     [key: string]: string;
   }>({});
 
+  // Dropdown menu state
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+
   const [submitDate, setSubmitDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
@@ -70,7 +73,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const filteredSubmissions = usePeriodFilter(
     dailySubmissions,
     selectedPeriod,
-    selectedDate
+    selectedDate,
+    settings
   );
 
   const {
@@ -290,11 +294,26 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   };
 
   const handleSaveEdit = (updatedSubmission: DailySubmission) => {
-    setDailySubmissions(
-      dailySubmissions.map((sub) =>
-        sub.timestamp === updatedSubmission.timestamp ? updatedSubmission : sub
-      )
-    );
+    // Check if this is a new duplicated entry (recent timestamp) or existing entry
+    const isNewEntry =
+      updatedSubmission.timestamp === editingSubmission?.timestamp &&
+      Math.abs(
+        new Date(updatedSubmission.timestamp).getTime() - new Date().getTime()
+      ) < 5000; // Within 5 seconds
+
+    if (isNewEntry) {
+      // This is a new duplicated entry, add it to daily submissions
+      setDailySubmissions([updatedSubmission, ...dailySubmissions]);
+    } else {
+      // This is an existing entry being edited, update it
+      setDailySubmissions(
+        dailySubmissions.map((sub) =>
+          sub.timestamp === updatedSubmission.timestamp
+            ? updatedSubmission
+            : sub
+        )
+      );
+    }
     setShowEditModal(false);
     setEditingSubmission(null);
   };
@@ -303,6 +322,43 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setShowEditModal(false);
     setEditingSubmission(null);
     setEditTimeErrors({});
+  };
+
+  const handleToggleDropdown = (submissionId: string) => {
+    setOpenDropdownId(openDropdownId === submissionId ? null : submissionId);
+  };
+
+  const handleCloseDropdown = () => {
+    setOpenDropdownId(null);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        openDropdownId &&
+        !(event.target as Element).closest(".dropdown-menu")
+      ) {
+        setOpenDropdownId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdownId]);
+
+  const handleDuplicateSubmission = (submission: DailySubmission) => {
+    // Create a copy of the submission with today's date
+    const today = new Date().toISOString().split("T")[0];
+    const duplicatedSubmission: DailySubmission = {
+      ...submission,
+      date: today,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Open edit modal with duplicated data
+    setEditingSubmission(duplicatedSubmission);
+    setShowEditModal(true);
   };
 
   // Edit modal validation functions
@@ -705,16 +761,58 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                         key={date}
                         className="bg-white/50 p-3 rounded-md border border-gray-200/50"
                       >
-                        <div className="flex justify-between items-center mb-2">
+                        <div className="flex justify-between items-center mb-1.5">
                           <span className="font-medium text-slate-700">
                             {formatDate(date)}
                           </span>
-                          <span className="text-xs text-slate-500">
-                            {submissions.length} submission
-                            {submissions.length > 1 ? "s" : ""}
-                          </span>
+                          <div className="relative dropdown-menu">
+                            <button
+                              onClick={() => handleToggleDropdown(date)}
+                              className="text-slate-500 hover:text-slate-700 p-1"
+                              title="More options"
+                            >
+                              ⋮
+                            </button>
+                            {openDropdownId === date && (
+                              <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                                <button
+                                  onClick={() => {
+                                    handleEditSubmission(submissions[0]);
+                                    handleCloseDropdown();
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+                                >
+                                  ✏️ Edit
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleDuplicateSubmission(submissions[0]);
+                                    handleCloseDropdown();
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
+                                >
+                                  📋 Duplicate
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    handleClearDay(submissions[0].timestamp);
+                                    handleCloseDropdown();
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                                >
+                                  ✕ Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="space-y-2">
+
+                        <div className="text-xs text-slate-500 mb-1.5">
+                          {submissions.length} submission
+                          {submissions.length > 1 ? "s" : ""}
+                        </div>
+
+                        <div className="space-y-1.5">
                           {submissions
                             .sort(
                               (a, b) =>
@@ -739,23 +837,6 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                         )
                                       )}
                                     </span>
-                                    <button
-                                      onClick={() =>
-                                        handleEditSubmission(submission)
-                                      }
-                                      className="text-slate-500 hover:text-slate-700"
-                                      title="Edit submission"
-                                    >
-                                      ✏️
-                                    </button>
-                                    <button
-                                      onClick={() =>
-                                        handleClearDay(submission.timestamp)
-                                      }
-                                      className="text-red-500 hover:text-red-700"
-                                    >
-                                      ✕
-                                    </button>
                                   </div>
                                 </div>
                                 <div className="space-y-1">
