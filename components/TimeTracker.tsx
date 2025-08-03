@@ -361,6 +361,12 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     setShowEditModal(true);
   };
 
+  const handleDeleteSubmission = (timestamp: string) => {
+    setDailySubmissions(
+      dailySubmissions.filter((sub) => sub.timestamp !== timestamp)
+    );
+  };
+
   // Edit modal validation functions
   const validateEditTimeInput = (
     time: string,
@@ -765,46 +771,6 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                           <span className="font-medium text-slate-700">
                             {formatDate(date)}
                           </span>
-                          <div className="relative dropdown-menu">
-                            <button
-                              onClick={() => handleToggleDropdown(date)}
-                              className="text-slate-500 hover:text-slate-700 p-1"
-                              title="More options"
-                            >
-                              ⋮
-                            </button>
-                            {openDropdownId === date && (
-                              <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                                <button
-                                  onClick={() => {
-                                    handleEditSubmission(submissions[0]);
-                                    handleCloseDropdown();
-                                  }}
-                                  className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                                >
-                                  ✏️ Edit
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleDuplicateSubmission(submissions[0]);
-                                    handleCloseDropdown();
-                                  }}
-                                  className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                                >
-                                  📋 Duplicate
-                                </button>
-                                <button
-                                  onClick={() => {
-                                    handleClearDay(submissions[0].timestamp);
-                                    handleCloseDropdown();
-                                  }}
-                                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                                >
-                                  ✕ Delete
-                                </button>
-                              </div>
-                            )}
-                          </div>
                         </div>
 
                         <div className="text-xs text-slate-500 mb-1.5">
@@ -822,21 +788,62 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                             .map((submission) => (
                               <div
                                 key={submission.timestamp}
-                                className="border-l-2 border-slate-200 pl-3"
+                                className="border-l-2 border-slate-200 pl-3 relative"
                               >
                                 <div className="flex justify-between items-center mb-1">
                                   <span className="text-xs text-slate-500">
-                                    Submitted at{" "}
-                                    {formatTimestamp(submission.timestamp)}
+                                    {submission.timestamp
+                                      .split("T")[1]
+                                      .substring(0, 5)}
                                   </span>
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-mono text-sm text-slate-600">
-                                      {formatDurationWithMinutes(
-                                        calculateTotalDuration(
-                                          submission.entries
+                                  <div className="relative dropdown-menu">
+                                    <button
+                                      onClick={() =>
+                                        handleToggleDropdown(
+                                          submission.timestamp
                                         )
-                                      )}
-                                    </span>
+                                      }
+                                      className="text-slate-500 hover:text-slate-700 p-1"
+                                      title="More options"
+                                    >
+                                      ⋮
+                                    </button>
+                                    {openDropdownId ===
+                                      submission.timestamp && (
+                                      <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                                        <button
+                                          onClick={() => {
+                                            handleEditSubmission(submission);
+                                            handleCloseDropdown();
+                                          }}
+                                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                        >
+                                          ✏️ Edit
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            handleDuplicateSubmission(
+                                              submission
+                                            );
+                                            handleCloseDropdown();
+                                          }}
+                                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                        >
+                                          📋 Duplicate
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            handleDeleteSubmission(
+                                              submission.timestamp
+                                            );
+                                            handleCloseDropdown();
+                                          }}
+                                          className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                        >
+                                          🗑️ Delete
+                                        </button>
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                                 <div className="space-y-1">

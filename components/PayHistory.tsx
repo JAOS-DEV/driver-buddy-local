@@ -741,46 +741,9 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                       <span className="font-medium text-slate-700">
                         {formatDate(date)}
                       </span>
-                      <div className="relative dropdown-menu">
-                        <button
-                          onClick={() => handleToggleDropdown(date)}
-                          className="text-slate-500 hover:text-slate-700 p-1"
-                          title="More options"
-                        >
-                          ⋮
-                        </button>
-                        {openDropdownId === date && (
-                          <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
-                            <button
-                              onClick={() => {
-                                handleEditPay(pays[0]);
-                                handleCloseDropdown();
-                              }}
-                              className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                            >
-                              ✏️ Edit
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleDuplicatePay(pays[0]);
-                                handleCloseDropdown();
-                              }}
-                              className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 flex items-center gap-2"
-                            >
-                              📋 Duplicate
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleDeletePay(pays[0].id);
-                                handleCloseDropdown();
-                              }}
-                              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                            >
-                              ✕ Delete
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                      <span className="text-xs text-slate-500">
+                        {pays.length} submission{pays.length !== 1 ? "s" : ""}
+                      </span>
                     </div>
 
                     <div className="space-y-1.5">
@@ -793,7 +756,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                         .map((pay) => (
                           <div
                             key={pay.id}
-                            className="border-l-2 border-slate-200 pl-3"
+                            className="border-l-2 border-slate-200 pl-3 relative"
                           >
                             <div className="flex justify-between items-center mb-1">
                               <span className="text-xs text-slate-500">
@@ -803,6 +766,46 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                 <span className="font-mono text-sm text-slate-600">
                                   {formatCurrency(pay.totalPay)}
                                 </span>
+                                <div className="relative dropdown-menu">
+                                  <button
+                                    onClick={() => handleToggleDropdown(pay.id)}
+                                    className="text-slate-500 hover:text-slate-700 p-1"
+                                    title="More options"
+                                  >
+                                    ⋮
+                                  </button>
+                                  {openDropdownId === pay.id && (
+                                    <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                                      <button
+                                        onClick={() => {
+                                          handleEditPay(pay);
+                                          handleCloseDropdown();
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                      >
+                                        ✏️ Edit
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          handleDuplicatePay(pay);
+                                          handleCloseDropdown();
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                      >
+                                        📋 Duplicate
+                                      </button>
+                                      <button
+                                        onClick={() => {
+                                          handleDeletePay(pay.id);
+                                          handleCloseDropdown();
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                      >
+                                        🗑️ Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
 
