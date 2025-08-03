@@ -14,6 +14,8 @@ interface TimeTrackerProps {
   onDailySubmit?: (submission: DailySubmission) => void;
   clearEntries?: () => void;
   settings: Settings;
+  dailySubmissions: DailySubmission[];
+  setDailySubmissions: (submissions: DailySubmission[]) => void;
 }
 
 const TimeTracker: React.FC<TimeTrackerProps> = ({
@@ -23,6 +25,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   onDailySubmit,
   clearEntries,
   settings,
+  dailySubmissions,
+  setDailySubmissions,
 }) => {
   const [activeTab, setActiveTab] = useState<"tracker" | "history">("tracker");
   const [startTime, setStartTime] = useState("");
@@ -50,10 +54,6 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const [submitDate, setSubmitDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-
-  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
-    DailySubmission[]
-  >("dailySubmissions", []);
 
   // Use shared period navigation hook
   const {

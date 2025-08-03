@@ -124,7 +124,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   ]);
 
   // Calculate total minutes for the selected date by combining current entries with submitted entries
-  const getTotalMinutesForDate = (date: string): number => {
+  const getTotalMinutesForDate = (
+    date: string
+  ): { submitted: number; unsubmitted: number; total: number } => {
     // Get submitted entries for the specified date
     const submittedEntriesForDate = dailySubmissions.filter(
       (submission) => submission.date === date
@@ -138,13 +140,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
     // If the selected date is today, also include current unsubmitted entries
     const today = new Date().toISOString().split("T")[0];
-    const currentEntriesTotal = date === today ? totalMinutes : 0;
+    const unsubmittedTotal = date === today ? totalMinutes : 0;
 
-    // Return the combined total
-    return submittedTotal + currentEntriesTotal;
+    // Return the breakdown
+    return {
+      submitted: submittedTotal,
+      unsubmitted: unsubmittedTotal,
+      total: submittedTotal + unsubmittedTotal,
+    };
   };
 
-  const totalMinutesForSelectedDate = getTotalMinutesForDate(payDate);
+  const timeBreakdown = getTotalMinutesForDate(payDate);
+  const totalMinutesForSelectedDate = timeBreakdown.total;
 
   const duration = useManualHours
     ? {
@@ -305,6 +312,50 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         </div>
 
         <div className="p-3 space-y-3">
+          {/* Time Breakdown - only show if not manual hours and there are both submitted and unsubmitted entries */}
+          {!useManualHours &&
+            (timeBreakdown.submitted > 0 || timeBreakdown.unsubmitted > 0) && (
+              <div className="mb-3 p-2 bg-slate-50 rounded-md">
+                <div className="text-xs font-medium text-slate-600 mb-2">
+                  Time Breakdown:
+                </div>
+                {timeBreakdown.submitted > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Submitted:</span>
+                    <span className="font-mono text-slate-600">
+                      {formatDurationWithMinutes({
+                        hours: Math.floor(timeBreakdown.submitted / 60),
+                        minutes: timeBreakdown.submitted % 60,
+                        totalMinutes: timeBreakdown.submitted,
+                      })}
+                    </span>
+                  </div>
+                )}
+                {timeBreakdown.unsubmitted > 0 && (
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500">Unsubmitted:</span>
+                    <span className="font-mono text-slate-600">
+                      {formatDurationWithMinutes({
+                        hours: Math.floor(timeBreakdown.unsubmitted / 60),
+                        minutes: timeBreakdown.unsubmitted % 60,
+                        totalMinutes: timeBreakdown.unsubmitted,
+                      })}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-xs font-medium mt-1 pt-1 border-t border-slate-200">
+                  <span className="text-slate-700">Total:</span>
+                  <span className="font-mono text-slate-800">
+                    {formatDurationWithMinutes({
+                      hours: Math.floor(timeBreakdown.total / 60),
+                      minutes: timeBreakdown.total % 60,
+                      totalMinutes: timeBreakdown.total,
+                    })}
+                  </span>
+                </div>
+              </div>
+            )}
+
           {/* Standard Hours */}
           <div className="flex justify-between items-center">
             <span className="text-sm text-slate-600">Standard Hours:</span>
@@ -915,6 +966,54 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       : totalEarnings
                   )}
                 </p>
+
+                {/* Time Breakdown Indicator - only show if not manual hours and there are both submitted and unsubmitted entries */}
+                {!useManualHours &&
+                  (timeBreakdown.submitted > 0 ||
+                    timeBreakdown.unsubmitted > 0) && (
+                    <div className="mb-2 text-xs text-slate-500">
+                      {timeBreakdown.submitted > 0 &&
+                        timeBreakdown.unsubmitted > 0 && (
+                          <span>
+                            {formatDurationWithMinutes({
+                              hours: Math.floor(timeBreakdown.submitted / 60),
+                              minutes: timeBreakdown.submitted % 60,
+                              totalMinutes: timeBreakdown.submitted,
+                            })}{" "}
+                            submitted +{" "}
+                            {formatDurationWithMinutes({
+                              hours: Math.floor(timeBreakdown.unsubmitted / 60),
+                              minutes: timeBreakdown.unsubmitted % 60,
+                              totalMinutes: timeBreakdown.unsubmitted,
+                            })}{" "}
+                            unsubmitted
+                          </span>
+                        )}
+                      {timeBreakdown.submitted > 0 &&
+                        timeBreakdown.unsubmitted === 0 && (
+                          <span>
+                            {formatDurationWithMinutes({
+                              hours: Math.floor(timeBreakdown.submitted / 60),
+                              minutes: timeBreakdown.submitted % 60,
+                              totalMinutes: timeBreakdown.submitted,
+                            })}{" "}
+                            submitted
+                          </span>
+                        )}
+                      {timeBreakdown.submitted === 0 &&
+                        timeBreakdown.unsubmitted > 0 && (
+                          <span>
+                            {formatDurationWithMinutes({
+                              hours: Math.floor(timeBreakdown.unsubmitted / 60),
+                              minutes: timeBreakdown.unsubmitted % 60,
+                              totalMinutes: timeBreakdown.unsubmitted,
+                            })}{" "}
+                            unsubmitted
+                          </span>
+                        )}
+                    </div>
+                  )}
+
                 <button
                   onClick={() => setShowBreakdownModal(true)}
                   className="w-full bg-slate-100 text-slate-700 py-1.5 px-3 rounded-md hover:bg-slate-200 transition-colors text-sm font-medium"

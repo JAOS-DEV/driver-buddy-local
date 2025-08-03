@@ -770,8 +770,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                             className="border-l-2 border-slate-200 pl-3 relative"
                           >
                             <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs text-slate-500">
-                                {pay.submissionTime}
+                              <span className="text-xs text-slate-400">
+                                Submitted at: {pay.submissionTime}
                               </span>
                               <div className="flex items-center gap-2">
                                 <span className="font-mono text-sm text-slate-600">

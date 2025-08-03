@@ -60,6 +60,8 @@ const App: React.FC = () => {
               settings={settings}
               entries={entries}
               setEntries={setEntries}
+              dailySubmissions={dailySubmissions}
+              setDailySubmissions={setDailySubmissions}
             />
           )}
           {activeView === View.PAY && (

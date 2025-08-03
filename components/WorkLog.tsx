@@ -8,9 +8,17 @@ interface WorkLogProps {
   settings: Settings;
   entries: TimeEntry[];
   setEntries: (entries: TimeEntry[]) => void;
+  dailySubmissions: DailySubmission[];
+  setDailySubmissions: (submissions: DailySubmission[]) => void;
 }
 
-const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
+const WorkLog: React.FC<WorkLogProps> = ({
+  settings,
+  entries,
+  setEntries,
+  dailySubmissions,
+  setDailySubmissions,
+}) => {
   // Clear any existing default data on first load only
   React.useEffect(() => {
     const hasClearedDefault = localStorage.getItem("hasClearedDefault");
@@ -42,9 +50,6 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
     }
   }, [setEntries]);
   const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
-  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
-    DailySubmission[]
-  >("dailySubmissions", []);
   const [payHistory, setPayHistory] = useLocalStorage<any[]>("payHistory", []);
   const { totalDuration } = useTimeCalculations(entries);
 
@@ -74,6 +79,8 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
           removeEntry={removeEntry}
           clearEntries={clearEntries}
           settings={settings}
+          dailySubmissions={dailySubmissions}
+          setDailySubmissions={setDailySubmissions}
         />
       </main>
     </div>
