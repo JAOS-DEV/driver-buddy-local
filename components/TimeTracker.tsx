@@ -1,8 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
-import { TimeEntry, DailySubmission } from "../types";
+import { TimeEntry, DailySubmission, Settings } from "../types";
 import { useTimeCalculations } from "../hooks/useTimeCalculations";
+import { usePeriodNavigation } from "../hooks/usePeriodNavigation";
+import { usePeriodFilter } from "../hooks/usePeriodFilter";
 import { PlusIcon, TrashIcon } from "./icons";
 import useLocalStorage from "../hooks/useLocalStorage";
+import PeriodSelector from "./PeriodSelector";
 
 interface TimeTrackerProps {
   entries: TimeEntry[];
@@ -10,6 +13,7 @@ interface TimeTrackerProps {
   removeEntry: (id: number) => void;
   onDailySubmit?: (submission: DailySubmission) => void;
   clearEntries?: () => void;
+  settings: Settings;
 }
 
 const TimeTracker: React.FC<TimeTrackerProps> = ({
@@ -18,6 +22,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   removeEntry,
   onDailySubmit,
   clearEntries,
+  settings,
 }) => {
   const [activeTab, setActiveTab] = useState<"tracker" | "history">("tracker");
   const [startTime, setStartTime] = useState("");
@@ -46,6 +51,28 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
   >("dailySubmissions", []);
+
+  // Use shared period navigation hook
+  const {
+    selectedPeriod,
+    setSelectedPeriod,
+    selectedDate,
+    setSelectedDate,
+    getCurrentWeekStart,
+    getCurrentMonthStart,
+    goToCurrentPeriod,
+    navigateWeek,
+    navigateMonth,
+    getPeriodLabel,
+  } = usePeriodNavigation(settings);
+
+  // Use shared period filter hook
+  const filteredSubmissions = usePeriodFilter(
+    dailySubmissions,
+    selectedPeriod,
+    selectedDate
+  );
+
   const {
     totalDuration,
     formatDuration,
@@ -623,6 +650,23 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         <>
           {/* History View */}
           <div className="flex-1 overflow-hidden p-4">
+            {/* Period Selector */}
+            <div className="mb-3">
+              <PeriodSelector
+                selectedPeriod={selectedPeriod}
+                selectedDate={selectedDate}
+                settings={settings}
+                onPeriodChange={setSelectedPeriod}
+                onDateChange={setSelectedDate}
+                getPeriodLabel={getPeriodLabel}
+                getCurrentWeekStart={getCurrentWeekStart}
+                getCurrentMonthStart={getCurrentMonthStart}
+                navigateWeek={navigateWeek}
+                navigateMonth={navigateMonth}
+                goToCurrentPeriod={goToCurrentPeriod}
+              />
+            </div>
+
             <h2
               ref={entriesHeaderRef}
               className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
@@ -634,24 +678,23 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               style={{ height: `${entriesHeight}px` }}
             >
               <div className="space-y-2">
-                {dailySubmissions.length === 0 ? (
+                {filteredSubmissions.length === 0 ? (
                   <p className="text-center text-slate-500 py-4">
-                    No submitted days yet.
+                    No submitted days for this period.
                   </p>
                 ) : (
                   // Group submissions by date
                   Object.entries(
-                    dailySubmissions.reduce<Record<string, DailySubmission[]>>(
-                      (groups, submission) => {
-                        const date = submission.date;
-                        if (!groups[date]) {
-                          groups[date] = [];
-                        }
-                        groups[date].push(submission);
-                        return groups;
-                      },
-                      {}
-                    )
+                    filteredSubmissions.reduce<
+                      Record<string, DailySubmission[]>
+                    >((groups, submission) => {
+                      const date = submission.date;
+                      if (!groups[date]) {
+                        groups[date] = [];
+                      }
+                      groups[date].push(submission);
+                      return groups;
+                    }, {})
                   )
                     .sort(
                       ([dateA], [dateB]) =>

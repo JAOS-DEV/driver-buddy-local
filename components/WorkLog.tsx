@@ -73,6 +73,7 @@ const WorkLog: React.FC<WorkLogProps> = ({ settings, entries, setEntries }) => {
           addEntry={addEntry}
           removeEntry={removeEntry}
           clearEntries={clearEntries}
+          settings={settings}
         />
       </main>
     </div>

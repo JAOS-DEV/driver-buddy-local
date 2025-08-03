@@ -4,7 +4,7 @@ import {
   decimalHoursToDuration,
   formatDurationWithMinutes,
 } from "../hooks/useTimeCalculations";
-import { DailyPay, Settings } from "../types";
+import { DailyPay, Settings, DailySubmission } from "../types";
 import PayHistory from "./PayHistory";
 
 interface PayCalculatorProps {
@@ -14,6 +14,7 @@ interface PayCalculatorProps {
   settings: Settings;
   payHistory: DailyPay[];
   setPayHistory: (history: DailyPay[]) => void;
+  dailySubmissions: DailySubmission[];
 }
 
 const PayCalculator: React.FC<PayCalculatorProps> = ({
@@ -23,6 +24,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   settings,
   payHistory,
   setPayHistory,
+  dailySubmissions,
 }) => {
   const [activeTab, setActiveTab] = useState<"calculator" | "history">(
     "calculator"
@@ -99,6 +101,29 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     setHourlyRate,
   ]);
 
+  // Calculate total minutes for the selected date by combining current entries with submitted entries
+  const getTotalMinutesForDate = (date: string): number => {
+    // Get submitted entries for the specified date
+    const submittedEntriesForDate = dailySubmissions.filter(
+      (submission) => submission.date === date
+    );
+
+    // Calculate total from submitted entries
+    const submittedTotal = submittedEntriesForDate.reduce(
+      (sum, submission) => sum + submission.totalMinutes,
+      0
+    );
+
+    // If the selected date is today, also include current unsubmitted entries
+    const today = new Date().toISOString().split("T")[0];
+    const currentEntriesTotal = date === today ? totalMinutes : 0;
+
+    // Return the combined total
+    return submittedTotal + currentEntriesTotal;
+  };
+
+  const totalMinutesForSelectedDate = getTotalMinutesForDate(payDate);
+
   const duration = useManualHours
     ? {
         hours: manualHours,
@@ -106,9 +131,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         totalMinutes: manualHours * 60 + manualMinutes,
       }
     : {
-        hours: Math.floor(totalMinutes / 60),
-        minutes: totalMinutes % 60,
-        totalMinutes: totalMinutes,
+        hours: Math.floor(totalMinutesForSelectedDate / 60),
+        minutes: totalMinutesForSelectedDate % 60,
+        totalMinutes: totalMinutesForSelectedDate,
       };
 
   const overtimeDuration = {
@@ -133,10 +158,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   const calculateNI = (earnings: number): number => {
     if (!settings.enableNiCalculations) return 0;
 
-    // For daily pay calculations, we need to adjust the threshold
-    // Assuming this is daily pay, we'll use a daily threshold
-    // £12,570 / 365 ≈ £34.44 per day threshold
-    const dailyNiThreshold = 34.44; // Daily equivalent of annual threshold
+    // For daily pay calculations, use a more realistic daily threshold
+    // Using a lower threshold that makes sense for daily work
+    const dailyNiThreshold = 10.0; // £10 per day threshold
     const niRate = 0.12; // 12% for earnings above threshold
 
     if (earnings <= dailyNiThreshold) return 0;
@@ -311,7 +335,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           )}
 
           {/* NI Section - only show if NI calculations are enabled */}
-          {settings.enableNiCalculations && niAmount > 0 && (
+          {settings.enableNiCalculations && (
             <div className="pt-2 border-t border-orange-200 mt-2">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-orange-600">NI (12%/2%)</span>

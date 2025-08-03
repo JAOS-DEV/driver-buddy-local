@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Settings, DailyPay, TimeEntry } from "./types";
+import { View, Settings, DailyPay, TimeEntry, DailySubmission } from "./types";
 import WorkLog from "./components/WorkLog";
 import UnionChatbot from "./components/UnionChatbot";
 import SettingsComponent from "./components/Settings";
@@ -84,6 +84,10 @@ const App: React.FC = () => {
     "payHistory",
     []
   );
+  const [dailySubmissions, setDailySubmissions] = useLocalStorage<DailySubmission[]>(
+    "dailySubmissions",
+    []
+  );
   const { totalDuration } = useTimeCalculations(entries);
 
   return (
@@ -106,6 +110,7 @@ const App: React.FC = () => {
               settings={settings}
               payHistory={payHistory}
               setPayHistory={setPayHistory}
+              dailySubmissions={dailySubmissions}
             />
           )}
           {activeView === View.LAW_LIMITS && (

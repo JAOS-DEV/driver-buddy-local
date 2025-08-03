@@ -1,7 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { usePeriodNavigation } from "../hooks/usePeriodNavigation";
+import { usePeriodFilter } from "../hooks/usePeriodFilter";
 import { DailyPay, Settings } from "../types";
 import { formatDurationWithMinutes } from "../hooks/useTimeCalculations";
+import PeriodSelector from "./PeriodSelector";
 
 interface PayHistoryProps {
   payHistory: DailyPay[];
@@ -14,186 +17,67 @@ const PayHistory: React.FC<PayHistoryProps> = ({
   setPayHistory,
   settings,
 }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "week" | "month" | "all"
-  >("week");
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // Initialize to current week start based on settings
-    const today = new Date();
-    const weekStartDayMap: Record<string, number> = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-    };
-    const weekStartDay = weekStartDayMap[settings.weekStartDay];
-    const currentDay = today.getDay();
+  // Use shared period navigation hook
+  const {
+    selectedPeriod,
+    setSelectedPeriod,
+    selectedDate,
+    setSelectedDate,
+    getCurrentWeekStart,
+    getCurrentMonthStart,
+    goToCurrentPeriod,
+    navigateWeek,
+    navigateMonth,
+    getPeriodLabel,
+  } = usePeriodNavigation(settings);
 
-    // Calculate days to subtract to get to the start of the current week
-    let daysToSubtract = currentDay - weekStartDay;
-    if (daysToSubtract < 0) {
-      daysToSubtract += 7;
-    }
-
-    const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - daysToSubtract);
-    return weekStart.toISOString().split("T")[0];
-  });
+  // Use shared period filter hook
+  const filteredPayHistory = usePeriodFilter(
+    payHistory,
+    selectedPeriod,
+    selectedDate
+  );
 
   // Edit modal state
   const [editingPay, setEditingPay] = useState<DailyPay | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // Get the current week start date based on settings
-  const getCurrentWeekStart = () => {
-    const today = new Date();
-    const weekStartDayMap: Record<string, number> = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-    };
-    const weekStartDay = weekStartDayMap[settings.weekStartDay];
-    const currentDay = today.getDay();
-
-    // Calculate days to subtract to get to the start of the current week
-    let daysToSubtract = currentDay - weekStartDay;
-    if (daysToSubtract < 0) {
-      daysToSubtract += 7;
-    }
-
-    const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - daysToSubtract);
-    return weekStart;
-  };
-
-  // Get the current month start date
-  const getCurrentMonthStart = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth() + 1; // Convert to 1-indexed
-    const monthStartString = `${year}-${month.toString().padStart(2, "0")}-01`;
-
-    // Return a Date object for compatibility with existing code
-    return new Date(monthStartString);
-  };
-
-  // Navigate to current period
-  const goToCurrentPeriod = () => {
-    if (selectedPeriod === "week") {
-      const currentWeekStart = getCurrentWeekStart();
-      setSelectedDate(currentWeekStart.toISOString().split("T")[0]);
-    } else if (selectedPeriod === "month") {
-      const currentMonthStart = getCurrentMonthStart();
-      setSelectedDate(currentMonthStart.toISOString().split("T")[0]);
-    }
-  };
-
-  // Navigate to next/previous week
-  const navigateWeek = (direction: "next" | "prev") => {
-    const selectedDateObj = new Date(selectedDate);
-    const weekStartDayMap: Record<string, number> = {
-      sunday: 0,
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-    };
-    const weekStartDay = weekStartDayMap[settings.weekStartDay];
-    const currentDay = selectedDateObj.getDay();
-
-    // Calculate days to subtract to get to the start of the current week
-    let daysToSubtract = currentDay - weekStartDay;
-    if (daysToSubtract < 0) {
-      daysToSubtract += 7;
-    }
-
-    const currentWeekStart = new Date(selectedDateObj);
-    currentWeekStart.setDate(currentWeekStart.getDate() - daysToSubtract);
-
-    const newWeekStart = new Date(currentWeekStart);
-
-    if (direction === "next") {
-      newWeekStart.setDate(newWeekStart.getDate() + 7);
-    } else {
-      newWeekStart.setDate(newWeekStart.getDate() - 7);
-    }
-
-    setSelectedDate(newWeekStart.toISOString().split("T")[0]);
-  };
-
-  // Navigate to next/previous month
-  const navigateMonth = (direction: "next" | "prev") => {
-    // Parse the selectedDate string to get year and month
-    const [yearStr, monthStr, dayStr] = selectedDate.split("-");
-    const currentYear = parseInt(yearStr);
-    const currentMonth = parseInt(monthStr); // Keep as 1-indexed for easier logic
-
-    let newMonth: number;
-    let newYear: number;
-
-    if (direction === "next") {
-      // Go to next month
-      if (currentMonth === 12) {
-        // December to January
-        newMonth = 1;
-        newYear = currentYear + 1;
-      } else {
-        newMonth = currentMonth + 1;
-        newYear = currentYear;
-      }
-    } else {
-      // Go to previous month
-      if (currentMonth === 1) {
-        // January to December
-        newMonth = 12;
-        newYear = currentYear - 1;
-      } else {
-        newMonth = currentMonth - 1;
-        newYear = currentYear;
-      }
-    }
-
-    // Format the new date string directly (avoiding Date object timezone issues)
-    const newMonthString = `${newYear}-${newMonth
-      .toString()
-      .padStart(2, "0")}-01`;
-
-    setSelectedDate(newMonthString);
-  };
-  const [payListHeight, setPayListHeight] = useState(0);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
 
-  // Calculate dynamic height for pay list
+  // Calculate available space for pay list
   useEffect(() => {
     const calculatePayListHeight = () => {
       if (containerRef.current && headerRef.current) {
-        const containerHeight = containerRef.current.offsetHeight;
+        const viewportHeight = window.innerHeight;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerTop = containerRect.top;
+        const availableViewportHeight = viewportHeight - containerTop;
         const headerHeight = headerRef.current.offsetHeight;
-        const availableHeight = containerHeight - headerHeight - 32; // 32px for padding
-        setPayListHeight(Math.max(availableHeight, 200)); // Minimum 200px height
+        const navBarHeight = 64;
+        const padding = 16;
+
+        const availableHeight =
+          availableViewportHeight - headerHeight - navBarHeight - padding;
+        const finalHeight = Math.max(availableHeight, 100);
       }
     };
 
     calculatePayListHeight();
+    const timeoutId = setTimeout(calculatePayListHeight, 100);
+
     window.addEventListener("resize", calculatePayListHeight);
-    return () => window.removeEventListener("resize", calculatePayListHeight);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", calculatePayListHeight);
+    };
   }, []);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
-      currency: "GBP",
+      currency: settings.currency || "GBP",
     }).format(amount);
   };
 
@@ -244,85 +128,14 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
   // Sort pay history by date (newest first)
   const sortedPayHistory = useMemo(() => {
-    return [...payHistory].sort(
+    return [...filteredPayHistory].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
     );
-  }, [payHistory]);
-
-  // Filter pays by selected period
-  const filteredPays = useMemo(() => {
-    const now = new Date();
-    const selectedDateObj = new Date(selectedDate);
-
-    switch (selectedPeriod) {
-      case "week":
-        // Calculate the week start based on the selected date and week start day setting
-        const weekStartDayMap: Record<string, number> = {
-          sunday: 0,
-          monday: 1,
-          tuesday: 2,
-          wednesday: 3,
-          thursday: 4,
-          friday: 5,
-          saturday: 6,
-        };
-        const weekStartDay = weekStartDayMap[settings.weekStartDay];
-        const currentDay = selectedDateObj.getDay();
-
-        // Calculate days to subtract to get to the start of the current week
-        let daysToSubtract = currentDay - weekStartDay;
-        if (daysToSubtract < 0) {
-          daysToSubtract += 7;
-        }
-
-        const weekStart = new Date(selectedDateObj);
-        weekStart.setDate(weekStart.getDate() - daysToSubtract);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6); // 7 days total
-        return sortedPayHistory.filter((pay) => {
-          const payDate = new Date(pay.date);
-          // Set time to start of day for accurate comparison
-          payDate.setHours(0, 0, 0, 0);
-          const weekStartAdjusted = new Date(weekStart);
-          weekStartAdjusted.setHours(0, 0, 0, 0);
-          const weekEndAdjusted = new Date(weekEnd);
-          weekEndAdjusted.setHours(23, 59, 59, 999);
-          return payDate >= weekStartAdjusted && payDate <= weekEndAdjusted;
-        });
-
-      case "month":
-        const monthStart = new Date(
-          selectedDateObj.getFullYear(),
-          selectedDateObj.getMonth(),
-          1
-        );
-        const monthEnd = new Date(
-          selectedDateObj.getFullYear(),
-          selectedDateObj.getMonth() + 1,
-          0
-        );
-
-        return sortedPayHistory.filter((pay) => {
-          const payDate = new Date(pay.date);
-          payDate.setHours(0, 0, 0, 0);
-          const monthStartAdjusted = new Date(monthStart);
-          monthStartAdjusted.setHours(0, 0, 0, 0);
-          const monthEndAdjusted = new Date(monthEnd);
-          monthEndAdjusted.setHours(23, 59, 59, 999);
-          return payDate >= monthStartAdjusted && payDate <= monthEndAdjusted;
-        });
-
-      case "all":
-        return sortedPayHistory;
-
-      default:
-        return sortedPayHistory;
-    }
-  }, [sortedPayHistory, selectedPeriod, selectedDate, settings.weekStartDay]);
+  }, [filteredPayHistory]);
 
   // Calculate totals for the filtered period
   const periodTotals = useMemo(() => {
-    return filteredPays.reduce(
+    return filteredPayHistory.reduce(
       (totals, pay) => {
         totals.totalPay += pay.totalPay;
         totals.totalHours += pay.standardHours + pay.overtimeHours;
@@ -347,32 +160,16 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
         // Calculate NI for existing entries if NI calculations are enabled
         if (settings.enableNiCalculations) {
-          const calculateNI = (earnings: number): number => {
-            // For daily pay calculations, we need to adjust the threshold
-            // £12,570 / 365 ≈ £34.44 per day threshold
-            const dailyNiThreshold = 34.44; // Daily equivalent of annual threshold
-            const niRate = 0.12; // 12% for earnings above threshold
-
-            if (earnings <= dailyNiThreshold) return 0;
-
-            const taxableEarnings = earnings - dailyNiThreshold;
-            const niAmount = taxableEarnings * niRate;
-
-            return niAmount;
-          };
-
-          const niAmount = pay.niAmount || calculateNI(pay.totalPay);
-          // Always recalculate after-NI amount when NI calculations are enabled
-          const afterNiPay = pay.totalPay - niAmount;
+          const niAmount = pay.niAmount || 0;
           totals.totalNI += niAmount;
-          totals.afterNiPay += afterNiPay;
+          totals.afterNIPay += pay.afterNiPay || pay.totalPay - niAmount;
         } else {
           // Use stored values if NI calculations are disabled
           if (pay.niAmount) {
             totals.totalNI += pay.niAmount;
           }
           if (pay.afterNiPay) {
-            totals.afterNiPay += pay.afterNiPay;
+            totals.afterNIPay += pay.afterNiPay;
           }
         }
 
@@ -385,19 +182,19 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         totalTax: 0,
         afterTaxPay: 0,
         totalNI: 0,
-        afterNiPay: 0,
+        afterNIPay: 0,
       }
     );
   }, [
-    filteredPays,
+    filteredPayHistory,
     settings.enableTaxCalculations,
-    settings.taxRate,
     settings.enableNiCalculations,
+    settings.taxRate,
   ]);
 
   // Group pays by date
   const paysByDate = useMemo(() => {
-    return filteredPays.reduce((groups, pay) => {
+    return filteredPayHistory.reduce((groups, pay) => {
       const date = pay.date;
       if (!groups[date]) {
         groups[date] = [];
@@ -405,7 +202,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
       groups[date].push(pay);
       return groups;
     }, {} as Record<string, DailyPay[]>);
-  }, [filteredPays]);
+  }, [filteredPayHistory]);
 
   const handleDeletePay = (payId: string) => {
     setPayHistory(payHistory.filter((pay) => pay.id !== payId));
@@ -427,56 +224,6 @@ const PayHistory: React.FC<PayHistoryProps> = ({
   const handleCancelEdit = () => {
     setShowEditModal(false);
     setEditingPay(null);
-  };
-
-  const getPeriodLabel = () => {
-    const date = new Date(selectedDate);
-    switch (selectedPeriod) {
-      case "week":
-        const weekStart = new Date(date);
-        const weekStartDayMap: Record<string, number> = {
-          sunday: 0,
-          monday: 1,
-          tuesday: 2,
-          wednesday: 3,
-          thursday: 4,
-          friday: 5,
-          saturday: 6,
-        };
-        const weekStartDay = weekStartDayMap[settings.weekStartDay];
-        const currentDay = weekStart.getDay();
-
-        // Calculate days to subtract to get to the start of the current week
-        let daysToSubtract = currentDay - weekStartDay;
-        if (daysToSubtract < 0) {
-          daysToSubtract += 7;
-        }
-
-        weekStart.setDate(weekStart.getDate() - daysToSubtract);
-        const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
-        const weekStartDayName = weekStart.toLocaleDateString("en-GB", {
-          weekday: "short",
-        });
-        return `${weekStartDayName} ${weekStart.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-        })} - ${weekEnd.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "short",
-        })}`;
-      case "month":
-        // For month view, always show the month name based on the selectedDate
-        const monthDate = new Date(selectedDate);
-        return monthDate.toLocaleDateString("en-GB", {
-          month: "long",
-          year: "numeric",
-        });
-      case "all":
-        return "All Time";
-      default:
-        return "";
-    }
   };
 
   // Edit Modal Component
@@ -809,95 +556,19 @@ const PayHistory: React.FC<PayHistoryProps> = ({
       {/* Header */}
       <div ref={headerRef} className="flex-shrink-0 p-3 space-y-2">
         {/* Period Selection */}
-        <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold tracking-wider uppercase text-slate-500">
-              PERIOD
-            </span>
-            <div className="flex gap-1">
-              <button
-                onClick={() => {
-                  setSelectedPeriod("week");
-                  const currentWeekStart = getCurrentWeekStart();
-                  setSelectedDate(currentWeekStart.toISOString().split("T")[0]);
-                }}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
-                  selectedPeriod === "week"
-                    ? "bg-[#003D5B] text-white"
-                    : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                }`}
-              >
-                Week
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedPeriod("month");
-                  const currentMonthStart = getCurrentMonthStart();
-                  const monthStartString = currentMonthStart
-                    .toISOString()
-                    .split("T")[0];
-
-                  setSelectedDate(monthStartString);
-                }}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
-                  selectedPeriod === "month"
-                    ? "bg-[#003D5B] text-white"
-                    : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                }`}
-              >
-                Month
-              </button>
-              <button
-                onClick={() => setSelectedPeriod("all")}
-                className={`px-2 py-1 text-xs rounded transition-colors ${
-                  selectedPeriod === "all"
-                    ? "bg-[#003D5B] text-white"
-                    : "bg-slate-200 text-slate-600 hover:bg-slate-300"
-                }`}
-              >
-                All
-              </button>
-            </div>
-          </div>
-
-          {/* Date Selection */}
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-600">{getPeriodLabel()}</span>
-            {selectedPeriod !== "all" && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() =>
-                    selectedPeriod === "week"
-                      ? navigateWeek("prev")
-                      : navigateMonth("prev")
-                  }
-                  className="p-1 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
-                  title={`Previous ${selectedPeriod}`}
-                >
-                  ←
-                </button>
-                <button
-                  onClick={goToCurrentPeriod}
-                  className="px-2 py-1 text-xs bg-slate-200 text-slate-600 hover:bg-slate-300 rounded transition-colors"
-                  title={`Go to current ${selectedPeriod}`}
-                >
-                  {selectedPeriod === "week" ? "This Week" : "This Month"}
-                </button>
-                <button
-                  onClick={() =>
-                    selectedPeriod === "week"
-                      ? navigateWeek("next")
-                      : navigateMonth("next")
-                  }
-                  className="p-1 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded transition-colors"
-                  title={`Next ${selectedPeriod}`}
-                >
-                  →
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <PeriodSelector
+          selectedPeriod={selectedPeriod}
+          selectedDate={selectedDate}
+          settings={settings}
+          onPeriodChange={setSelectedPeriod}
+          onDateChange={setSelectedDate}
+          getPeriodLabel={getPeriodLabel}
+          getCurrentWeekStart={getCurrentWeekStart}
+          getCurrentMonthStart={getCurrentMonthStart}
+          navigateWeek={navigateWeek}
+          navigateMonth={navigateMonth}
+          goToCurrentPeriod={goToCurrentPeriod}
+        />
 
         {/* Summary */}
         <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
@@ -945,7 +616,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 <div>
                   <span className="text-slate-500">After NI:</span>
                   <div className="font-bold text-green-600">
-                    {formatCurrency(periodTotals.afterNiPay)}
+                    {formatCurrency(periodTotals.afterNIPay)}
                   </div>
                 </div>
               </>
@@ -1003,10 +674,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
       {/* Pay List */}
       <div className="flex-1 px-3 overflow-hidden">
-        <div
-          className="overflow-y-auto h-full"
-          style={{ height: `${payListHeight}px` }}
-        >
+        <div className="overflow-y-auto" style={{ height: "400px" }}>
           {Object.keys(paysByDate).length === 0 ? (
             <div className="text-center py-6">
               <p className="text-slate-500">
