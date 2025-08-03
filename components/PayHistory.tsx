@@ -51,6 +51,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const summaryRef = useRef<HTMLDivElement>(null);
 
   // Calculate available space for pay list
   useEffect(() => {
@@ -62,35 +63,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         const availableViewportHeight = viewportHeight - containerTop;
         const headerHeight = headerRef.current.offsetHeight;
 
-        // More dynamic calculation for different devices
-        const navBarHeight = Math.max(80, window.innerHeight * 0.08); // 8% of viewport or minimum 80px
-        const padding = Math.max(60, window.innerHeight * 0.06); // 6% of viewport or minimum 60px
-
-        // Additional mobile-specific adjustments
-        const isMobile = window.innerWidth <= 768;
-        const mobileAdjustment = isMobile ? 20 : 0; // Extra space for mobile
+        // Simple calculation with generous spacing
+        const navBarHeight = 120;
+        const padding = 80;
 
         const availableHeight =
-          availableViewportHeight -
-          headerHeight -
-          navBarHeight -
-          padding -
-          mobileAdjustment;
-        const finalHeight = Math.max(availableHeight, 150); // Increased minimum height
-
-        // Debug logging (temporary)
-        console.log("PayHistory Height Debug:", {
-          viewportHeight,
-          containerTop,
-          availableViewportHeight,
-          headerHeight,
-          navBarHeight,
-          padding,
-          mobileAdjustment,
-          availableHeight,
-          finalHeight,
-          isMobile: window.innerWidth <= 768,
-        });
+          availableViewportHeight - headerHeight - navBarHeight - padding;
+        const finalHeight = Math.max(availableHeight, 200);
 
         setPayListHeight(finalHeight);
       }
@@ -98,18 +77,12 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
     calculatePayListHeight();
     const timeoutId = setTimeout(calculatePayListHeight, 100);
-    const orientationTimeoutId = setTimeout(calculatePayListHeight, 300); // Extra delay for orientation changes
 
     window.addEventListener("resize", calculatePayListHeight);
-    window.addEventListener("orientationchange", () => {
-      setTimeout(calculatePayListHeight, 100); // Handle orientation change
-    });
 
     return () => {
       clearTimeout(timeoutId);
-      clearTimeout(orientationTimeoutId);
       window.removeEventListener("resize", calculatePayListHeight);
-      window.removeEventListener("orientationchange", calculatePayListHeight);
     };
   }, []);
 
@@ -666,7 +639,10 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         />
 
         {/* Summary */}
-        <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
+        <div
+          ref={summaryRef}
+          className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80"
+        >
           <div className="grid grid-cols-2 gap-1.5 text-xs">
             {/* Row 1: Standard Pay vs Overtime Pay */}
             <div>
@@ -752,11 +728,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
       </div>
 
       {/* Pay List */}
-      <div className="flex-1 px-3 overflow-hidden">
-        <div
-          className="overflow-y-auto"
-          style={{ height: `${payListHeight}px` }}
-        >
+      <div className="overflow-y-auto" style={{ height: `${payListHeight}px` }}>
+        <div className="space-y-1.5 px-3">
           {Object.keys(paysByDate).length === 0 ? (
             <div className="text-center py-6">
               <p className="text-slate-500">
