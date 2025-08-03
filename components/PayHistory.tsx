@@ -137,7 +137,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
   const periodTotals = useMemo(() => {
     return filteredPayHistory.reduce(
       (totals, pay) => {
+        // Calculate standard pay and overtime pay using the stored values
+        const standardPay = pay.standardPay;
+        const overtimePay = pay.overtimePay;
+
         totals.totalPay += pay.totalPay;
+        totals.standardPay += standardPay;
+        totals.overtimePay += overtimePay;
         totals.totalHours += pay.standardHours + pay.overtimeHours;
         totals.totalMinutes += pay.standardMinutes + pay.overtimeMinutes;
 
@@ -177,6 +183,8 @@ const PayHistory: React.FC<PayHistoryProps> = ({
       },
       {
         totalPay: 0,
+        standardPay: 0,
+        overtimePay: 0,
         totalHours: 0,
         totalMinutes: 0,
         totalTax: 0,
@@ -573,12 +581,39 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         {/* Summary */}
         <div className="bg-white/50 p-1.5 rounded-lg border border-gray-200/80">
           <div className="grid grid-cols-2 gap-1.5 text-xs">
+            {/* Row 1: Standard Pay vs Overtime Pay */}
             <div>
-              <span className="text-slate-500">Total Pay:</span>
+              <span className="text-slate-500">Total Standard Pay:</span>
               <div className="font-bold text-[#003D5B]">
-                {formatCurrency(periodTotals.totalPay)}
+                {formatCurrency(periodTotals.standardPay)}
               </div>
             </div>
+            <div>
+              <span className="text-slate-500">Total Overtime Pay:</span>
+              <div className="font-bold text-orange-600">
+                {formatCurrency(periodTotals.overtimePay)}
+              </div>
+            </div>
+
+            {/* Row 2: Tax vs NI (only show if applicable) */}
+            {(periodTotals.totalTax > 0 || periodTotals.totalNI > 0) && (
+              <>
+                <div>
+                  <span className="text-slate-500">Total Tax:</span>
+                  <div className="font-bold text-red-600">
+                    {formatCurrency(periodTotals.totalTax)}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-slate-500">Total NI:</span>
+                  <div className="font-bold text-orange-600">
+                    {formatCurrency(periodTotals.totalNI)}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Row 3: Hours vs Final Total */}
             <div>
               <span className="text-slate-500">Total Hours:</span>
               <div className="font-bold text-[#003D5B]">
@@ -588,66 +623,23 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 h {periodTotals.totalMinutes % 60}m
               </div>
             </div>
-            {/* Show individual breakdowns when only one is enabled */}
-            {periodTotals.totalTax > 0 && periodTotals.totalNI === 0 && (
-              <>
-                <div>
-                  <span className="text-slate-500">Total Tax:</span>
-                  <div className="font-bold text-red-600">
-                    {formatCurrency(periodTotals.totalTax)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-500">After Tax:</span>
-                  <div className="font-bold text-green-600">
-                    {formatCurrency(periodTotals.afterTaxPay)}
-                  </div>
-                </div>
-              </>
-            )}
-            {periodTotals.totalNI > 0 && periodTotals.totalTax === 0 && (
-              <>
-                <div>
-                  <span className="text-slate-500">Total NI:</span>
-                  <div className="font-bold text-orange-600">
-                    {formatCurrency(periodTotals.totalNI)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-500">After NI:</span>
-                  <div className="font-bold text-green-600">
-                    {formatCurrency(periodTotals.afterNIPay)}
-                  </div>
-                </div>
-              </>
-            )}
-            {/* Show simplified breakdown when both are enabled */}
-            {periodTotals.totalTax > 0 && periodTotals.totalNI > 0 && (
-              <>
-                <div>
-                  <span className="text-slate-500">Total Tax:</span>
-                  <div className="font-bold text-red-600">
-                    {formatCurrency(periodTotals.totalTax)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-500">Total NI:</span>
-                  <div className="font-bold text-orange-600">
-                    {formatCurrency(periodTotals.totalNI)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-slate-500">Final Total:</span>
-                  <div className="font-bold text-green-600">
-                    {formatCurrency(
-                      periodTotals.totalPay -
+            <div>
+              <span className="text-slate-500">Final Total:</span>
+              <div className="font-bold text-green-600">
+                {formatCurrency(
+                  settings.enableTaxCalculations &&
+                    settings.enableNiCalculations
+                    ? periodTotals.totalPay -
                         periodTotals.totalTax -
                         periodTotals.totalNI
-                    )}
-                  </div>
-                </div>
-              </>
-            )}
+                    : settings.enableTaxCalculations
+                    ? periodTotals.afterTaxPay
+                    : settings.enableNiCalculations
+                    ? periodTotals.afterNIPay
+                    : periodTotals.totalPay
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Pay Goals Progress Bars */}

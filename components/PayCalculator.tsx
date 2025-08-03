@@ -63,6 +63,20 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     new Date().toISOString().split("T")[0]
   );
 
+  // Track if user has manually interacted with rate inputs
+  const [userHasInteractedWithHourlyRate, setUserHasInteractedWithHourlyRate] =
+    useState(false);
+  const [
+    userHasInteractedWithOvertimeRate,
+    setUserHasInteractedWithOvertimeRate,
+  ] = useState(false);
+
+  // Track selected rate IDs for dropdowns
+  const [selectedStandardRateId, setSelectedStandardRateId] =
+    useLocalStorage<string>("selectedStandardRateId", "");
+  const [selectedOvertimeRateId, setSelectedOvertimeRateId] =
+    useLocalStorage<string>("selectedOvertimeRateId", "");
+
   const containerRef = useRef<HTMLDivElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const totalSectionRef = useRef<HTMLDivElement>(null);
@@ -76,7 +90,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
       if (
         defaultStandardRate &&
         defaultStandardRate.rate > 0 &&
-        hourlyRate === 0
+        hourlyRate === 0 &&
+        !userHasInteractedWithHourlyRate
       ) {
         setHourlyRate(defaultStandardRate.rate);
       }
@@ -88,7 +103,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
       if (
         defaultOvertimeRate &&
         defaultOvertimeRate.rate > 0 &&
-        overtimeRate === 0
+        overtimeRate === 0 &&
+        !userHasInteractedWithOvertimeRate
       ) {
         setOvertimeRate(defaultOvertimeRate.rate);
       }
@@ -99,6 +115,64 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
     hourlyRate,
     overtimeRate,
     setHourlyRate,
+    userHasInteractedWithHourlyRate,
+    userHasInteractedWithOvertimeRate,
+  ]);
+
+  // Reset interaction flags when settings change (allows new defaults to be applied)
+  useEffect(() => {
+    setUserHasInteractedWithHourlyRate(false);
+    setUserHasInteractedWithOvertimeRate(false);
+  }, [settings.standardRates, settings.overtimeRates]);
+
+  // Sync selected rate IDs with current rates and validate selections
+  useEffect(() => {
+    // Check if selected standard rate still exists
+    if (selectedStandardRateId && settings.standardRates) {
+      const rateExists = settings.standardRates.some(
+        (rate) => rate.id === selectedStandardRateId
+      );
+      if (!rateExists) {
+        setSelectedStandardRateId("");
+      }
+    }
+
+    // Check if selected overtime rate still exists
+    if (selectedOvertimeRateId && settings.overtimeRates) {
+      const rateExists = settings.overtimeRates.some(
+        (rate) => rate.id === selectedOvertimeRateId
+      );
+      if (!rateExists) {
+        setSelectedOvertimeRateId("");
+      }
+    }
+
+    // Sync hourly rate with selected standard rate
+    if (selectedStandardRateId && settings.standardRates) {
+      const selectedRate = settings.standardRates.find(
+        (rate) => rate.id === selectedStandardRateId
+      );
+      if (selectedRate && hourlyRate !== selectedRate.rate) {
+        setHourlyRate(selectedRate.rate);
+      }
+    }
+
+    // Sync overtime rate with selected overtime rate
+    if (selectedOvertimeRateId && settings.overtimeRates) {
+      const selectedRate = settings.overtimeRates.find(
+        (rate) => rate.id === selectedOvertimeRateId
+      );
+      if (selectedRate && overtimeRate !== selectedRate.rate) {
+        setOvertimeRate(selectedRate.rate);
+      }
+    }
+  }, [
+    selectedStandardRateId,
+    selectedOvertimeRateId,
+    settings.standardRates,
+    settings.overtimeRates,
+    hourlyRate,
+    overtimeRate,
   ]);
 
   // Calculate total minutes for the selected date by combining current entries with submitted entries
@@ -335,7 +409,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           )}
 
           {/* NI Section - only show if NI calculations are enabled */}
-          {settings.enableNiCalculations && (
+          {settings.enableNiCalculations && niAmount > 0 && (
             <div className="pt-2 border-t border-orange-200 mt-2">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-orange-600">NI (12%/2%)</span>
@@ -692,21 +766,27 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       step="0.01"
                       min="0"
                       value={hourlyRate || ""}
-                      onChange={(e) =>
-                        setHourlyRate(parseFloat(e.target.value) || 0)
-                      }
+                      onChange={(e) => {
+                        setHourlyRate(parseFloat(e.target.value) || 0);
+                        setUserHasInteractedWithHourlyRate(true);
+                      }}
                       placeholder="e.g., 18.50"
                       className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
                     />
                     {settings.standardRates &&
                       settings.standardRates.length > 1 && (
                         <select
+                          value={selectedStandardRateId}
                           onChange={(e) => {
                             const selectedRate = settings.standardRates.find(
                               (rate) => rate.id === e.target.value
                             );
                             if (selectedRate) {
                               setHourlyRate(selectedRate.rate);
+                              setUserHasInteractedWithHourlyRate(true);
+                              setSelectedStandardRateId(e.target.value);
+                            } else {
+                              setSelectedStandardRateId("");
                             }
                           }}
                           className="mt-1 p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
@@ -738,9 +818,10 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         inputMode="numeric"
                         min="0"
                         value={manualHours || ""}
-                        onChange={(e) =>
-                          setManualHours(parseInt(e.target.value) || 0)
-                        }
+                        onChange={(e) => {
+                          setManualHours(parseInt(e.target.value) || 0);
+                          setUserHasInteractedWithHourlyRate(true);
+                        }}
                         placeholder="Hours"
                         className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                       />
@@ -750,9 +831,10 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         min="0"
                         max="59"
                         value={manualMinutes || ""}
-                        onChange={(e) =>
-                          setManualMinutes(parseInt(e.target.value) || 0)
-                        }
+                        onChange={(e) => {
+                          setManualMinutes(parseInt(e.target.value) || 0);
+                          setUserHasInteractedWithHourlyRate(true);
+                        }}
                         placeholder="Minutes"
                         className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                       />
@@ -775,21 +857,27 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       step="0.01"
                       min="0"
                       value={overtimeRate || ""}
-                      onChange={(e) =>
-                        setOvertimeRate(parseFloat(e.target.value) || 0)
-                      }
+                      onChange={(e) => {
+                        setOvertimeRate(parseFloat(e.target.value) || 0);
+                        setUserHasInteractedWithOvertimeRate(true);
+                      }}
                       placeholder="e.g., 27.75"
                       className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] min-w-0"
                     />
                     {settings.overtimeRates &&
                       settings.overtimeRates.length > 1 && (
                         <select
+                          value={selectedOvertimeRateId}
                           onChange={(e) => {
                             const selectedRate = settings.overtimeRates.find(
                               (rate) => rate.id === e.target.value
                             );
                             if (selectedRate) {
                               setOvertimeRate(selectedRate.rate);
+                              setUserHasInteractedWithOvertimeRate(true);
+                              setSelectedOvertimeRateId(e.target.value);
+                            } else {
+                              setSelectedOvertimeRateId("");
                             }
                           }}
                           className="p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B] w-20 flex-shrink-0"
@@ -816,9 +904,10 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       inputMode="numeric"
                       min="0"
                       value={overtimeHours || ""}
-                      onChange={(e) =>
-                        setOvertimeHours(parseInt(e.target.value) || 0)
-                      }
+                      onChange={(e) => {
+                        setOvertimeHours(parseInt(e.target.value) || 0);
+                        setUserHasInteractedWithOvertimeRate(true);
+                      }}
                       placeholder="Hours"
                       className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                     />
@@ -828,9 +917,10 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                       min="0"
                       max="59"
                       value={overtimeMinutes || ""}
-                      onChange={(e) =>
-                        setOvertimeMinutes(parseInt(e.target.value) || 0)
-                      }
+                      onChange={(e) => {
+                        setOvertimeMinutes(parseInt(e.target.value) || 0);
+                        setUserHasInteractedWithOvertimeRate(true);
+                      }}
                       placeholder="Minutes"
                       className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-[#003D5B] focus:border-[#003D5B]"
                     />
