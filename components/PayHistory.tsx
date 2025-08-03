@@ -61,24 +61,55 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         const containerTop = containerRect.top;
         const availableViewportHeight = viewportHeight - containerTop;
         const headerHeight = headerRef.current.offsetHeight;
-        const navBarHeight = 120; // Increased from 64
-        const padding = 80; // Increased from 16
+
+        // More dynamic calculation for different devices
+        const navBarHeight = Math.max(80, window.innerHeight * 0.08); // 8% of viewport or minimum 80px
+        const padding = Math.max(60, window.innerHeight * 0.06); // 6% of viewport or minimum 60px
+
+        // Additional mobile-specific adjustments
+        const isMobile = window.innerWidth <= 768;
+        const mobileAdjustment = isMobile ? 20 : 0; // Extra space for mobile
 
         const availableHeight =
-          availableViewportHeight - headerHeight - navBarHeight - padding;
-        const finalHeight = Math.max(availableHeight, 100);
+          availableViewportHeight -
+          headerHeight -
+          navBarHeight -
+          padding -
+          mobileAdjustment;
+        const finalHeight = Math.max(availableHeight, 150); // Increased minimum height
+
+        // Debug logging (temporary)
+        console.log("PayHistory Height Debug:", {
+          viewportHeight,
+          containerTop,
+          availableViewportHeight,
+          headerHeight,
+          navBarHeight,
+          padding,
+          mobileAdjustment,
+          availableHeight,
+          finalHeight,
+          isMobile: window.innerWidth <= 768,
+        });
+
         setPayListHeight(finalHeight);
       }
     };
 
     calculatePayListHeight();
     const timeoutId = setTimeout(calculatePayListHeight, 100);
+    const orientationTimeoutId = setTimeout(calculatePayListHeight, 300); // Extra delay for orientation changes
 
     window.addEventListener("resize", calculatePayListHeight);
+    window.addEventListener("orientationchange", () => {
+      setTimeout(calculatePayListHeight, 100); // Handle orientation change
+    });
 
     return () => {
       clearTimeout(timeoutId);
+      clearTimeout(orientationTimeoutId);
       window.removeEventListener("resize", calculatePayListHeight);
+      window.removeEventListener("orientationchange", calculatePayListHeight);
     };
   }, []);
 
