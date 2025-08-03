@@ -63,13 +63,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         const availableViewportHeight = viewportHeight - containerTop;
         const headerHeight = headerRef.current.offsetHeight;
 
-        // Simple calculation with generous spacing
-        const navBarHeight = 120;
-        const padding = 80;
+        // Simple calculation with correct spacing
+        const navBarHeight = 44; // Correct bottom navigation height
+        const padding = 20; // Reasonable padding for extra space
 
         const availableHeight =
           availableViewportHeight - headerHeight - navBarHeight - padding;
-        const finalHeight = Math.max(availableHeight, 200);
+        const finalHeight = Math.max(availableHeight, 100);
 
         setPayListHeight(finalHeight);
       }
