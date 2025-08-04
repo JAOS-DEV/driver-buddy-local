@@ -65,7 +65,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
         // Simple calculation with correct spacing
         const navBarHeight = 44; // Correct bottom navigation height
-        const padding = 20; // Reasonable padding for extra space
+        const padding = 0; // Reasonable padding for extra space
 
         const availableHeight =
           availableViewportHeight - headerHeight - navBarHeight - padding;
