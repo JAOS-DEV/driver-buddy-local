@@ -43,7 +43,8 @@ export const usePeriodFilter = <T extends { date: string }>(
       weekEnd.setHours(23, 59, 59, 999);
 
       return data.filter((item) => {
-        const itemDate = new Date(item.date);
+        // const itemDate = new Date(item.date);
+        const itemDate = new Date(`${item.date}T12:00:00Z`);
         return itemDate >= weekStart && itemDate <= weekEnd;
       });
     }

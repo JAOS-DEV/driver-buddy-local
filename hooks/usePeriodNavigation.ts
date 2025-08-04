@@ -5,8 +5,8 @@ export const usePeriodNavigation = (settings: Settings) => {
   const [selectedPeriod, setSelectedPeriod] = useState<
     "week" | "month" | "all"
   >("week");
+
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // Initialize to current week start based on settings
     const today = new Date();
     const weekStartDayMap: Record<string, number> = {
       sunday: 0,
@@ -20,18 +20,16 @@ export const usePeriodNavigation = (settings: Settings) => {
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = today.getDay();
 
-    // Calculate days to subtract to get to the start of the current week
     let daysToSubtract = currentDay - weekStartDay;
     if (daysToSubtract < 0) {
       daysToSubtract += 7;
     }
 
     const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - daysToSubtract);
+    weekStart.setDate(today.getDate() - daysToSubtract);
     return weekStart.toISOString().split("T")[0];
   });
 
-  // Get the current week start date based on settings
   const getCurrentWeekStart = () => {
     const today = new Date();
     const weekStartDayMap: Record<string, number> = {
@@ -46,29 +44,23 @@ export const usePeriodNavigation = (settings: Settings) => {
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = today.getDay();
 
-    // Calculate days to subtract to get to the start of the current week
     let daysToSubtract = currentDay - weekStartDay;
     if (daysToSubtract < 0) {
       daysToSubtract += 7;
     }
 
     const weekStart = new Date(today);
-    weekStart.setDate(weekStart.getDate() - daysToSubtract);
+    weekStart.setDate(today.getDate() - daysToSubtract);
     return weekStart;
   };
 
-  // Get the current month start date
   const getCurrentMonthStart = () => {
     const today = new Date();
     const year = today.getFullYear();
-    const month = today.getMonth() + 1; // Convert to 1-indexed
-    const monthStartString = `${year}-${month.toString().padStart(2, "0")}-01`;
-
-    // Return a Date object for compatibility with existing code
-    return new Date(monthStartString);
+    const month = today.getMonth() + 1; // 1-indexed
+    return new Date(`${year}-${month.toString().padStart(2, "0")}-01`);
   };
 
-  // Navigate to current period
   const goToCurrentPeriod = () => {
     if (selectedPeriod === "week") {
       const currentWeekStart = getCurrentWeekStart();
@@ -79,7 +71,6 @@ export const usePeriodNavigation = (settings: Settings) => {
     }
   };
 
-  // Navigate to next/previous week
   const navigateWeek = (direction: "next" | "prev") => {
     const selectedDateObj = new Date(selectedDate);
     const weekStartDayMap: Record<string, number> = {
@@ -94,7 +85,6 @@ export const usePeriodNavigation = (settings: Settings) => {
     const weekStartDay = weekStartDayMap[settings.weekStartDay];
     const currentDay = selectedDateObj.getDay();
 
-    // Calculate days to subtract to get to the start of the current week
     let daysToSubtract = currentDay - weekStartDay;
     if (daysToSubtract < 0) {
       daysToSubtract += 7;
@@ -112,36 +102,30 @@ export const usePeriodNavigation = (settings: Settings) => {
     setSelectedDate(weekStart.toISOString().split("T")[0]);
   };
 
-  // Navigate to next/previous month
+  // ✅ Fixed: clean month navigation using string manipulation
   const navigateMonth = (direction: "next" | "prev") => {
-    const selectedDateObj = new Date(selectedDate);
-    const year = selectedDateObj.getFullYear();
-    const month = selectedDateObj.getMonth();
-
-    let newYear = year;
-    let newMonth = month;
+    const [yearStr, monthStr] = selectedDate.split("-");
+    let year = parseInt(yearStr, 10);
+    let month = parseInt(monthStr, 10); // 1-indexed
 
     if (direction === "next") {
-      if (month === 11) {
-        newYear = year + 1;
-        newMonth = 0;
-      } else {
-        newMonth = month + 1;
+      month += 1;
+      if (month > 12) {
+        month = 1;
+        year += 1;
       }
     } else {
-      if (month === 0) {
-        newYear = year - 1;
-        newMonth = 11;
-      } else {
-        newMonth = month - 1;
+      month -= 1;
+      if (month < 1) {
+        month = 12;
+        year -= 1;
       }
     }
 
-    const newMonthStart = new Date(newYear, newMonth, 1);
-    setSelectedDate(newMonthStart.toISOString().split("T")[0]);
+    const newDateString = `${year}-${month.toString().padStart(2, "0")}-01`;
+    setSelectedDate(newDateString);
   };
 
-  // Get period label for display
   const getPeriodLabel = () => {
     const date = new Date(selectedDate);
     switch (selectedPeriod) {
@@ -159,7 +143,6 @@ export const usePeriodNavigation = (settings: Settings) => {
         const weekStartDay = weekStartDayMap[settings.weekStartDay];
         const currentDay = weekStart.getDay();
 
-        // Calculate days to subtract to get to the start of the current week
         let daysToSubtract = currentDay - weekStartDay;
         if (daysToSubtract < 0) {
           daysToSubtract += 7;
@@ -167,10 +150,12 @@ export const usePeriodNavigation = (settings: Settings) => {
 
         weekStart.setDate(weekStart.getDate() - daysToSubtract);
         const weekEnd = new Date(weekStart);
-        weekEnd.setDate(weekEnd.getDate() + 6);
+        weekEnd.setDate(weekStart.getDate() + 6);
+
         const weekStartDayName = weekStart.toLocaleDateString("en-GB", {
           weekday: "short",
         });
+
         return `${weekStartDayName} ${weekStart.toLocaleDateString("en-GB", {
           day: "numeric",
           month: "short",
@@ -178,15 +163,16 @@ export const usePeriodNavigation = (settings: Settings) => {
           day: "numeric",
           month: "short",
         })}`;
+
       case "month":
-        // For month view, always show the month name based on the selectedDate
-        const monthDate = new Date(selectedDate);
-        return monthDate.toLocaleDateString("en-GB", {
+        return date.toLocaleDateString("en-GB", {
           month: "long",
           year: "numeric",
         });
+
       case "all":
         return "All Time";
+
       default:
         return "";
     }
