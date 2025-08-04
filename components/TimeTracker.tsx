@@ -117,8 +117,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
         const entriesHeaderHeight = entriesHeaderRef.current.offsetHeight;
 
         // Account for navigation bar height and padding
-        const navBarHeight = 120; // Increased from 80
-        const bottomPadding = 80; // Increased from 32
+        const navBarHeight = 80;
+        const bottomPadding = 20;
 
         if (activeTab === "tracker") {
           // For tracker view, account for form, total, and submit sections
