@@ -473,7 +473,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 </label>
                 <input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   step="0.01"
                   min="0"
                   value={formData.standardRate}
@@ -525,7 +525,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 </label>
                 <input
                   type="number"
-                  inputMode="numeric"
+                  inputMode="decimal"
                   step="0.01"
                   min="0"
                   value={formData.overtimeRate}
