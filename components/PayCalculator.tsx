@@ -767,47 +767,6 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         settings.darkMode ? "bg-gray-800" : "bg-[#FAF7F0]"
       }`}
     >
-      {/* Header */}
-      <div className="flex-shrink-0 p-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2
-              className={`text-lg font-bold ${
-                settings.darkMode ? "text-gray-100" : "text-slate-800"
-              }`}
-            >
-              Pay Calculator
-            </h2>
-            <p
-              className={`text-xs ${
-                settings.darkMode ? "text-gray-400" : "text-slate-600"
-              }`}
-            >
-              Calculate your earnings
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowInfoModal(true)}
-              className={`p-1 rounded-md transition-colors ${
-                settings.darkMode
-                  ? "text-gray-400 hover:text-gray-200"
-                  : "text-slate-500 hover:text-slate-700"
-              }`}
-              title="About calculation methods"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Success Toast */}
       {showSaveSuccess && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
