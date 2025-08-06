@@ -680,34 +680,34 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               </div>
             </div>
 
-            {/* Row 2: Tax vs NI (only show if applicable) */}
-            {(periodTotals.totalTax > 0 || periodTotals.totalNI > 0) && (
-              <>
-                <div>
-                  <span
-                    className={
-                      settings.darkMode ? "text-gray-400" : "text-slate-500"
-                    }
-                  >
-                    Total Tax:
-                  </span>
-                  <div className="font-bold text-red-600">
-                    {formatCurrency(periodTotals.totalTax)}
-                  </div>
+            {/* Row 2: Tax vs NI (only show if enabled in settings) */}
+            {settings.enableTaxCalculations && periodTotals.totalTax > 0 && (
+              <div>
+                <span
+                  className={
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }
+                >
+                  Total Tax:
+                </span>
+                <div className="font-bold text-red-600">
+                  {formatCurrency(periodTotals.totalTax)}
                 </div>
-                <div>
-                  <span
-                    className={
-                      settings.darkMode ? "text-gray-400" : "text-slate-500"
-                    }
-                  >
-                    Total NI:
-                  </span>
-                  <div className="font-bold text-orange-600">
-                    {formatCurrency(periodTotals.totalNI)}
-                  </div>
+              </div>
+            )}
+            {settings.enableNiCalculations && periodTotals.totalNI > 0 && (
+              <div>
+                <span
+                  className={
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }
+                >
+                  Total NI:
+                </span>
+                <div className="font-bold text-orange-600">
+                  {formatCurrency(periodTotals.totalNI)}
                 </div>
-              </>
+              </div>
             )}
 
             {/* Row 3: Hours vs Final Total */}
