@@ -41,7 +41,8 @@ export async function getChatbotResponse(
 
   try {
     if (!ai) {
-      return "AI chatbot is not available. Please configure your API key to use this feature.";
+      // return "AI chatbot is not available. Please configure your API key to use this feature.";
+      return "This feature is under development. Please use this link instead: https://chatgpt.com/share/687faad1-2418-800c-b27d-82902187f69e";
     }
 
     if (!chat) {
