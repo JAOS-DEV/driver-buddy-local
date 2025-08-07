@@ -10,16 +10,26 @@ import {
   User,
 } from "firebase/auth";
 
-// Your Firebase configuration
-// You'll need to replace these with your actual Firebase project config
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyBto2D4oU-dUiQnnEprFoIaADUMaS94A_4",
-  authDomain: "driver-buddy-eae91.firebaseapp.com",
-  projectId: "driver-buddy-eae91",
-  storageBucket: "driver-buddy-eae91.firebasestorage.app",
-  messagingSenderId: "403894332710",
-  appId: "1:403894332710:web:4e0b29b02e29094b68a5e7",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
+
+// Debug: Check if environment variables are loaded
+console.log("Firebase Config:", {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY ? "✅ Loaded" : "❌ Missing",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN
+    ? "✅ Loaded"
+    : "❌ Missing",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID
+    ? "✅ Loaded"
+    : "❌ Missing",
+});
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
