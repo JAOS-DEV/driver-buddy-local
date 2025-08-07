@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
+import { useAuth } from "../hooks/useAuth";
 
 interface SettingsProps {
   settings: SettingsType;
@@ -7,6 +8,7 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
+  const { signOut } = useAuth();
   const [showTaxSection, setShowTaxSection] = useState(
     settings.enableTaxCalculations
   );
@@ -649,6 +651,34 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
               </button>
               <p className="text-xs text-slate-500">
                 Export your data for tax purposes or clear all saved data.
+              </p>
+            </div>
+          </div>
+
+          {/* Account Management */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Account
+            </h3>
+            <div className="space-y-2">
+              <button
+                onClick={signOut}
+                className="w-full bg-gray-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-gray-600 transition-colors text-sm"
+              >
+                Sign Out
+              </button>
+              <p className="text-xs text-slate-500">
+                Sign out of your account. Your data will remain stored locally.
               </p>
             </div>
           </div>

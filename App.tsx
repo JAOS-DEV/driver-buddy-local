@@ -7,10 +7,13 @@ import PayCalculator from "./components/PayCalculator";
 import LawLimits from "./components/LawLimits";
 import BottomNav from "./components/BottomNav";
 import ErrorBoundary from "./components/ErrorBoundary";
+import Login from "./components/Login";
 import useLocalStorage from "./hooks/useLocalStorage";
 import { useTimeCalculations } from "./hooks/useTimeCalculations";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
+  const { user, loading } = useAuth();
   const [activeView, setActiveView] = useLocalStorage<View>(
     "activeView",
     View.WORK
@@ -52,6 +55,24 @@ const App: React.FC = () => {
   >("dailySubmissions", []);
   const { totalDuration } = useTimeCalculations(entries);
 
+  // Show loading screen while checking authentication
+  if (loading) {
+    return (
+      <div className="h-[100dvh] w-full flex items-center justify-center bg-[#FAF7F0]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login screen if user is not authenticated
+  if (!user) {
+    return <Login />;
+  }
+
+  // Show main app if user is authenticated
   return (
     <ErrorBoundary>
       <div
@@ -107,6 +128,14 @@ const App: React.FC = () => {
         </div>
       </div>
     </ErrorBoundary>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 };
 
