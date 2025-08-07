@@ -2,15 +2,81 @@ import React, { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "../types";
 import { getChatbotResponse } from "../services/geminiService";
 
+// Utility function to detect URLs in text
+const detectUrls = (
+  text: string
+): Array<{ type: "text" | "url"; content: string; url?: string }> => {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const parts = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = urlRegex.exec(text)) !== null) {
+    // Add text before the URL
+    if (match.index > lastIndex) {
+      parts.push({
+        type: "text" as const,
+        content: text.slice(lastIndex, match.index),
+      });
+    }
+
+    // Add the URL
+    parts.push({
+      type: "url" as const,
+      content: match[0],
+      url: match[0],
+    });
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text after the last URL
+  if (lastIndex < text.length) {
+    parts.push({
+      type: "text" as const,
+      content: text.slice(lastIndex),
+    });
+  }
+
+  return parts.length > 0 ? parts : [{ type: "text" as const, content: text }];
+};
+
+// Component to safely render text with clickable links
+const SafeTextRenderer: React.FC<{ text: string }> = ({ text }) => {
+  const parts = detectUrls(text);
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (part.type === "url" && part.url) {
+          return (
+            <a
+              key={index}
+              href={part.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline hover:text-blue-800"
+            >
+              {part.content}
+            </a>
+          );
+        }
+        return <span key={index}>{part.content}</span>;
+      })}
+    </>
+  );
+};
+
 const UnionChatbot: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: "bot",
-      text: "Hello! I'm your AI Driver Buddy. How can I help you today? You can ask me about your rights, pay, or union rules.",
+      text: "Hello! I'm your AI Driver Buddy. How can I help you today? You can ask me about your rights, pay, or union rules.\n\nThis feature is under development. \n\nPlease use this link instead: https://chatgpt.com/share/687faad1-2418-800c-b27d-82902187f69e",
     },
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [lastMessageTime, setLastMessageTime] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -21,14 +87,28 @@ const UnionChatbot: React.FC = () => {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Input sanitization function
+  const sanitizeInput = (input: string): string => {
+    return input.trim().slice(0, 1000); // Limit length to 1000 characters
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim()) return;
 
-    const userMessage: ChatMessage = { sender: "user", text: inputValue };
+    // Rate limiting: prevent messages faster than 1 second apart
+    const now = Date.now();
+    const RATE_LIMIT_MS = 1000; // 1 second between messages
+    if (now - lastMessageTime < RATE_LIMIT_MS) {
+      return; // Ignore rapid messages
+    }
+
+    const sanitizedInput = sanitizeInput(inputValue);
+    const userMessage: ChatMessage = { sender: "user", text: sanitizedInput };
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
     setIsLoading(true);
+    setLastMessageTime(now);
 
     try {
       const responseText = await getChatbotResponse(messages, inputValue);
@@ -62,7 +142,13 @@ const UnionChatbot: React.FC = () => {
                   : "bg-white text-slate-800 border border-slate-200 rounded-bl-none"
               }`}
             >
-              <p className="whitespace-pre-wrap text-sm">{msg.text}</p>
+              <div className="whitespace-pre-wrap text-sm">
+                {msg.sender === "bot" ? (
+                  <SafeTextRenderer text={msg.text} />
+                ) : (
+                  msg.text
+                )}
+              </div>
             </div>
           </div>
         ))}
