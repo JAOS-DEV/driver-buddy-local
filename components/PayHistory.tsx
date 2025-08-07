@@ -65,7 +65,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
         // Simple calculation with correct spacing
         const navBarHeight = 44; // Correct bottom navigation height
-        const padding = 0; // Reasonable padding for extra space
+        const padding = 5; // Reasonable padding for extra space
 
         const availableHeight =
           availableViewportHeight - headerHeight - navBarHeight - padding;
@@ -84,7 +84,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
       clearTimeout(timeoutId);
       window.removeEventListener("resize", calculatePayListHeight);
     };
-  }, []);
+  }, [selectedPeriod, settings.weeklyGoal, settings.monthlyGoal]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
