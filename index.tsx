@@ -18,6 +18,16 @@ window.addEventListener("error", (e) => {
     if (!el) return;
     const msg = String(e?.error?.message || e?.message || "Unknown error");
     el.setAttribute("data-error", msg);
+    const banner = document.getElementById("debug-banner");
+    if (banner) {
+      banner.textContent = `Error: ${msg}`;
+      const style = banner.getAttribute("style") || "";
+      if (style.includes("display:none")) {
+        banner.setAttribute("style", style.replace("display:none", "display:block"));
+      } else {
+        banner.setAttribute("style", style + ";display:block");
+      }
+    }
   } catch {}
 });
 window.addEventListener("unhandledrejection", (e) => {
@@ -28,6 +38,16 @@ window.addEventListener("unhandledrejection", (e) => {
       (e.reason && e.reason.message) || e.reason || "Promise rejection"
     );
     el.setAttribute("data-error", msg);
+    const banner = document.getElementById("debug-banner");
+    if (banner) {
+      banner.textContent = `Rejection: ${msg}`;
+      const style = banner.getAttribute("style") || "";
+      if (style.includes("display:none")) {
+        banner.setAttribute("style", style.replace("display:none", "display:block"));
+      } else {
+        banner.setAttribute("style", style + ";display:block");
+      }
+    }
   } catch {}
 });
 
