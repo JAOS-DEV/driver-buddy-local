@@ -107,5 +107,37 @@
     <div id="root"></div>
     <!-- API key will be handled by environment variables in production -->
     <script type="module" src="/index.tsx"></script>
+    <script>
+      // Fallback: if modern bundle didn't run, try loading legacy entry
+      setTimeout(function () {
+        try {
+          // If __vite_is_modern_browser is not set, we probably didn't execute the module script
+          if (!window.__vite_is_modern_browser) {
+            var legacyEntry = document.getElementById("vite-legacy-entry");
+            if (legacyEntry) {
+              var src = legacyEntry.getAttribute("data-src");
+              if (src) {
+                var s = document.createElement("script");
+                s.src = src;
+                document.body.appendChild(s);
+                var b = document.getElementById("debug-banner");
+                if (b) {
+                  b.textContent = "Forced legacy entry load";
+                  b.style.display = "block";
+                }
+              }
+            }
+          }
+        } catch (e) {
+          try {
+            var b2 = document.getElementById("debug-banner");
+            if (b2) {
+              b2.textContent = "Legacy load error: " + (e.message || e);
+              b2.style.display = "block";
+            }
+          } catch (_) {}
+        }
+      }, 500);
+    </script>
   </body>
 </html>
