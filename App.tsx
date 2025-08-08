@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Settings, DailyPay, TimeEntry, DailySubmission } from "./types";
 import WorkLog from "./components/WorkLog";
 import UnionChatbot from "./components/UnionChatbot";
@@ -9,6 +9,9 @@ import BottomNav from "./components/BottomNav";
 import ErrorBoundary from "./components/ErrorBoundary";
 import useLocalStorage from "./hooks/useLocalStorage";
 import { useTimeCalculations } from "./hooks/useTimeCalculations";
+import Login from "./components/Login";
+import { auth, onAuthStateChanged } from "./services/firebase";
+import type { User } from "firebase/auth";
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useLocalStorage<View>(
@@ -52,6 +55,18 @@ const App: React.FC = () => {
   >("dailySubmissions", []);
   const { totalDuration } = useTimeCalculations(entries);
 
+  // Auth state
+  const [user, setUser] = useState<User | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      setUser(firebaseUser);
+      setAuthChecked(true);
+    });
+    return () => unsubscribe();
+  }, []);
+
   return (
     <ErrorBoundary>
       <div
@@ -68,42 +83,55 @@ const App: React.FC = () => {
           }`}
         >
           <div className="flex-1 overflow-hidden pt-2 pr-6 pl-6 pb-0">
-            {activeView === View.WORK && (
-              <WorkLog
-                settings={settings}
-                entries={entries}
-                setEntries={setEntries}
-                dailySubmissions={dailySubmissions}
-                setDailySubmissions={setDailySubmissions}
-              />
-            )}
-            {activeView === View.PAY && (
-              <PayCalculator
-                totalMinutes={totalDuration.totalMinutes}
-                hourlyRate={hourlyRate}
-                setHourlyRate={setHourlyRate}
-                settings={settings}
-                payHistory={payHistory}
-                setPayHistory={setPayHistory}
-                dailySubmissions={dailySubmissions}
-              />
-            )}
-            {activeView === View.LAW_LIMITS && (
-              <LawLimits totalMinutes={totalDuration.totalMinutes} />
-            )}
-            {activeView === View.CHAT && <UnionChatbot />}
-            {activeView === View.SETTINGS && (
-              <SettingsComponent
-                settings={settings}
-                setSettings={setSettings}
-              />
+            {!authChecked ? (
+              <div className="h-full w-full flex items-center justify-center">
+                <span className="text-sm text-slate-500">Loading…</span>
+              </div>
+            ) : !user ? (
+              <Login />
+            ) : (
+              <>
+                {activeView === View.WORK && (
+                  <WorkLog
+                    settings={settings}
+                    entries={entries}
+                    setEntries={setEntries}
+                    dailySubmissions={dailySubmissions}
+                    setDailySubmissions={setDailySubmissions}
+                  />
+                )}
+                {activeView === View.PAY && (
+                  <PayCalculator
+                    totalMinutes={totalDuration.totalMinutes}
+                    hourlyRate={hourlyRate}
+                    setHourlyRate={setHourlyRate}
+                    settings={settings}
+                    payHistory={payHistory}
+                    setPayHistory={setPayHistory}
+                    dailySubmissions={dailySubmissions}
+                  />
+                )}
+                {activeView === View.LAW_LIMITS && (
+                  <LawLimits totalMinutes={totalDuration.totalMinutes} />
+                )}
+                {activeView === View.CHAT && <UnionChatbot />}
+                {activeView === View.SETTINGS && (
+                  <SettingsComponent
+                    settings={settings}
+                    setSettings={setSettings}
+                    user={user}
+                  />
+                )}
+              </>
             )}
           </div>
-          <BottomNav
-            activeView={activeView}
-            setActiveView={setActiveView}
-            settings={settings}
-          />
+          {authChecked && user && (
+            <BottomNav
+              activeView={activeView}
+              setActiveView={setActiveView}
+              settings={settings}
+            />
+          )}
         </div>
       </div>
     </ErrorBoundary>

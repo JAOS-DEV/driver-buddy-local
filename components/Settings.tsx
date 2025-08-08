@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
+import type { User } from "firebase/auth";
+import { signOutUser } from "../services/firebase";
 
 interface SettingsProps {
   settings: SettingsType;
   setSettings: (settings: SettingsType) => void;
+  user?: User | null;
 }
 
-const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
+const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
   const [showTaxSection, setShowTaxSection] = useState(
     settings.enableTaxCalculations
   );
@@ -141,6 +144,61 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
             >
               Configure your preferences
             </p>
+          </div>
+
+          {/* Account */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Account
+            </h3>
+            {user ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 min-w-0">
+                  {user.photoURL ? (
+                    <img
+                      src={user.photoURL}
+                      alt="avatar"
+                      className="w-8 h-8 rounded-full"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-slate-300" />
+                  )}
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium truncate">
+                      {user.displayName || "Signed in user"}
+                    </div>
+                    <div className="text-xs text-slate-500 truncate">
+                      {user.email || ""}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={async () => {
+                    try {
+                      await signOutUser();
+                    } catch (e) {
+                      alert("Failed to sign out. Please try again.");
+                    }
+                  }}
+                  className="text-sm bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500">Not signed in</p>
+            )}
           </div>
 
           {/* Week Start Day */}
