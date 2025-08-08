@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
         modernPolyfills: true,
       }),
     ],
+    build: {
+      target: ["es2018", "safari13"],
+    },
     define: {
       "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),

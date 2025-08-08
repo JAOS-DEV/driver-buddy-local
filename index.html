@@ -55,6 +55,15 @@
     </style>
   </head>
   <body class="bg-[#FAF7F0]">
+    <script>
+      try {
+        var b = document.getElementById("debug-banner");
+        if (b) {
+          b.textContent = "Booting...";
+          b.style.display = "block";
+        }
+      } catch (e) {}
+    </script>
     <div
       id="debug-banner"
       style="
@@ -72,6 +81,22 @@
         word-break: break-word;
       "
     ></div>
+    <noscript>
+      <div
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: #c00;
+          color: #fff;
+          padding: 8px;
+          z-index: 99999;
+        "
+      >
+        JavaScript is required to run this app.
+      </div>
+    </noscript>
     <div id="root"></div>
     <!-- API key will be handled by environment variables in production -->
     <script type="module" src="/index.tsx"></script>
