@@ -1,10 +1,24 @@
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
+import legacy from "@vitejs/plugin-legacy";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, ".", "");
   return {
     base: process.env.NODE_ENV === "production" ? "./" : "/",
+    plugins: [
+      legacy({
+        targets: [
+          "defaults",
+          "not IE 11",
+          "iOS >= 12",
+          "Safari >= 12",
+          "Android >= 7",
+        ],
+        additionalLegacyPolyfills: ["whatwg-fetch"],
+        modernPolyfills: true,
+      }),
+    ],
     define: {
       "process.env.API_KEY": JSON.stringify(env.GEMINI_API_KEY),
       "process.env.GEMINI_API_KEY": JSON.stringify(env.GEMINI_API_KEY),
