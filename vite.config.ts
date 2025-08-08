@@ -15,7 +15,6 @@ export default defineConfig(({ mode }) => {
           "Safari >= 12",
           "Android >= 7",
         ],
-        additionalLegacyPolyfills: ["whatwg-fetch"],
         modernPolyfills: true,
       }),
     ],
