@@ -9,6 +9,30 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
+function updateBanner(msg: string) {
+  try {
+    const banner = document.getElementById("debug-banner");
+    if (!banner) return;
+    banner.textContent = msg;
+    const style = banner.getAttribute("style") || "";
+    if (style.includes("display: none")) {
+      banner.setAttribute(
+        "style",
+        style.replace("display: none", "display: block")
+      );
+    } else if (style.includes("display:none")) {
+      banner.setAttribute(
+        "style",
+        style.replace("display:none", "display:block")
+      );
+    } else if (!style.includes("display")) {
+      banner.setAttribute("style", style + ";display:block");
+    }
+  } catch {}
+}
+
+updateBanner("App module loaded");
+
 const root = ReactDOM.createRoot(rootElement);
 
 // Minimal global error visibility for mobile
@@ -18,19 +42,7 @@ window.addEventListener("error", (e) => {
     if (!el) return;
     const msg = String(e?.error?.message || e?.message || "Unknown error");
     el.setAttribute("data-error", msg);
-    const banner = document.getElementById("debug-banner");
-    if (banner) {
-      banner.textContent = `Error: ${msg}`;
-      const style = banner.getAttribute("style") || "";
-      if (style.includes("display:none")) {
-        banner.setAttribute(
-          "style",
-          style.replace("display:none", "display:block")
-        );
-      } else {
-        banner.setAttribute("style", style + ";display:block");
-      }
-    }
+    updateBanner(`Error: ${msg}`);
   } catch {}
 });
 window.addEventListener("unhandledrejection", (e) => {
@@ -41,19 +53,7 @@ window.addEventListener("unhandledrejection", (e) => {
       (e.reason && e.reason.message) || e.reason || "Promise rejection"
     );
     el.setAttribute("data-error", msg);
-    const banner = document.getElementById("debug-banner");
-    if (banner) {
-      banner.textContent = `Rejection: ${msg}`;
-      const style = banner.getAttribute("style") || "";
-      if (style.includes("display:none")) {
-        banner.setAttribute(
-          "style",
-          style.replace("display:none", "display:block")
-        );
-      } else {
-        banner.setAttribute("style", style + ";display:block");
-      }
-    }
+    updateBanner(`Rejection: ${msg}`);
   } catch {}
 });
 
@@ -64,3 +64,5 @@ root.render(
     </div>
   </React.StrictMode>
 );
+
+updateBanner("React mounted");
