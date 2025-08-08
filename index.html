@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#FAF7F0" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' blob: https://esm.sh https://apis.google.com https://accounts.google.com https://www.gstatic.com https://www.googleapis.com https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com https://apis.google.com https://accounts.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://firestore.googleapis.com https://firebasestorage.googleapis.com https://region1.google-analytics.com https://*.google-analytics.com; frame-src 'self' https://accounts.google.com https://www.gstatic.com https://*.firebaseapp.com https://*.web.app;"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://esm.sh https://apis.google.com https://accounts.google.com https://www.gstatic.com https://www.googleapis.com https://www.googletagmanager.com; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://generativelanguage.googleapis.com https://apis.google.com https://accounts.google.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://www.googleapis.com https://firebase.googleapis.com https://firebaseinstallations.googleapis.com https://firestore.googleapis.com https://firebasestorage.googleapis.com https://region1.google-analytics.com https://*.google-analytics.com; frame-src 'self' https://accounts.google.com https://www.gstatic.com https://*.firebaseapp.com https://*.web.app;"
     />
     <title>Driver Buddy</title>
     <style>
@@ -55,15 +55,6 @@
     </style>
   </head>
   <body class="bg-[#FAF7F0]">
-    <script>
-      try {
-        var b = document.getElementById("debug-banner");
-        if (b) {
-          b.textContent = "Booting...";
-          b.style.display = "block";
-        }
-      } catch (e) {}
-    </script>
     <div
       id="debug-banner"
       style="
@@ -81,6 +72,22 @@
         word-break: break-word;
       "
     ></div>
+    <script>
+      try {
+        var initBanner = function () {
+          var b = document.getElementById("debug-banner");
+          if (b) {
+            b.textContent = "Booting...";
+            b.style.display = "block";
+          }
+        };
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initBanner);
+        } else {
+          initBanner();
+        }
+      } catch (e) {}
+    </script>
     <noscript>
       <div
         style="
