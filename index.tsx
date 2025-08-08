@@ -23,7 +23,10 @@ window.addEventListener("error", (e) => {
       banner.textContent = `Error: ${msg}`;
       const style = banner.getAttribute("style") || "";
       if (style.includes("display:none")) {
-        banner.setAttribute("style", style.replace("display:none", "display:block"));
+        banner.setAttribute(
+          "style",
+          style.replace("display:none", "display:block")
+        );
       } else {
         banner.setAttribute("style", style + ";display:block");
       }
@@ -43,7 +46,10 @@ window.addEventListener("unhandledrejection", (e) => {
       banner.textContent = `Rejection: ${msg}`;
       const style = banner.getAttribute("style") || "";
       if (style.includes("display:none")) {
-        banner.setAttribute("style", style.replace("display:none", "display:block"));
+        banner.setAttribute(
+          "style",
+          style.replace("display:none", "display:block")
+        );
       } else {
         banner.setAttribute("style", style + ";display:block");
       }
