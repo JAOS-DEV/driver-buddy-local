@@ -1,0 +1,8 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+/* Content sources for Tailwind v4 */
+@source "./index.html";
+@source "./App.tsx";
+@source "./components/**/*.{ts,tsx}";
+@source "./hooks/**/*.{ts,tsx}";

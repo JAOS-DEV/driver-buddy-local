@@ -68,6 +68,7 @@ export interface Settings {
   weeklyGoal: number;
   monthlyGoal: number;
   darkMode: boolean;
+  storageMode?: "local" | "cloud";
 }
 
 export interface ChatMessage {

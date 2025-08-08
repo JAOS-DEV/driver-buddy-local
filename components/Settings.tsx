@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
 import { useAuth } from "../hooks/useAuth";
+import { importLocalDataToCloud } from "../services/firestoreClient";
+import { db } from "../services/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 interface SettingsProps {
   settings: SettingsType;
@@ -8,13 +11,82 @@ interface SettingsProps {
 }
 
 const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [showTaxSection, setShowTaxSection] = useState(
     settings.enableTaxCalculations
   );
 
   const updateSettings = (updates: Partial<SettingsType>) => {
     setSettings({ ...settings, ...updates });
+  };
+
+  const storageMode = settings.storageMode ?? "local";
+
+  const handleImportToCloud = async () => {
+    if (!user) {
+      alert("Please sign in to import data to cloud.");
+      return;
+    }
+
+    try {
+      const snapshot = {
+        settings,
+        timeEntries: JSON.parse(localStorage.getItem("timeEntries") || "[]"),
+        payHistory: JSON.parse(localStorage.getItem("payHistory") || "[]"),
+        dailySubmissions: JSON.parse(
+          localStorage.getItem("dailySubmissions") || "[]"
+        ),
+        hourlyRate: parseFloat(localStorage.getItem("hourlyRate") || "0") || 0,
+      };
+      await importLocalDataToCloud(user.uid, snapshot);
+      alert("Local data has been imported to cloud successfully.");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to import data to cloud. Check console for details.");
+    }
+  };
+
+  const handleDownloadCloudToLocal = async () => {
+    if (!user) {
+      alert("Please sign in to download from cloud.");
+      return;
+    }
+    if (
+      !confirm(
+        "This will REPLACE your local data with what's in the cloud (for entries, pay history, submissions, hourly rate, and settings). Continue?"
+      )
+    ) {
+      return;
+    }
+    try {
+      const userId = user.uid;
+      // entries
+      const entriesSnap = await getDocs(
+        collection(db, "users", userId, "entries")
+      );
+      const entries = entriesSnap.docs.map((d) => d.data());
+      // payHistory
+      const paySnap = await getDocs(
+        collection(db, "users", userId, "payHistory")
+      );
+      const payHistory = paySnap.docs.map((d) => d.data());
+      // dailySubmissions
+      const subsSnap = await getDocs(
+        collection(db, "users", userId, "dailySubmissions")
+      );
+      const dailySubmissions = subsSnap.docs.map((d) => d.data());
+
+      localStorage.setItem("timeEntries", JSON.stringify(entries));
+      localStorage.setItem("payHistory", JSON.stringify(payHistory));
+      localStorage.setItem(
+        "dailySubmissions",
+        JSON.stringify(dailySubmissions)
+      );
+      alert("Cloud data downloaded to local successfully.");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to download from cloud. Check console for details.");
+    }
   };
 
   const formatCurrency = (amount: number) => {
@@ -631,6 +703,54 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings }) => {
               Data Management
             </h3>
             <div className="space-y-2">
+              <div className="p-2 border border-slate-300 rounded">
+                <label className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-1">
+                  Storage Mode
+                </label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => updateSettings({ storageMode: "local" })}
+                    className={`flex-1 py-1 px-2 rounded border ${
+                      storageMode === "local"
+                        ? "bg-slate-800 text-white border-slate-800"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Local
+                  </button>
+                  <button
+                    onClick={() => updateSettings({ storageMode: "cloud" })}
+                    className={`flex-1 py-1 px-2 rounded border ${
+                      storageMode === "cloud"
+                        ? "bg-slate-800 text-white border-slate-800"
+                        : "bg-white text-slate-700 border-slate-300"
+                    }`}
+                  >
+                    Cloud
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-1">
+                  Choose where your data is saved. Switching does not migrate
+                  data automatically.
+                </p>
+                <button
+                  onClick={handleImportToCloud}
+                  className="mt-2 w-full bg-green-600 text-white font-bold py-1.5 px-3 rounded-md hover:bg-green-700 transition-colors text-sm"
+                >
+                  Import Local Data to Cloud
+                </button>
+                <button
+                  onClick={handleDownloadCloudToLocal}
+                  className="mt-2 w-full bg-indigo-600 text-white font-bold py-1.5 px-3 rounded-md hover:bg-indigo-700 transition-colors text-sm"
+                >
+                  Download Cloud Data to Local
+                </button>
+                {!user && (
+                  <p className="text-[11px] text-red-600 mt-1">
+                    Sign in to use Cloud storage and import data.
+                  </p>
+                )}
+              </div>
               <button
                 onClick={exportPayHistory}
                 className="w-full bg-blue-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"

@@ -9,6 +9,8 @@ import BottomNav from "./components/BottomNav";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Login from "./components/Login";
 import useLocalStorage from "./hooks/useLocalStorage";
+import useDataStorage from "./hooks/useDataStorage";
+import useSettingsStorage from "./hooks/useSettingsStorage";
 import { useTimeCalculations } from "./hooks/useTimeCalculations";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 
@@ -18,41 +20,19 @@ const AppContent: React.FC = () => {
     "activeView",
     View.WORK
   );
-  const [settings, setSettings] = useLocalStorage<Settings>("settings", {
-    weekStartDay: "monday",
-    standardRates: [
-      {
-        id: "default",
-        name: "Default Standard Rate",
-        rate: 0,
-      },
-    ],
-    overtimeRates: [
-      {
-        id: "default",
-        name: "Default Overtime Rate",
-        rate: 0,
-      },
-    ],
-    enableTaxCalculations: false,
-    taxRate: 0.2,
-    enableNiCalculations: false,
-    currency: "GBP",
-    weeklyGoal: 0,
-    monthlyGoal: 0,
-    darkMode: false,
-  });
+  const { settings, setSettings } = useSettingsStorage(user?.uid || undefined);
 
   // Get time entries for pay calculations
-  const [entries, setEntries] = useLocalStorage<TimeEntry[]>("timeEntries", []);
-  const [hourlyRate, setHourlyRate] = useLocalStorage<number>("hourlyRate", 0);
-  const [payHistory, setPayHistory] = useLocalStorage<DailyPay[]>(
-    "payHistory",
-    []
-  );
-  const [dailySubmissions, setDailySubmissions] = useLocalStorage<
-    DailySubmission[]
-  >("dailySubmissions", []);
+  const {
+    entries,
+    setEntries,
+    hourlyRate,
+    setHourlyRate,
+    payHistory,
+    setPayHistory,
+    dailySubmissions,
+    setDailySubmissions,
+  } = useDataStorage(settings.storageMode, user?.uid);
   const { totalDuration } = useTimeCalculations(entries);
 
   // Show loading screen while checking authentication
