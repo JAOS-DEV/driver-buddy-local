@@ -736,14 +736,108 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                   </p>
                 </div>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!user) {
                       alert("Sign in to use cloud storage.");
                       return;
                     }
-                    const mode =
-                      settings.storageMode === "cloud" ? "local" : "cloud";
-                    updateSettings({ storageMode: mode });
+                    const switchingToCloud = settings.storageMode !== "cloud";
+                    if (switchingToCloud) {
+                      // Check if cloud data exists first
+                      const { readCloudSnapshot } = await import(
+                        "../services/firestoreStorage"
+                      );
+                      try {
+                        const cloudData = await readCloudSnapshot(user.uid);
+                        const hasCloudData =
+                          cloudData &&
+                          (cloudData.settings ||
+                            (cloudData.timeEntries &&
+                              cloudData.timeEntries.length > 0) ||
+                            (cloudData.dailySubmissions &&
+                              cloudData.dailySubmissions.length > 0) ||
+                            (cloudData.payHistory &&
+                              cloudData.payHistory.length > 0));
+
+                        if (hasCloudData) {
+                          // Ask user what to do with existing cloud data
+                          const choice = confirm(
+                            "Cloud data exists. Do you want to:\n\n" +
+                              "• OK: Use cloud data (downloads to this device)\n" +
+                              "• Cancel: Upload local data (replaces cloud data)\n\n" +
+                              "Choose OK to keep cloud data, Cancel to overwrite with local data."
+                          );
+
+                          if (choice) {
+                            // Download cloud data to local
+                            const { downloadCloudData } = await import(
+                              "../services/firestoreStorage"
+                            );
+                            await downloadCloudData(user.uid);
+                            const nowIso = new Date().toISOString();
+                            updateSettings({
+                              storageMode: "cloud",
+                              lastSyncAt: nowIso,
+                            });
+                          } else {
+                            // Upload local data to cloud
+                            const local = {
+                              settings: JSON.parse(
+                                localStorage.getItem("settings") || "null"
+                              ),
+                              timeEntries: JSON.parse(
+                                localStorage.getItem("timeEntries") || "[]"
+                              ),
+                              dailySubmissions: JSON.parse(
+                                localStorage.getItem("dailySubmissions") || "[]"
+                              ),
+                              payHistory: JSON.parse(
+                                localStorage.getItem("payHistory") || "[]"
+                              ),
+                            };
+                            const { writeCloudSnapshot } = await import(
+                              "../services/firestoreStorage"
+                            );
+                            await writeCloudSnapshot(user.uid, local);
+                            const nowIso = new Date().toISOString();
+                            updateSettings({
+                              storageMode: "cloud",
+                              lastSyncAt: nowIso,
+                            });
+                          }
+                        } else {
+                          // No cloud data exists, upload local data
+                          const local = {
+                            settings: JSON.parse(
+                              localStorage.getItem("settings") || "null"
+                            ),
+                            timeEntries: JSON.parse(
+                              localStorage.getItem("timeEntries") || "[]"
+                            ),
+                            dailySubmissions: JSON.parse(
+                              localStorage.getItem("dailySubmissions") || "[]"
+                            ),
+                            payHistory: JSON.parse(
+                              localStorage.getItem("payHistory") || "[]"
+                            ),
+                          };
+                          const { writeCloudSnapshot } = await import(
+                            "../services/firestoreStorage"
+                          );
+                          await writeCloudSnapshot(user.uid, local);
+                          const nowIso = new Date().toISOString();
+                          updateSettings({
+                            storageMode: "cloud",
+                            lastSyncAt: nowIso,
+                          });
+                        }
+                      } catch (e) {
+                        alert("Failed to enable cloud mode. Please try again.");
+                        return;
+                      }
+                    } else {
+                      updateSettings({ storageMode: "local" });
+                    }
                   }}
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     settings.storageMode === "cloud"

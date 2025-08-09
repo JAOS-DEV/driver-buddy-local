@@ -88,6 +88,13 @@ const App: React.FC = () => {
       );
       try {
         await writeCloudSnapshot(user.uid, payload);
+        // set lastSyncAt locally after successful write
+        const nowIso = new Date().toISOString();
+        setSettings((prev) => ({ ...prev, lastSyncAt: nowIso }));
+        localStorage.setItem(
+          "settings",
+          JSON.stringify({ ...settings, lastSyncAt: nowIso })
+        );
       } catch (e) {
         // Silent fail in UI; user can use manual sync
         console.error("Auto-sync failed", e);

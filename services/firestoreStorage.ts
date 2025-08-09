@@ -103,3 +103,24 @@ export async function clearCloudData(uid: string): Promise<void> {
   }
   await batch.commit();
 }
+
+export async function downloadCloudData(uid: string): Promise<void> {
+  const cloudData = await readCloudSnapshot(uid);
+
+  // Save to localStorage
+  if (cloudData.settings) {
+    localStorage.setItem("settings", JSON.stringify(cloudData.settings));
+  }
+  if (cloudData.timeEntries) {
+    localStorage.setItem("timeEntries", JSON.stringify(cloudData.timeEntries));
+  }
+  if (cloudData.dailySubmissions) {
+    localStorage.setItem(
+      "dailySubmissions",
+      JSON.stringify(cloudData.dailySubmissions)
+    );
+  }
+  if (cloudData.payHistory) {
+    localStorage.setItem("payHistory", JSON.stringify(cloudData.payHistory));
+  }
+}
