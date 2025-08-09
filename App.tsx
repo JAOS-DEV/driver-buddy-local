@@ -100,6 +100,35 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
+  // Live-subscribe to the user's profile so role changes reflect instantly
+  useEffect(() => {
+    if (!user) return;
+    let unsubscribeProfile: undefined | (() => void);
+    (async () => {
+      try {
+        const { onSnapshot, doc } = await import("firebase/firestore");
+        const { db } = await import("./services/firebase");
+        const profileRef = doc(db, "users", user.uid, "profile", "user");
+        unsubscribeProfile = onSnapshot(
+          profileRef,
+          (snap) => {
+            if (snap.exists()) {
+              setUserProfile(snap.data() as UserProfile);
+            }
+          },
+          (err) => {
+            console.error("Profile subscribe error:", err);
+          }
+        );
+      } catch (e) {
+        console.error("Failed to subscribe to profile:", e);
+      }
+    })();
+    return () => {
+      if (unsubscribeProfile) unsubscribeProfile();
+    };
+  }, [user?.uid]);
+
   // Check if user is premium and admin
   const userIsPremium = isPremium(userProfile);
   const userIsAdmin = userProfile?.role === "admin";
