@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Settings, DailyPay, TimeEntry, DailySubmission } from "./types";
+import {
+  View,
+  Settings,
+  DailyPay,
+  TimeEntry,
+  DailySubmission,
+  UserProfile,
+} from "./types";
 import WorkLog from "./components/WorkLog";
 import UnionChatbot from "./components/UnionChatbot";
 import SettingsComponent from "./components/Settings";
@@ -7,10 +14,16 @@ import PayCalculator from "./components/PayCalculator";
 import LawLimits from "./components/LawLimits";
 import BottomNav from "./components/BottomNav";
 import ErrorBoundary from "./components/ErrorBoundary";
+import AdminPanel from "./components/AdminPanel";
 import useLocalStorage from "./hooks/useLocalStorage";
 import { useTimeCalculations } from "./hooks/useTimeCalculations";
 import Login from "./components/Login";
 import { auth, onAuthStateChanged } from "./services/firebase";
+import {
+  getUserProfile,
+  createUserProfile,
+  isPremium,
+} from "./services/firestoreStorage";
 import type { User } from "firebase/auth";
 
 const App: React.FC = () => {
@@ -59,128 +72,71 @@ const App: React.FC = () => {
   // Auth state
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const applyingCloudRef = useRef(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setAuthChecked(true);
+
+      if (firebaseUser) {
+        // Load or create user profile
+        try {
+          let profile = await getUserProfile(firebaseUser.uid);
+          if (!profile) {
+            // Create new user profile
+            await createUserProfile(firebaseUser.uid, firebaseUser.email || "");
+            profile = await getUserProfile(firebaseUser.uid);
+          }
+          setUserProfile(profile);
+        } catch (error) {
+          console.error("Error loading user profile:", error);
+        }
+      } else {
+        setUserProfile(null);
+      }
     });
     return () => unsubscribe();
   }, []);
 
-  // Auto-sync to cloud when enabled and authenticated (debounced, loop guard)
-  useEffect(() => {
-    if (!authChecked || !user) return;
-    if (settings.storageMode !== "cloud") return;
-    if (applyingCloudRef.current) return;
+  // Check if user is premium and admin
+  const userIsPremium = isPremium(userProfile);
+  const userIsAdmin = userProfile?.role === "admin";
 
-    let timeoutId: number | undefined;
-    const performSync = async () => {
-      const payload = {
-        settings,
-        timeEntries: entries,
-        dailySubmissions,
-        payHistory,
-      };
-      const { writeCloudSnapshot } = await import(
-        "./services/firestoreStorage"
-      );
-      try {
-        await writeCloudSnapshot(user.uid, payload);
-        // set lastSyncAt locally after successful write
-        const nowIso = new Date().toISOString();
-        setSettings((prev) => ({ ...prev, lastSyncAt: nowIso }));
-        localStorage.setItem(
-          "settings",
-          JSON.stringify({ ...settings, lastSyncAt: nowIso })
-        );
-      } catch (e) {
-        // Silent fail in UI; user can use manual sync
-        console.error("Auto-sync failed", e);
-      }
-    };
-    // debounce writes
-    timeoutId = window.setTimeout(performSync, 400);
-    return () => {
-      if (timeoutId) window.clearTimeout(timeoutId);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    authChecked,
-    user,
-    settings.storageMode,
-    JSON.stringify(settings),
-    JSON.stringify(entries),
-    JSON.stringify(dailySubmissions),
-    JSON.stringify(payHistory),
-  ]);
+  // Show loading while auth is being checked
+  if (!authChecked) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[#FAF7F0]">
+        <div className="text-center">
+          <div className="text-lg font-bold text-[#003D5B] mb-2">
+            Loading...
+          </div>
+          <div className="text-sm text-slate-500">Please wait</div>
+        </div>
+      </div>
+    );
+  }
 
-  // Cloud read mode: subscribe when in cloud storage mode
-  useEffect(() => {
-    if (!authChecked || !user) return;
-    if (settings.storageMode !== "cloud") return;
-    let unsubscribers: Array<() => void> = [];
+  // Show login if not authenticated
+  if (!user) {
+    return <Login />;
+  }
 
-    const setup = async () => {
-      const { onSnapshot, doc, collection } = await import(
-        "firebase/firestore"
-      );
-      const { db } = await import("./services/firebase");
-      const userRoot = doc(db, "users", user.uid);
-
-      // Settings doc listener
-      const settingsDoc = doc(userRoot, "meta", "settings");
-      const unsubSettings = onSnapshot(settingsDoc, (snap) => {
-        const data = snap.data() as any;
-        if (!data) return;
-        applyingCloudRef.current = true;
-        const lastSyncIso = data.lastSyncAt?.toDate
-          ? data.lastSyncAt.toDate().toISOString()
-          : data.lastSyncAt;
-        const incoming = { ...data, lastSyncAt: lastSyncIso } as Settings;
-        setSettings((prev) => ({ ...prev, ...incoming, storageMode: "cloud" }));
-        localStorage.setItem(
-          "settings",
-          JSON.stringify({ ...incoming, storageMode: "cloud" })
-        );
-        setTimeout(() => {
-          applyingCloudRef.current = false;
-        }, 50);
-      });
-      unsubscribers.push(unsubSettings);
-
-      // Collections listeners
-      const subscribeCol = (
-        colName: "timeEntries" | "dailySubmissions" | "payHistory",
-        setter: (v: any) => void,
-        storageKey: string
-      ) => {
-        const colRef = collection(userRoot, colName);
-        const unsub = onSnapshot(colRef, (qs) => {
-          applyingCloudRef.current = true;
-          const arr = qs.docs.map((d) => d.data());
-          setter(arr as any);
-          localStorage.setItem(storageKey, JSON.stringify(arr));
-          setTimeout(() => {
-            applyingCloudRef.current = false;
-          }, 50);
-        });
-        unsubscribers.push(unsub);
-      };
-
-      subscribeCol("timeEntries", setEntries, "timeEntries");
-      subscribeCol("dailySubmissions", setDailySubmissions, "dailySubmissions");
-      subscribeCol("payHistory", setPayHistory, "payHistory");
-    };
-    setup();
-
-    return () => {
-      unsubscribers.forEach((u) => u());
-      applyingCloudRef.current = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authChecked, user, settings.storageMode]);
+  // Show admin panel if user is admin
+  if (userIsAdmin && activeView === View.ADMIN) {
+    return (
+      <div className="h-screen flex flex-col">
+        <AdminPanel user={user} />
+        <BottomNav
+          activeView={activeView}
+          setActiveView={setActiveView}
+          userProfile={userProfile}
+          settings={settings}
+        />
+      </div>
+    );
+  }
 
   return (
     <ErrorBoundary>
@@ -198,52 +154,45 @@ const App: React.FC = () => {
           }`}
         >
           <div className="flex-1 overflow-hidden pt-2 pr-6 pl-6 pb-0">
-            {!authChecked ? (
-              <div className="h-full w-full flex items-center justify-center">
-                <span className="text-sm text-slate-500">Loading…</span>
-              </div>
-            ) : !user ? (
-              <Login />
-            ) : (
-              <>
-                {activeView === View.WORK && (
-                  <WorkLog
-                    settings={settings}
-                    entries={entries}
-                    setEntries={setEntries}
-                    dailySubmissions={dailySubmissions}
-                    setDailySubmissions={setDailySubmissions}
-                  />
-                )}
-                {activeView === View.PAY && (
-                  <PayCalculator
-                    totalMinutes={totalDuration.totalMinutes}
-                    hourlyRate={hourlyRate}
-                    setHourlyRate={setHourlyRate}
-                    settings={settings}
-                    payHistory={payHistory}
-                    setPayHistory={setPayHistory}
-                    dailySubmissions={dailySubmissions}
-                  />
-                )}
-                {activeView === View.LAW_LIMITS && (
-                  <LawLimits totalMinutes={totalDuration.totalMinutes} />
-                )}
-                {activeView === View.CHAT && <UnionChatbot />}
-                {activeView === View.SETTINGS && (
-                  <SettingsComponent
-                    settings={settings}
-                    setSettings={setSettings}
-                    user={user}
-                  />
-                )}
-              </>
+            {activeView === View.WORK && (
+              <WorkLog
+                settings={settings}
+                entries={entries}
+                setEntries={setEntries}
+                dailySubmissions={dailySubmissions}
+                setDailySubmissions={setDailySubmissions}
+              />
+            )}
+            {activeView === View.PAY && (
+              <PayCalculator
+                totalMinutes={totalDuration.totalMinutes}
+                hourlyRate={hourlyRate}
+                setHourlyRate={setHourlyRate}
+                settings={settings}
+                payHistory={payHistory}
+                setPayHistory={setPayHistory}
+                dailySubmissions={dailySubmissions}
+                userProfile={userProfile}
+              />
+            )}
+            {activeView === View.LAW_LIMITS && (
+              <LawLimits totalMinutes={totalDuration.totalMinutes} />
+            )}
+            {activeView === View.CHAT && <UnionChatbot />}
+            {activeView === View.SETTINGS && (
+              <SettingsComponent
+                settings={settings}
+                setSettings={setSettings}
+                user={user}
+                userProfile={userProfile}
+              />
             )}
           </div>
           {authChecked && user && (
             <BottomNav
               activeView={activeView}
               setActiveView={setActiveView}
+              userProfile={userProfile}
               settings={settings}
             />
           )}

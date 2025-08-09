@@ -1,3 +1,5 @@
+import { FieldValue } from "firebase/firestore";
+
 export interface TimeEntry {
   id: number;
   startTime: string;
@@ -50,26 +52,39 @@ export interface OvertimeRate {
   rate: number;
 }
 
+export type WeekStartDay =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
 export interface Settings {
-  weekStartDay:
-    | "monday"
-    | "tuesday"
-    | "wednesday"
-    | "thursday"
-    | "friday"
-    | "saturday"
-    | "sunday";
+  weekStartDay: WeekStartDay;
   standardRates: StandardRate[];
   overtimeRates: OvertimeRate[];
   enableTaxCalculations: boolean;
-  taxRate: number; // Percentage as decimal (0.20 for 20%)
+  taxRate: number;
   enableNiCalculations: boolean;
   currency: string;
   weeklyGoal: number;
   monthlyGoal: number;
   darkMode: boolean;
-  storageMode?: "local" | "cloud";
-  lastSyncAt?: string;
+  storageMode: "local" | "cloud";
+  lastSyncAt?: FieldValue | string;
+}
+
+export type UserRole = "free" | "premium" | "admin";
+
+export interface UserProfile {
+  uid: string;
+  email: string;
+  role: UserRole;
+  premiumUntil?: string; // ISO date
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ChatMessage {
@@ -79,10 +94,11 @@ export interface ChatMessage {
 
 export enum View {
   WORK = "work",
+  PAY = "pay",
+  LAW_LIMITS = "law-limits",
   CHAT = "chat",
   SETTINGS = "settings",
-  PAY = "pay",
-  LAW_LIMITS = "law_limits",
+  ADMIN = "admin",
 }
 
 export enum WorkTab {

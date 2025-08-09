@@ -4,8 +4,10 @@ import {
   decimalHoursToDuration,
   formatDurationWithMinutes,
 } from "../hooks/useTimeCalculations";
-import { DailyPay, Settings, DailySubmission } from "../types";
+import { DailyPay, Settings, DailySubmission, UserProfile } from "../types";
 import PayHistory from "./PayHistory";
+import { isPremium } from "../services/firestoreStorage";
+import UpgradeModal from "./UpgradeModal";
 
 interface PayCalculatorProps {
   totalMinutes: number;
@@ -15,6 +17,7 @@ interface PayCalculatorProps {
   payHistory: DailyPay[];
   setPayHistory: (history: DailyPay[]) => void;
   dailySubmissions: DailySubmission[];
+  userProfile?: UserProfile | null;
 }
 
 const PayCalculator: React.FC<PayCalculatorProps> = ({
@@ -25,6 +28,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   payHistory,
   setPayHistory,
   dailySubmissions,
+  userProfile,
 }) => {
   const [activeTab, setActiveTab] = useState<"calculator" | "history">(
     "calculator"
@@ -58,10 +62,20 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showDateInfoModal, setShowDateInfoModal] = useState(false);
   const [showTaxInfoModal, setShowTaxInfoModal] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>(
+    undefined
+  );
   const [payDate, setPayDate] = useLocalStorage<string>(
     "payDate",
     new Date().toISOString().split("T")[0]
   );
+
+  const userIsPremium = isPremium(userProfile || null);
+  const openUpgrade = (feature: string) => {
+    setUpgradeFeature(feature);
+    setUpgradeOpen(true);
+  };
 
   // Track selected rate IDs for dropdowns
   const [selectedStandardRateId, setSelectedStandardRateId] =
@@ -178,14 +192,15 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
   const totalEarnings = standardEarnings + overtimeEarnings;
 
   // Tax calculations
-  const taxAmount = settings.enableTaxCalculations
-    ? totalEarnings * settings.taxRate
-    : 0;
+  const premiumTaxEnabled =
+    isPremium(userProfile || null) && settings.enableTaxCalculations;
+  const taxAmount = premiumTaxEnabled ? totalEarnings * settings.taxRate : 0;
   const afterTaxEarnings = totalEarnings - taxAmount;
 
   // NI calculations (UK National Insurance)
   const calculateNI = (earnings: number): number => {
-    if (!settings.enableNiCalculations) return 0;
+    if (!(isPremium(userProfile || null) && settings.enableNiCalculations))
+      return 0;
 
     // For daily pay calculations, use a more realistic daily threshold
     // Using a lower threshold that makes sense for daily work
@@ -216,6 +231,12 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
   const handleSavePay = () => {
     if (totalEarnings <= 0) return;
+
+    // Premium gating: limit free users to 30 pay history entries
+    if (!userIsPremium && payHistory.length >= 30) {
+      openUpgrade("unlimited pay history");
+      return;
+    }
 
     const newPay: DailyPay = {
       id: `${Date.now()}`,
@@ -474,7 +495,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           )}
 
           {/* Tax Section - only show if tax calculations are enabled */}
-          {settings.enableTaxCalculations && taxAmount > 0 && (
+          {premiumTaxEnabled && taxAmount > 0 && (
             <div className="pt-2 border-t border-red-200 mt-2">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-red-600">
@@ -488,7 +509,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           )}
 
           {/* NI Section - only show if NI calculations are enabled */}
-          {settings.enableNiCalculations && niAmount > 0 && (
+          {premiumTaxEnabled && niAmount > 0 && (
             <div className="pt-2 border-t border-orange-200 mt-2">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-sm text-orange-600">NI (12%/2%)</span>
@@ -519,13 +540,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 }`}
               >
                 {formatCurrency(
-                  settings.enableTaxCalculations &&
-                    settings.enableNiCalculations
+                  premiumTaxEnabled
                     ? totalEarnings - taxAmount - niAmount
-                    : settings.enableTaxCalculations
-                    ? afterTaxEarnings
-                    : settings.enableNiCalculations
-                    ? afterNiEarnings
                     : totalEarnings
                 )}
               </span>
@@ -767,6 +783,14 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
         settings.darkMode ? "bg-gray-800" : "bg-[#FAF7F0]"
       }`}
     >
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        featureName={upgradeFeature}
+        darkMode={settings.darkMode}
+      />
+
       {/* Success Toast */}
       {showSaveSuccess && (
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
@@ -1159,13 +1183,8 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </div>
                 <p className="text-xl font-bold text-gray-800 font-mono mb-2">
                   {formatCurrency(
-                    settings.enableTaxCalculations &&
-                      settings.enableNiCalculations
+                    premiumTaxEnabled
                       ? totalEarnings - taxAmount - niAmount
-                      : settings.enableTaxCalculations
-                      ? afterTaxEarnings
-                      : settings.enableNiCalculations
-                      ? afterNiEarnings
                       : totalEarnings
                   )}
                 </p>

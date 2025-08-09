@@ -1,22 +1,105 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
 import type { User } from "firebase/auth";
 import { signOutUser } from "../services/firebase";
+import { isPremium } from "../services/firestoreStorage";
+import { UserProfile } from "../types";
+import UpgradeModal from "./UpgradeModal";
 
 interface SettingsProps {
   settings: SettingsType;
   setSettings: (settings: SettingsType) => void;
   user?: User | null;
+  userProfile?: UserProfile | null;
 }
 
-const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
+const Settings: React.FC<SettingsProps> = ({
+  settings,
+  setSettings,
+  user,
+  userProfile,
+}) => {
   const [showTaxSection, setShowTaxSection] = useState(
     settings.enableTaxCalculations
+  );
+  const [hasCloudData, setHasCloudData] = useState(false);
+  const [freeDownloadConsumed, setFreeDownloadConsumedState] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>(
+    undefined
   );
 
   const updateSettings = (updates: Partial<SettingsType>) => {
     setSettings({ ...settings, ...updates });
   };
+
+  // Premium status checks
+  const userIsPremium = isPremium(userProfile);
+  const canAddStandardRate =
+    userIsPremium || (settings.standardRates?.length || 0) < 1;
+  const canAddOvertimeRate =
+    userIsPremium || (settings.overtimeRates?.length || 0) < 1;
+  const canUseCloudStorage = userIsPremium;
+  const canUseTaxCalculations = userIsPremium;
+  const canExportCSV = userIsPremium;
+
+  const openUpgrade = (feature: string) => {
+    setUpgradeFeature(feature);
+    setUpgradeOpen(true);
+  };
+
+  // Normalize settings if user loses premium
+  useEffect(() => {
+    if (userIsPremium) return;
+    const updates: Partial<SettingsType> = {};
+    let changed = false;
+
+    if (settings.enableTaxCalculations) {
+      updates.enableTaxCalculations = false;
+      changed = true;
+      setShowTaxSection(false);
+    }
+    if (settings.enableNiCalculations) {
+      updates.enableNiCalculations = false;
+      changed = true;
+    }
+    if ((settings.standardRates?.length || 0) > 1) {
+      updates.standardRates = [settings.standardRates![0]];
+      changed = true;
+    }
+    if ((settings.overtimeRates?.length || 0) > 1) {
+      updates.overtimeRates = [settings.overtimeRates![0]];
+      changed = true;
+    }
+    if (settings.storageMode === "cloud") {
+      updates.storageMode = "local";
+      changed = true;
+    }
+
+    if (changed) updateSettings(updates);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userIsPremium]);
+
+  // For downgraded free users: allow one-time download if cloud data exists
+  useEffect(() => {
+    const run = async () => {
+      if (!user || userIsPremium) return;
+      try {
+        const { cloudDataExists, getFreeDownloadConsumed } = await import(
+          "../services/firestoreStorage"
+        );
+        const [exists, consumed] = await Promise.all([
+          cloudDataExists(user.uid),
+          getFreeDownloadConsumed(user.uid),
+        ]);
+        setHasCloudData(exists);
+        setFreeDownloadConsumedState(consumed);
+      } catch (e) {
+        // silent fail
+      }
+    };
+    run();
+  }, [user, userIsPremium]);
 
   const lastSyncedDisplay = useMemo(() => {
     if (!settings.lastSyncAt) return "Never";
@@ -35,6 +118,24 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
     }
   }, [settings.lastSyncAt]);
 
+  const roleBadge = (() => {
+    const role = userProfile?.role;
+    if (role === "admin")
+      return {
+        label: "Admin",
+        classes: "bg-red-100 text-red-800 border-red-200",
+      };
+    if (role === "premium")
+      return {
+        label: "Premium",
+        classes: "bg-green-100 text-green-800 border-green-200",
+      };
+    return {
+      label: "Free",
+      classes: "bg-gray-100 text-gray-800 border-gray-200",
+    };
+  })();
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
       style: "currency",
@@ -44,6 +145,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
 
   // Export pay history to CSV
   const exportPayHistory = () => {
+    if (!canExportCSV) {
+      openUpgrade("CSV export");
+      return;
+    }
+
     // Get pay history from localStorage
     const payHistory = JSON.parse(localStorage.getItem("payHistory") || "[]");
 
@@ -143,6 +249,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
           : "text-[#003D5B] bg-[#FAF7F0]"
       }`}
     >
+      {/* Upgrade Modal */}
+      <UpgradeModal
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        featureName={upgradeFeature}
+        darkMode={settings.darkMode}
+      />
+
       <div className="flex-1 overflow-y-auto pb-6">
         <div className="space-y-6">
           {/* Header */}
@@ -192,8 +306,14 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     <div className="w-8 h-8 rounded-full bg-slate-300" />
                   )}
                   <div className="min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {user.displayName || "Signed in user"}
+                    <div className="text-sm font-medium truncate flex items-center gap-2">
+                      <span>{user.displayName || "Signed in user"}</span>
+                      <span
+                        className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${roleBadge.classes}`}
+                        title={`Account role: ${roleBadge.label}`}
+                      >
+                        {roleBadge.label}
+                      </span>
                     </div>
                     <div className="text-xs text-slate-500 truncate">
                       {user.email || ""}
@@ -383,6 +503,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
               ))}
               <button
                 onClick={() => {
+                  if (!canAddStandardRate) {
+                    openUpgrade("multiple pay rates");
+                    return;
+                  }
                   const newRate: StandardRate = {
                     id: Date.now().toString(),
                     name: `Standard Rate ${
@@ -394,10 +518,19 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     standardRates: [...(settings.standardRates || []), newRate],
                   });
                 }}
-                className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
+                  canAddStandardRate
+                    ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                }`}
               >
                 + Add Standard Rate
               </button>
+              {!canAddStandardRate && (
+                <p className="text-[11px] text-slate-500">
+                  Free plan allows 1 standard rate. Upgrade for more.
+                </p>
+              )}
             </div>
           </div>
 
@@ -469,6 +602,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
               ))}
               <button
                 onClick={() => {
+                  if (!canAddOvertimeRate) {
+                    openUpgrade("multiple pay rates");
+                    return;
+                  }
                   const newRate: OvertimeRate = {
                     id: Date.now().toString(),
                     name: `Overtime Rate ${
@@ -480,10 +617,19 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     overtimeRates: [...(settings.overtimeRates || []), newRate],
                   });
                 }}
-                className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
+                  canAddOvertimeRate
+                    ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                }`}
               >
                 + Add Overtime Rate
               </button>
+              {!canAddOvertimeRate && (
+                <p className="text-[11px] text-slate-500">
+                  Free plan allows 1 overtime rate. Upgrade for more.
+                </p>
+              )}
             </div>
           </div>
 
@@ -511,9 +657,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                   <p className="text-xs text-slate-500">
                     Show after-tax earnings in pay breakdown
                   </p>
+                  {!canUseTaxCalculations && (
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Premium feature
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => {
+                    if (!canUseTaxCalculations) {
+                      openUpgrade("tax calculations");
+                      return;
+                    }
                     const newValue = !settings.enableTaxCalculations;
                     updateSettings({ enableTaxCalculations: newValue });
                     setShowTaxSection(newValue);
@@ -522,6 +677,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     settings.enableTaxCalculations
                       ? "bg-[#003D5B]"
                       : "bg-slate-300"
+                  } ${
+                    !canUseTaxCalculations
+                      ? "opacity-60 cursor-not-allowed"
+                      : ""
                   }`}
                 >
                   <span
@@ -555,6 +714,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                       })
                     }
                     placeholder="e.g., 20"
+                    disabled={!canUseTaxCalculations}
                     className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
                   />
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -590,9 +750,18 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                   <p className="text-xs text-slate-500">
                     Show after-NI earnings in pay breakdown
                   </p>
+                  {!canUseTaxCalculations && (
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Premium feature
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => {
+                    if (!canUseTaxCalculations) {
+                      openUpgrade("NI calculations");
+                      return;
+                    }
                     const newValue = !settings.enableNiCalculations;
                     updateSettings({ enableNiCalculations: newValue });
                   }}
@@ -600,6 +769,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     settings.enableNiCalculations
                       ? "bg-[#003D5B]"
                       : "bg-slate-300"
+                  } ${
+                    !canUseTaxCalculations
+                      ? "opacity-60 cursor-not-allowed"
+                      : ""
                   }`}
                 >
                   <span
@@ -735,11 +908,20 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                   <p className="text-xs text-slate-500">
                     Automatically syncs your data when signed in
                   </p>
+                  {!canUseCloudStorage && (
+                    <p className="text-[11px] text-slate-500 mt-1">
+                      Premium feature
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={async () => {
                     if (!user) {
                       alert("Sign in to use cloud storage.");
+                      return;
+                    }
+                    if (!canUseCloudStorage) {
+                      openUpgrade("Cloud Storage");
                       return;
                     }
                     const switchingToCloud = settings.storageMode !== "cloud";
@@ -844,6 +1026,8 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     settings.storageMode === "cloud"
                       ? "bg-[#003D5B]"
                       : "bg-slate-300"
+                  } ${
+                    !canUseCloudStorage ? "opacity-60 cursor-not-allowed" : ""
                   }`}
                 >
                   <span
@@ -859,6 +1043,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                 <button
                   onClick={() => {
                     if (!user) return alert("Sign in first");
+                    if (!canUseCloudStorage) {
+                      openUpgrade("Cloud Storage");
+                      return;
+                    }
                     const confirmMsg =
                       "Upload local data to cloud? Existing cloud data will be replaced.";
                     if (!confirm(confirmMsg)) return;
@@ -881,13 +1069,25 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                       alert("Synced to cloud.");
                     });
                   }}
-                  className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                  className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
+                    canUseCloudStorage
+                      ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                  }`}
                 >
                   Upload local data to cloud
                 </button>
                 <button
                   onClick={() => {
                     if (!user) return alert("Sign in first");
+                    // Allow if premium OR if downgraded free user with existing cloud data and not consumed
+                    const allowDownload =
+                      canUseCloudStorage ||
+                      (hasCloudData && !freeDownloadConsumed);
+                    if (!allowDownload) {
+                      openUpgrade("Cloud Storage");
+                      return;
+                    }
                     const confirmMsg =
                       "Download cloud data to this device? Local data will be replaced.";
                     if (!confirm(confirmMsg)) return;
@@ -910,11 +1110,35 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                         "payHistory",
                         JSON.stringify(snap.payHistory || [])
                       );
+
+                      // If free user using recovery, mark as consumed
+                      if (
+                        !canUseCloudStorage &&
+                        hasCloudData &&
+                        !freeDownloadConsumed
+                      ) {
+                        try {
+                          await m.setFreeDownloadConsumed(user.uid);
+                          setFreeDownloadConsumedState(true);
+                          // Ensure we stay in local mode and premium toggles stay off
+                          updateSettings({
+                            storageMode: "local",
+                            enableTaxCalculations: false,
+                            enableNiCalculations: false,
+                          });
+                        } catch {}
+                      }
+
                       alert("Synced to local. Reloading…");
                       setTimeout(() => window.location.reload(), 500);
                     });
                   }}
-                  className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                  className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
+                    canUseCloudStorage ||
+                    (hasCloudData && !freeDownloadConsumed)
+                      ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                  }`}
                 >
                   Download cloud data to this device
                 </button>
@@ -926,6 +1150,10 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
               <button
                 onClick={() => {
                   if (!user) return alert("Sign in first");
+                  if (!canUseCloudStorage) {
+                    openUpgrade("Cloud Storage");
+                    return;
+                  }
                   if (
                     !confirm("This will delete all your cloud data. Continue?")
                   )
@@ -935,7 +1163,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     alert("Cloud data cleared.");
                   });
                 }}
-                className="w-full bg-red-700 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
+                className={`w-full font-bold py-1.5 px-3 rounded-md transition-colors text-sm ${
+                  canUseCloudStorage
+                    ? "bg-red-700 text-white hover:bg-red-800"
+                    : "bg-red-200 text-white cursor-not-allowed"
+                }`}
               >
                 Delete all cloud data
               </button>
@@ -964,7 +1196,11 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
             <div className="space-y-2">
               <button
                 onClick={exportPayHistory}
-                className="w-full bg-blue-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-blue-600 transition-colors text-sm"
+                className={`w-full font-bold py-1.5 px-3 rounded-md transition-colors text-sm ${
+                  canExportCSV
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-blue-200 text-white cursor-not-allowed"
+                }`}
               >
                 Export Pay History (CSV)
               </button>
