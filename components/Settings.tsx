@@ -285,13 +285,22 @@ const Settings: React.FC<SettingsProps> = ({
                 : "bg-white/50 border-gray-200/80"
             }`}
           >
-            <h3
-              className={`text-sm font-bold mb-2 ${
-                settings.darkMode ? "text-gray-100" : "text-slate-700"
-              }`}
-            >
-              Account
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3
+                className={`text-sm font-bold mb-2 ${
+                  settings.darkMode ? "text-gray-100" : "text-slate-700"
+                }`}
+              >
+                Account
+              </h3>
+              <span
+                className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${roleBadge.classes}`}
+                title={`Account role: ${roleBadge.label}`}
+              >
+                {roleBadge.label}
+              </span>
+            </div>
+
             {user ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
@@ -308,12 +317,12 @@ const Settings: React.FC<SettingsProps> = ({
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate flex items-center gap-2">
                       <span>{user.displayName || "Signed in user"}</span>
-                      <span
+                      {/* <span
                         className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${roleBadge.classes}`}
                         title={`Account role: ${roleBadge.label}`}
                       >
                         {roleBadge.label}
-                      </span>
+                      </span> */}
                     </div>
                     <div className="text-xs text-slate-500 truncate">
                       {user.email || ""}
