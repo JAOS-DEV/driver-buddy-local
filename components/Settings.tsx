@@ -255,6 +255,9 @@ const Settings: React.FC<SettingsProps> = ({
         onClose={() => setUpgradeOpen(false)}
         featureName={upgradeFeature}
         darkMode={settings.darkMode}
+        supportEmail="jaosullivan0@gmail.com"
+        userUid={user?.uid}
+        userRole={userProfile?.role}
       />
 
       <div className="flex-1 overflow-y-auto pb-6">
@@ -1259,6 +1262,56 @@ const Settings: React.FC<SettingsProps> = ({
               <p>Designed for UK professional drivers</p>
               <p>Data is stored locally on your device</p>
             </div>
+          </div>
+
+          {/* Support / Contact */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Support
+            </h3>
+            <div className="grid grid-cols-2 gap-2">
+              <a
+                href={`mailto:${encodeURIComponent(
+                  "jaosullivan0@gmail.com"
+                )}?subject=${encodeURIComponent(
+                  "Driver Buddy - Premium access request"
+                )}&body=${encodeURIComponent(
+                  `Hi,\n\nI'd like premium access.\n\nDiagnostics:\nUID: ${
+                    user?.uid || "n/a"
+                  }\nRole: ${userProfile?.role || "n/a"}\n\nThanks!`
+                )}`}
+                className="block w-full text-center bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+              >
+                Request Premium Access
+              </a>
+              <a
+                href={`mailto:${encodeURIComponent(
+                  "jaosullivan0@gmail.com"
+                )}?subject=${encodeURIComponent(
+                  "Driver Buddy - Bug report / feedback"
+                )}&body=${encodeURIComponent(
+                  `Hi,\n\nI found a bug / have feedback:\n\n(Describe here)\n\nDiagnostics:\nUID: ${
+                    user?.uid || "n/a"
+                  }\nRole: ${userProfile?.role || "n/a"}\n\nThanks!`
+                )}`}
+                className="block w-full text-center bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+              >
+                Report a Bug / Feedback
+              </a>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-1">
+              We’ll reply as soon as possible.
+            </p>
           </div>
         </div>
       </div>
