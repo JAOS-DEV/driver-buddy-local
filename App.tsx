@@ -152,21 +152,7 @@ const App: React.FC = () => {
     return <Login />;
   }
 
-  // Show admin panel if user is admin
-  if (userIsAdmin && activeView === View.ADMIN) {
-    return (
-      <div className="h-screen flex flex-col">
-        <AdminPanel user={user} />
-        <BottomNav
-          activeView={activeView}
-          setActiveView={setActiveView}
-          userProfile={userProfile}
-          settings={settings}
-        />
-      </div>
-    );
-  }
-
+  // Admin panel will be rendered within the main content area below so BottomNav stays visible
   return (
     <ErrorBoundary>
       <div
@@ -215,6 +201,9 @@ const App: React.FC = () => {
                 user={user}
                 userProfile={userProfile}
               />
+            )}
+            {userIsAdmin && activeView === View.ADMIN && (
+              <AdminPanel user={user} />
             )}
           </div>
           {authChecked && user && (

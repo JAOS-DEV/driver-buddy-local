@@ -27,16 +27,15 @@ export const NavItem: React.FC<NavItemProps> = ({
         : "text-slate-500 hover:text-slate-700"
     }`}
   >
-    {/* Icon - only render if provided */}
-    {icon && (
-      <div
-        className={`mb-1 transition-transform duration-200 ${
-          isActive ? "scale-110" : "group-hover:scale-105"
-        }`}
-      >
-        {icon}
-      </div>
-    )}
+    {/* Icon (reserve height even if absent to keep labels aligned) */}
+    <div
+      className={`mb-1 transition-transform duration-200 ${
+        isActive ? "scale-110" : "group-hover:scale-105"
+      }`}
+      style={{ height: 20 }}
+    >
+      {icon ?? null}
+    </div>
 
     {/* Label */}
     <span
