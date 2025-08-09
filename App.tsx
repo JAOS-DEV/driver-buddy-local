@@ -23,14 +23,14 @@ const App: React.FC = () => {
     standardRates: [
       {
         id: "default",
-        name: "Default Standard Rate",
+        name: "Standard Rate",
         rate: 0,
       },
     ],
     overtimeRates: [
       {
         id: "default",
-        name: "Default Overtime Rate",
+        name: "Overtime Rate",
         rate: 0,
       },
     ],

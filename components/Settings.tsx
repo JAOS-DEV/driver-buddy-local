@@ -201,52 +201,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
             )}
           </div>
 
-          {/* Week Start Day */}
-          <div
-            className={`p-2 rounded-lg border ${
-              settings.darkMode
-                ? "bg-gray-700/50 border-gray-600"
-                : "bg-white/50 border-gray-200/80"
-            }`}
-          >
-            <h3
-              className={`text-sm font-bold mb-2 ${
-                settings.darkMode ? "text-gray-100" : "text-slate-700"
-              }`}
-            >
-              Week Configuration
-            </h3>
-            <div className="space-y-2">
-              <div>
-                <label
-                  htmlFor="week-start-day"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
-                >
-                  WEEK START DAY
-                </label>
-                <select
-                  id="week-start-day"
-                  value={settings.weekStartDay}
-                  onChange={(e) =>
-                    updateSettings({ weekStartDay: e.target.value as any })
-                  }
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
-                >
-                  <option value="monday">Monday</option>
-                  <option value="tuesday">Tuesday</option>
-                  <option value="wednesday">Wednesday</option>
-                  <option value="thursday">Thursday</option>
-                  <option value="friday">Friday</option>
-                  <option value="saturday">Saturday</option>
-                  <option value="sunday">Sunday</option>
-                </select>
-                <p className="text-xs text-slate-500 mt-1">
-                  This affects how weekly totals are calculated in pay history.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Dark Mode Toggle */}
           <div
             className={`p-2 rounded-lg border ${
@@ -294,6 +248,52 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                     }`}
                   />
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Week Start Day */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Week Configuration
+            </h3>
+            <div className="space-y-2">
+              <div>
+                <label
+                  htmlFor="week-start-day"
+                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                >
+                  WEEK START DAY
+                </label>
+                <select
+                  id="week-start-day"
+                  value={settings.weekStartDay}
+                  onChange={(e) =>
+                    updateSettings({ weekStartDay: e.target.value as any })
+                  }
+                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                >
+                  <option value="monday">Monday</option>
+                  <option value="tuesday">Tuesday</option>
+                  <option value="wednesday">Wednesday</option>
+                  <option value="thursday">Thursday</option>
+                  <option value="friday">Friday</option>
+                  <option value="saturday">Saturday</option>
+                  <option value="sunday">Sunday</option>
+                </select>
+                <p className="text-xs text-slate-500 mt-1">
+                  This affects how weekly totals are calculated in pay history.
+                </p>
               </div>
             </div>
           </div>
@@ -727,7 +727,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
               About Driver Buddy
             </h3>
             <div className="space-y-1.5 text-xs text-slate-600">
-              <p>Version: 1.0.0</p>
+              <p>Beta version 1.0.0</p>
               <p>Designed for UK professional drivers</p>
               <p>Data is stored locally on your device</p>
             </div>
