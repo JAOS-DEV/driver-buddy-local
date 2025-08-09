@@ -709,21 +709,22 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                 so you can access it on any device. You can also run manual
                 syncs below.
               </p>
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-[10px]">
                 <span>
                   <span
-                    className={`px-2 py-0.5 rounded-full border ${
+                    className={`px-1.5 py-0.5 rounded-full border ${
                       settings.storageMode === "cloud"
                         ? "border-emerald-400 text-emerald-700 bg-emerald-50"
                         : "border-slate-300 text-slate-700 bg-slate-50"
                     }`}
                   >
-                    Storage mode:{" "}
-                    {settings.storageMode === "cloud" ? "Cloud" : "Local"}
+                    {settings.storageMode === "cloud"
+                      ? "Cloud Storage"
+                      : "Local Storage"}
                   </span>
                 </span>
                 <span className="text-slate-500">
-                  Last synced: {lastSyncedDisplay}
+                  Synced: {lastSyncedDisplay}
                 </span>
               </div>
               <div className="flex items-center justify-between">
