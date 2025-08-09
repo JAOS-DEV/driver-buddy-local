@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Settings as SettingsType, StandardRate, OvertimeRate } from "../types";
 import type { User } from "firebase/auth";
 import { signOutUser } from "../services/firebase";
@@ -17,6 +17,23 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
   const updateSettings = (updates: Partial<SettingsType>) => {
     setSettings({ ...settings, ...updates });
   };
+
+  const lastSyncedDisplay = useMemo(() => {
+    if (!settings.lastSyncAt) return "Never";
+    try {
+      const d = new Date(settings.lastSyncAt);
+      if (isNaN(d.getTime())) return String(settings.lastSyncAt);
+      return d.toLocaleString("en-GB", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return String(settings.lastSyncAt);
+    }
+  }, [settings.lastSyncAt]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-GB", {
@@ -671,7 +688,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
             </div>
           </div>
 
-          {/* Data Management */}
+          {/* Storage Mode */}
           <div
             className={`p-2 rounded-lg border ${
               settings.darkMode
@@ -684,7 +701,170 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
                 settings.darkMode ? "text-gray-100" : "text-slate-700"
               }`}
             >
-              Data Management
+              Storage
+            </h3>
+            <div className="space-y-2">
+              <p className="text-xs text-slate-500">
+                When Cloud Storage is ON, your data auto-syncs to your account
+                so you can access it on any device. You can also run manual
+                syncs below.
+              </p>
+              <div className="flex items-center justify-between text-xs">
+                <span>
+                  <span
+                    className={`px-2 py-0.5 rounded-full border ${
+                      settings.storageMode === "cloud"
+                        ? "border-emerald-400 text-emerald-700 bg-emerald-50"
+                        : "border-slate-300 text-slate-700 bg-slate-50"
+                    }`}
+                  >
+                    Storage mode:{" "}
+                    {settings.storageMode === "cloud" ? "Cloud" : "Local"}
+                  </span>
+                </span>
+                <span className="text-slate-500">
+                  Last synced: {lastSyncedDisplay}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium text-slate-700">
+                    Use Cloud Storage
+                  </span>
+                  <p className="text-xs text-slate-500">
+                    Automatically syncs your data when signed in
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (!user) {
+                      alert("Sign in to use cloud storage.");
+                      return;
+                    }
+                    const mode =
+                      settings.storageMode === "cloud" ? "local" : "cloud";
+                    updateSettings({ storageMode: mode });
+                  }}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    settings.storageMode === "cloud"
+                      ? "bg-[#003D5B]"
+                      : "bg-slate-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      settings.storageMode === "cloud"
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    if (!user) return alert("Sign in first");
+                    const confirmMsg =
+                      "Upload local data to cloud? Existing cloud data will be replaced.";
+                    if (!confirm(confirmMsg)) return;
+                    const local = {
+                      settings: JSON.parse(
+                        localStorage.getItem("settings") || "null"
+                      ),
+                      timeEntries: JSON.parse(
+                        localStorage.getItem("timeEntries") || "[]"
+                      ),
+                      dailySubmissions: JSON.parse(
+                        localStorage.getItem("dailySubmissions") || "[]"
+                      ),
+                      payHistory: JSON.parse(
+                        localStorage.getItem("payHistory") || "[]"
+                      ),
+                    };
+                    import("../services/firestoreStorage").then(async (m) => {
+                      await m.writeCloudSnapshot(user.uid, local);
+                      alert("Synced to cloud.");
+                    });
+                  }}
+                  className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                >
+                  Upload local data to cloud
+                </button>
+                <button
+                  onClick={() => {
+                    if (!user) return alert("Sign in first");
+                    const confirmMsg =
+                      "Download cloud data to this device? Local data will be replaced.";
+                    if (!confirm(confirmMsg)) return;
+                    import("../services/firestoreStorage").then(async (m) => {
+                      const snap = await m.readCloudSnapshot(user.uid);
+                      if (snap.settings)
+                        localStorage.setItem(
+                          "settings",
+                          JSON.stringify(snap.settings)
+                        );
+                      localStorage.setItem(
+                        "timeEntries",
+                        JSON.stringify(snap.timeEntries || [])
+                      );
+                      localStorage.setItem(
+                        "dailySubmissions",
+                        JSON.stringify(snap.dailySubmissions || [])
+                      );
+                      localStorage.setItem(
+                        "payHistory",
+                        JSON.stringify(snap.payHistory || [])
+                      );
+                      alert("Synced to local. Reloading…");
+                      setTimeout(() => window.location.reload(), 500);
+                    });
+                  }}
+                  className="w-full bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                >
+                  Download cloud data to this device
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                • Upload replaces your cloud data with what’s on this device. •
+                Download replaces this device’s data with what’s in the cloud.
+              </p>
+              <button
+                onClick={() => {
+                  if (!user) return alert("Sign in first");
+                  if (
+                    !confirm("This will delete all your cloud data. Continue?")
+                  )
+                    return;
+                  import("../services/firestoreStorage").then(async (m) => {
+                    await m.clearCloudData(user.uid);
+                    alert("Cloud data cleared.");
+                  });
+                }}
+                className="w-full bg-red-700 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
+              >
+                Delete all cloud data
+              </button>
+              <p className="text-[11px] text-slate-500">
+                Permanently removes your cloud data for this app. Does not
+                affect data on this device.
+              </p>
+            </div>
+          </div>
+
+          {/* Data Management (Local device only) */}
+          <div
+            className={`p-2 rounded-lg border ${
+              settings.darkMode
+                ? "bg-gray-700/50 border-gray-600"
+                : "bg-white/50 border-gray-200/80"
+            }`}
+          >
+            <h3
+              className={`text-sm font-bold mb-2 ${
+                settings.darkMode ? "text-gray-100" : "text-slate-700"
+              }`}
+            >
+              Local data (this device)
             </h3>
             <div className="space-y-2">
               <button
@@ -693,20 +873,28 @@ const Settings: React.FC<SettingsProps> = ({ settings, setSettings, user }) => {
               >
                 Export Pay History (CSV)
               </button>
+              <p className="text-[11px] text-slate-500 -mt-1">
+                Exports the pay history currently stored on this device.
+              </p>
               <button
                 onClick={clearPayHistory}
                 className="w-full bg-red-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-600 transition-colors text-sm"
               >
-                Clear All Pay History
+                Clear local pay history
               </button>
+              <p className="text-[11px] text-slate-500 -mt-1">
+                Removes pay history from this device only. Cloud data is not
+                affected.
+              </p>
               <button
                 onClick={clearAllData}
                 className="w-full bg-red-700 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
               >
-                Clear All Data
+                Clear all local data
               </button>
               <p className="text-xs text-slate-500">
-                Export your data for tax purposes or clear all saved data.
+                Export your data for tax purposes or clear the data stored on
+                this device.
               </p>
             </div>
           </div>

@@ -1,5 +1,10 @@
 import { initializeApp } from "firebase/app";
 import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore";
+import {
   getAuth,
   GoogleAuthProvider,
   signInWithPopup,
@@ -35,6 +40,13 @@ const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
 auth.useDeviceLanguage();
+
+// Initialize Firestore with persistent cache
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+});
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({ prompt: "select_account" });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Settings, DailyPay, TimeEntry, DailySubmission } from "./types";
 import WorkLog from "./components/WorkLog";
 import UnionChatbot from "./components/UnionChatbot";
@@ -41,6 +41,7 @@ const App: React.FC = () => {
     weeklyGoal: 0,
     monthlyGoal: 0,
     darkMode: false,
+    storageMode: "local",
   });
 
   // Get time entries for pay calculations
@@ -58,6 +59,7 @@ const App: React.FC = () => {
   // Auth state
   const [user, setUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const applyingCloudRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -66,6 +68,112 @@ const App: React.FC = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // Auto-sync to cloud when enabled and authenticated (debounced, loop guard)
+  useEffect(() => {
+    if (!authChecked || !user) return;
+    if (settings.storageMode !== "cloud") return;
+    if (applyingCloudRef.current) return;
+
+    let timeoutId: number | undefined;
+    const performSync = async () => {
+      const payload = {
+        settings,
+        timeEntries: entries,
+        dailySubmissions,
+        payHistory,
+      };
+      const { writeCloudSnapshot } = await import(
+        "./services/firestoreStorage"
+      );
+      try {
+        await writeCloudSnapshot(user.uid, payload);
+      } catch (e) {
+        // Silent fail in UI; user can use manual sync
+        console.error("Auto-sync failed", e);
+      }
+    };
+    // debounce writes
+    timeoutId = window.setTimeout(performSync, 400);
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    authChecked,
+    user,
+    settings.storageMode,
+    JSON.stringify(settings),
+    JSON.stringify(entries),
+    JSON.stringify(dailySubmissions),
+    JSON.stringify(payHistory),
+  ]);
+
+  // Cloud read mode: subscribe when in cloud storage mode
+  useEffect(() => {
+    if (!authChecked || !user) return;
+    if (settings.storageMode !== "cloud") return;
+    let unsubscribers: Array<() => void> = [];
+
+    const setup = async () => {
+      const { onSnapshot, doc, collection } = await import(
+        "firebase/firestore"
+      );
+      const { db } = await import("./services/firebase");
+      const userRoot = doc(db, "users", user.uid);
+
+      // Settings doc listener
+      const settingsDoc = doc(userRoot, "meta", "settings");
+      const unsubSettings = onSnapshot(settingsDoc, (snap) => {
+        const data = snap.data() as any;
+        if (!data) return;
+        applyingCloudRef.current = true;
+        const lastSyncIso = data.lastSyncAt?.toDate
+          ? data.lastSyncAt.toDate().toISOString()
+          : data.lastSyncAt;
+        const incoming = { ...data, lastSyncAt: lastSyncIso } as Settings;
+        setSettings((prev) => ({ ...prev, ...incoming, storageMode: "cloud" }));
+        localStorage.setItem(
+          "settings",
+          JSON.stringify({ ...incoming, storageMode: "cloud" })
+        );
+        setTimeout(() => {
+          applyingCloudRef.current = false;
+        }, 50);
+      });
+      unsubscribers.push(unsubSettings);
+
+      // Collections listeners
+      const subscribeCol = (
+        colName: "timeEntries" | "dailySubmissions" | "payHistory",
+        setter: (v: any) => void,
+        storageKey: string
+      ) => {
+        const colRef = collection(userRoot, colName);
+        const unsub = onSnapshot(colRef, (qs) => {
+          applyingCloudRef.current = true;
+          const arr = qs.docs.map((d) => d.data());
+          setter(arr as any);
+          localStorage.setItem(storageKey, JSON.stringify(arr));
+          setTimeout(() => {
+            applyingCloudRef.current = false;
+          }, 50);
+        });
+        unsubscribers.push(unsub);
+      };
+
+      subscribeCol("timeEntries", setEntries, "timeEntries");
+      subscribeCol("dailySubmissions", setDailySubmissions, "dailySubmissions");
+      subscribeCol("payHistory", setPayHistory, "payHistory");
+    };
+    setup();
+
+    return () => {
+      unsubscribers.forEach((u) => u());
+      applyingCloudRef.current = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authChecked, user, settings.storageMode]);
 
   return (
     <ErrorBoundary>
