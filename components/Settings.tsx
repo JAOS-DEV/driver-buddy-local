@@ -1036,6 +1036,8 @@ const Settings: React.FC<SettingsProps> = ({
                       updateSettings({ storageMode: "local" });
                     }
                   }}
+                  aria-label="Toggle Cloud Sync"
+                  title="Toggle Cloud Sync"
                   className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                     settings.storageMode === "cloud"
                       ? "bg-[#003D5B]"
@@ -1083,10 +1085,16 @@ const Settings: React.FC<SettingsProps> = ({
                       alert("Synced to cloud.");
                     });
                   }}
+                  aria-label="Upload this device's data to cloud"
+                  title={
+                    canUseCloudStorage
+                      ? "Upload this device's data to cloud"
+                      : "Premium required"
+                  }
                   className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                     canUseCloudStorage
                       ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
-                      : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                      : "bg-slate-100/80 text-slate-500 border-slate-300/60 cursor-not-allowed"
                   }`}
                 >
                   Upload this device's data to cloud
@@ -1144,11 +1152,18 @@ const Settings: React.FC<SettingsProps> = ({
                       setTimeout(() => window.location.reload(), 500);
                     });
                   }}
+                  aria-label="Download cloud data to this device"
+                  title={
+                    canUseCloudStorage ||
+                    (hasCloudData && !freeDownloadConsumed)
+                      ? "Download cloud data to this device"
+                      : "Premium required"
+                  }
                   className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                     canUseCloudStorage ||
                     (hasCloudData && !freeDownloadConsumed)
                       ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
-                      : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
+                      : "bg-slate-100/80 text-slate-500 border-slate-300/60 cursor-not-allowed"
                   }`}
                 >
                   Download cloud data to this device
@@ -1201,10 +1216,14 @@ const Settings: React.FC<SettingsProps> = ({
             <div className="space-y-2">
               <button
                 onClick={() => setUpgradeOpen(true)}
+                aria-label="Export Pay History (CSV)"
+                title={
+                  canExportCSV ? "Export Pay History (CSV)" : "Premium required"
+                }
                 className={`w-full font-bold py-1.5 px-3 rounded-md transition-colors text-sm ${
                   canExportCSV
                     ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-blue-200 text-white cursor-not-allowed"
+                    : "bg-blue-300 text-white cursor-not-allowed"
                 }`}
               >
                 Export Pay History (CSV){" "}
