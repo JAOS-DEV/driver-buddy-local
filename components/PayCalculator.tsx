@@ -981,7 +981,13 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               <div className="flex items-center justify-between">
                 <span
                   className={`text-xs font-medium ${
-                    !useManualHours ? "text-[#003D5B]" : "text-slate-500"
+                    !useManualHours
+                      ? settings.darkMode
+                        ? "text-gray-100"
+                        : "text-[#003D5B]"
+                      : settings.darkMode
+                      ? "text-gray-500"
+                      : "text-slate-500"
                   }`}
                 >
                   Time Tracker
@@ -1000,7 +1006,13 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </button>
                 <span
                   className={`text-xs font-medium ${
-                    useManualHours ? "text-[#003D5B]" : "text-slate-500"
+                    useManualHours
+                      ? settings.darkMode
+                        ? "text-gray-100"
+                        : "text-[#003D5B]"
+                      : settings.darkMode
+                      ? "text-gray-500"
+                      : "text-slate-500"
                   }`}
                 >
                   Manual Hours
