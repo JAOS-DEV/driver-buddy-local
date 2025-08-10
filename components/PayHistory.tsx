@@ -782,8 +782,9 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         <div className="space-y-1.5 px-3">
           {Object.keys(paysByDate).length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-slate-500">
-                No pay history found for this period.
+              <p className="text-slate-500">No pay saved yet.</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Use “Save Pay” in the Calculator tab.
               </p>
             </div>
           ) : (

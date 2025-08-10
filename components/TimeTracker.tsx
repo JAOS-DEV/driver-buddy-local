@@ -39,6 +39,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     visible: false,
   });
   const [showTimeFormatModal, setShowTimeFormatModal] = useState(false);
+  const [showSubmissionInfoModal, setShowSubmissionInfoModal] = useState(false);
 
   // Edit modal state
   const [editingSubmission, setEditingSubmission] =
@@ -386,7 +387,6 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
     const hours = parseInt(timeStr.substring(0, 2));
     const minutes = parseInt(timeStr.substring(2, 4));
     if (isNaN(hours) || isNaN(minutes)) return false;
-    if (minutes < 0 || minutes > 59) return false;
 
     const allow24 = field === "endTime";
     if (allow24) {
@@ -650,13 +650,24 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               >
                 <div className="space-y-1.5">
                   {entries.length === 0 ? (
-                    <p
-                      className={`text-center py-3 ${
-                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    <div
+                      className={`text-center p-3 rounded-md border ${
+                        settings.darkMode
+                          ? "bg-gray-700/50 border-gray-600/50"
+                          : "bg-white/50 border-gray-200/50"
                       }`}
                     >
-                      No entries yet.
-                    </p>
+                      <div className="text-sm font-medium mb-1">
+                        Add your first entry
+                      </div>
+                      <div className="text-xs text-slate-500 mb-1">
+                        Example:{" "}
+                        <span className="font-mono">09:00 – 17:30</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500">
+                        Enter times above and press “Add Entry”.
+                      </div>
+                    </div>
                   ) : (
                     entries.map((entry) => {
                       // Format the times for display (HHMM to HH:MM)
@@ -748,9 +759,29 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           <div className="flex-shrink-0 px-4 pb-3 space-y-1.5">
             {/* Date Picker */}
             <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
-              <label className="text-xs font-medium text-slate-600 block mb-0.5 text-center">
-                Select date ({submissionsForDate.length} submissions)
-              </label>
+              <div className="flex items-center justify-center gap-2 mb-0.5">
+                <label className="text-xs font-medium text-slate-600 text-center">
+                  Select date ({submissionsForDate.length} submissions)
+                </label>
+                <button
+                  onClick={() => setShowSubmissionInfoModal(true)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  title="What is a submission?"
+                  aria-label="What is a submission?"
+                >
+                  <svg
+                    className="w-3 h-3"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              </div>
               <input
                 type="date"
                 value={submitDate}
@@ -769,7 +800,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                   : "bg-slate-300 text-slate-500 cursor-not-allowed"
               }`}
             >
-              Submit Day
+              Submit Entries
             </button>
           </div>
         </>
@@ -798,7 +829,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               ref={entriesHeaderRef}
               className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
             >
-              SUBMITTED DAYS
+              SUBMITTED ENTRIES
             </h2>
             <div
               className="overflow-y-auto"
@@ -807,7 +838,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               <div className="space-y-2">
                 {filteredSubmissions.length === 0 ? (
                   <p className="text-center text-slate-500 py-4">
-                    No submitted days for this period.
+                    No submitted entries for this period.
                   </p>
                 ) : (
                   // Group submissions by date
@@ -1490,6 +1521,48 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                   after midnight (e.g., 06:00 for 6 AM the next day).
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Submission Info Modal */}
+      {showSubmissionInfoModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-lg w-full max-w-sm mx-auto">
+            <div className="p-3 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-bold text-slate-800">
+                  What’s a submission?
+                </h3>
+                <button
+                  onClick={() => setShowSubmissionInfoModal(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="p-3 space-y-3">
+              <p className="text-sm text-slate-600 leading-relaxed">
+                Submissions are a snapshot of the current entries. When you
+                submit entries, your current entries are saved to History so you
+                can review totals later.
+              </p>
+              <p className="text-sm text-slate-600 leading-relaxed">
+                You can keep adding entries during the day and submit multiple
+                entries for a day and they will be added to the days History and
+                show the total. You can also save pay in the Pay tab; it uses
+                your tracked time for that date. (If in time tracker mode)
+              </p>
+            </div>
+            <div className="p-3 border-t border-gray-200 text-right">
+              <button
+                onClick={() => setShowSubmissionInfoModal(false)}
+                className="py-1.5 px-3 bg-gray-700 text-white rounded-md hover:bg-gray-600"
+              >
+                Got it
+              </button>
             </div>
           </div>
         </div>

@@ -28,10 +28,20 @@ const Settings: React.FC<SettingsProps> = ({
   const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>(
     undefined
   );
+  const [showCloudInfo, setShowCloudInfo] = useState(false);
 
   const updateSettings = (updates: Partial<SettingsType>) => {
     setSettings({ ...settings, ...updates });
   };
+
+  // Reusable premium badge
+  const PremiumBadge: React.FC<{ text?: string }> = ({
+    text = "Premium feature",
+  }) => (
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-[10px] font-semibold bg-amber-100 text-amber-800 border-amber-200">
+      {text}
+    </span>
+  );
 
   // Premium status checks
   const userIsPremium = isPremium(userProfile);
@@ -102,7 +112,7 @@ const Settings: React.FC<SettingsProps> = ({
   }, [user, userIsPremium]);
 
   const lastSyncedDisplay = useMemo(() => {
-    if (!settings.lastSyncAt) return "Never";
+    if (!settings.lastSyncAt) return "—";
     try {
       const d = new Date(settings.lastSyncAt);
       if (isNaN(d.getTime())) return String(settings.lastSyncAt);
@@ -143,104 +153,6 @@ const Settings: React.FC<SettingsProps> = ({
     }).format(amount);
   };
 
-  // Export pay history to CSV
-  const exportPayHistory = () => {
-    if (!canExportCSV) {
-      openUpgrade("CSV export");
-      return;
-    }
-
-    // Get pay history from localStorage
-    const payHistory = JSON.parse(localStorage.getItem("payHistory") || "[]");
-
-    if (payHistory.length === 0) {
-      alert("No pay history to export.");
-      return;
-    }
-
-    // Create CSV header
-    const headers = [
-      "Date",
-      "Submission Time",
-      "Calculation Method",
-      "Standard Hours",
-      "Standard Minutes",
-      "Standard Rate",
-      "Standard Pay",
-      "Overtime Hours",
-      "Overtime Minutes",
-      "Overtime Rate",
-      "Overtime Pay",
-      "Total Pay",
-      "Tax Amount",
-      "After Tax Pay",
-      "Tax Rate",
-      "Notes",
-    ];
-
-    // Create CSV rows
-    const rows = payHistory.map((pay: any) => [
-      pay.date,
-      pay.submissionTime,
-      pay.calculationMethod,
-      pay.standardHours,
-      pay.standardMinutes,
-      pay.standardRate,
-      pay.standardPay,
-      pay.overtimeHours,
-      pay.overtimeMinutes,
-      pay.overtimeRate,
-      pay.overtimePay,
-      pay.totalPay,
-      pay.taxAmount || "",
-      pay.afterTaxPay || "",
-      pay.taxRate || "",
-      pay.notes || "",
-    ]);
-
-    // Combine header and rows
-    const csvContent = [headers, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-
-    // Create and download file
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute(
-      "download",
-      `pay_history_${new Date().toISOString().split("T")[0]}.csv`
-    );
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  // Clear all pay history
-  const clearPayHistory = () => {
-    if (confirm("This will permanently delete all saved pay. Are you sure?")) {
-      localStorage.removeItem("payHistory");
-      alert("All pay history has been cleared.");
-    }
-  };
-
-  // Clear all data (entries, pay history, settings, etc.)
-  const clearAllData = () => {
-    if (
-      confirm(
-        "This will permanently delete ALL data including time entries, pay history, and settings. This action cannot be undone. Are you sure?"
-      )
-    ) {
-      localStorage.clear();
-      alert("All data has been cleared. The page will reload.");
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  };
-
   return (
     <div
       className={`h-full flex flex-col ${
@@ -259,6 +171,69 @@ const Settings: React.FC<SettingsProps> = ({
         userUid={user?.uid}
         userRole={userProfile?.role}
       />
+
+      {/* Cloud Info Modal */}
+      {showCloudInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div
+            className={`w-full max-w-sm rounded-xl shadow-2xl border ${
+              settings.darkMode
+                ? "bg-gray-800 border-gray-600 text-gray-100"
+                : "bg-white border-gray-200 text-slate-800"
+            }`}
+          >
+            <div
+              className={`px-4 py-3 border-b ${
+                settings.darkMode ? "border-gray-600" : "border-gray-200"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-bold">How Cloud Sync works</h3>
+                <button
+                  onClick={() => setShowCloudInfo(false)}
+                  className={
+                    settings.darkMode
+                      ? "text-gray-400 hover:text-gray-200"
+                      : "text-slate-400 hover:text-slate-600"
+                  }
+                  aria-label="Close"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="px-4 py-3 space-y-2 text-sm">
+              <p>
+                - When Cloud Sync is ON, your data auto-syncs to your account
+                and is available on any signed-in device.
+              </p>
+              <p>
+                - Turning Cloud Sync OFF keeps your data on this device only.
+              </p>
+              <p>
+                - Free users: Cloud is a premium feature. If you used Cloud
+                before, you can download your data once to this device.
+              </p>
+            </div>
+            <div
+              className={`px-4 py-3 border-t ${
+                settings.darkMode ? "border-gray-600" : "border-gray-200"
+              } flex justify-end`}
+            >
+              <button
+                onClick={() => setShowCloudInfo(false)}
+                className={
+                  settings.darkMode
+                    ? "bg-gray-700 hover:bg-gray-600 text-gray-100 px-3 py-1.5 rounded-md"
+                    : "bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-md"
+                }
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto pb-6">
         <div className="space-y-6">
@@ -303,7 +278,6 @@ const Settings: React.FC<SettingsProps> = ({
                 {roleBadge.label}
               </span>
             </div>
-
             {user ? (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 min-w-0">
@@ -320,12 +294,6 @@ const Settings: React.FC<SettingsProps> = ({
                   <div className="min-w-0">
                     <div className="text-sm font-medium truncate flex items-center gap-2">
                       <span>{user.displayName || "Signed in user"}</span>
-                      {/* <span
-                        className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${roleBadge.classes}`}
-                        title={`Account role: ${roleBadge.label}`}
-                      >
-                        {roleBadge.label}
-                      </span> */}
                     </div>
                     <div className="text-xs text-slate-500 truncate">
                       {user.email || ""}
@@ -539,9 +507,12 @@ const Settings: React.FC<SettingsProps> = ({
                 + Add Standard Rate
               </button>
               {!canAddStandardRate && (
-                <p className="text-[11px] text-slate-500">
-                  Free plan allows 1 standard rate. Upgrade for more.
-                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  <PremiumBadge text="Premium required" />
+                  <span className="text-[11px] text-slate-500">
+                    More than 1 standard rate requires Premium.
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -638,9 +609,12 @@ const Settings: React.FC<SettingsProps> = ({
                 + Add Overtime Rate
               </button>
               {!canAddOvertimeRate && (
-                <p className="text-[11px] text-slate-500">
-                  Free plan allows 1 overtime rate. Upgrade for more.
-                </p>
+                <div className="flex items-center gap-1 mt-1">
+                  <PremiumBadge text="Premium required" />
+                  <span className="text-[11px] text-slate-500">
+                    More than 1 overtime rate requires Premium.
+                  </span>
+                </div>
               )}
             </div>
           </div>
@@ -670,9 +644,9 @@ const Settings: React.FC<SettingsProps> = ({
                     Show after-tax earnings in pay breakdown
                   </p>
                   {!canUseTaxCalculations && (
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Premium feature
-                    </p>
+                    <div className="mt-1">
+                      <PremiumBadge />
+                    </div>
                   )}
                 </div>
                 <button
@@ -763,9 +737,9 @@ const Settings: React.FC<SettingsProps> = ({
                     Show after-NI earnings in pay breakdown
                   </p>
                   {!canUseTaxCalculations && (
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Premium feature
-                    </p>
+                    <div className="mt-1">
+                      <PremiumBadge />
+                    </div>
                   )}
                 </div>
                 <button
@@ -881,18 +855,41 @@ const Settings: React.FC<SettingsProps> = ({
                 : "bg-white/50 border-gray-200/80"
             }`}
           >
-            <h3
-              className={`text-sm font-bold mb-2 ${
-                settings.darkMode ? "text-gray-100" : "text-slate-700"
-              }`}
-            >
-              Storage
-            </h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3
+                className={`text-sm font-bold ${
+                  settings.darkMode ? "text-gray-100" : "text-slate-700"
+                }`}
+              >
+                Cloud Sync
+              </h3>
+              <button
+                onClick={() => setShowCloudInfo(true)}
+                className={`transition-colors ${
+                  settings.darkMode
+                    ? "text-gray-400 hover:text-gray-200"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
+                title="How Cloud Sync works"
+                aria-label="How Cloud Sync works"
+              >
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
             <div className="space-y-2">
               <p className="text-xs text-slate-500">
-                When Cloud Storage is ON, your data auto-syncs to your account
-                so you can access it on any device. You can also run manual
-                syncs below.
+                Cloud OFF: data stays on this device. Cloud ON: data auto-syncs
+                to your account.
               </p>
               <div className="flex items-center justify-between text-[10px]">
                 <span>
@@ -904,36 +901,36 @@ const Settings: React.FC<SettingsProps> = ({
                     }`}
                   >
                     {settings.storageMode === "cloud"
-                      ? "Cloud Storage"
-                      : "Local Storage"}
+                      ? "Cloud ON"
+                      : "Cloud OFF"}
                   </span>
                 </span>
                 <span className="text-slate-500">
-                  Synced: {lastSyncedDisplay}
+                  Last synced: {lastSyncedDisplay}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium text-slate-700">
-                    Use Cloud Storage
+                    Cloud Sync
                   </span>
                   <p className="text-xs text-slate-500">
                     Automatically syncs your data when signed in
                   </p>
                   {!canUseCloudStorage && (
-                    <p className="text-[11px] text-slate-500 mt-1">
-                      Premium feature
-                    </p>
+                    <div className="mt-1">
+                      <PremiumBadge />
+                    </div>
                   )}
                 </div>
                 <button
                   onClick={async () => {
                     if (!user) {
-                      alert("Sign in to use cloud storage.");
+                      alert("Sign in to use cloud sync.");
                       return;
                     }
                     if (!canUseCloudStorage) {
-                      openUpgrade("Cloud Storage");
+                      openUpgrade("Cloud Sync");
                       return;
                     }
                     const switchingToCloud = settings.storageMode !== "cloud";
@@ -959,8 +956,8 @@ const Settings: React.FC<SettingsProps> = ({
                           const choice = confirm(
                             "Cloud data exists. Do you want to:\n\n" +
                               "• OK: Use cloud data (downloads to this device)\n" +
-                              "• Cancel: Upload local data (replaces cloud data)\n\n" +
-                              "Choose OK to keep cloud data, Cancel to overwrite with local data."
+                              "• Cancel: Upload this device's data (replaces cloud data)\n\n" +
+                              "Choose OK to keep cloud data, Cancel to overwrite with this device's data."
                           );
 
                           if (choice) {
@@ -1027,7 +1024,7 @@ const Settings: React.FC<SettingsProps> = ({
                           });
                         }
                       } catch (e) {
-                        alert("Failed to enable cloud mode. Please try again.");
+                        alert("Failed to enable cloud sync. Please try again.");
                         return;
                       }
                     } else {
@@ -1056,11 +1053,11 @@ const Settings: React.FC<SettingsProps> = ({
                   onClick={() => {
                     if (!user) return alert("Sign in first");
                     if (!canUseCloudStorage) {
-                      openUpgrade("Cloud Storage");
+                      openUpgrade("Cloud Sync");
                       return;
                     }
                     const confirmMsg =
-                      "Upload local data to cloud? Existing cloud data will be replaced.";
+                      "Upload this device's data to cloud? Existing cloud data will be replaced.";
                     if (!confirm(confirmMsg)) return;
                     const local = {
                       settings: JSON.parse(
@@ -1087,17 +1084,16 @@ const Settings: React.FC<SettingsProps> = ({
                       : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
                   }`}
                 >
-                  Upload local data to cloud
+                  Upload this device's data to cloud
                 </button>
                 <button
                   onClick={() => {
                     if (!user) return alert("Sign in first");
-                    // Allow if premium OR if downgraded free user with existing cloud data and not consumed
                     const allowDownload =
                       canUseCloudStorage ||
                       (hasCloudData && !freeDownloadConsumed);
                     if (!allowDownload) {
-                      openUpgrade("Cloud Storage");
+                      openUpgrade("Cloud Sync");
                       return;
                     }
                     const confirmMsg =
@@ -1123,7 +1119,6 @@ const Settings: React.FC<SettingsProps> = ({
                         JSON.stringify(snap.payHistory || [])
                       );
 
-                      // If free user using recovery, mark as consumed
                       if (
                         !canUseCloudStorage &&
                         hasCloudData &&
@@ -1132,7 +1127,6 @@ const Settings: React.FC<SettingsProps> = ({
                         try {
                           await m.setFreeDownloadConsumed(user.uid);
                           setFreeDownloadConsumedState(true);
-                          // Ensure we stay in local mode and premium toggles stay off
                           updateSettings({
                             storageMode: "local",
                             enableTaxCalculations: false,
@@ -1156,19 +1150,17 @@ const Settings: React.FC<SettingsProps> = ({
                 </button>
               </div>
               <p className="text-[11px] text-slate-500">
-                • Upload replaces your cloud data with what’s on this device. •
+                • Upload replaces your cloud data with this device's data. •
                 Download replaces this device’s data with what’s in the cloud.
               </p>
               <button
                 onClick={() => {
                   if (!user) return alert("Sign in first");
                   if (!canUseCloudStorage) {
-                    openUpgrade("Cloud Storage");
+                    openUpgrade("Cloud Sync");
                     return;
                   }
-                  if (
-                    !confirm("This will delete all your cloud data. Continue?")
-                  )
+                  if (!confirm("This will delete your cloud data. Continue?"))
                     return;
                   import("../services/firestoreStorage").then(async (m) => {
                     await m.clearCloudData(user.uid);
@@ -1181,12 +1173,8 @@ const Settings: React.FC<SettingsProps> = ({
                     : "bg-red-200 text-white cursor-not-allowed"
                 }`}
               >
-                Delete all cloud data
+                Delete cloud data (keeps this device's data)
               </button>
-              <p className="text-[11px] text-slate-500">
-                Permanently removes your cloud data for this app. Does not
-                affect data on this device.
-              </p>
             </div>
           </div>
 
@@ -1203,24 +1191,39 @@ const Settings: React.FC<SettingsProps> = ({
                 settings.darkMode ? "text-gray-100" : "text-slate-700"
               }`}
             >
-              Local data (this device)
+              Data on this device
             </h3>
             <div className="space-y-2">
               <button
-                onClick={exportPayHistory}
+                onClick={() => setUpgradeOpen(true)}
                 className={`w-full font-bold py-1.5 px-3 rounded-md transition-colors text-sm ${
                   canExportCSV
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-blue-200 text-white cursor-not-allowed"
                 }`}
               >
-                Export Pay History (CSV)
+                Export Pay History (CSV){" "}
+                {canExportCSV ? "" : "(Premium required)"}
               </button>
+              {!canExportCSV && (
+                <div className="mt-1">
+                  <PremiumBadge text="Premium required" />
+                </div>
+              )}
               <p className="text-[11px] text-slate-500 -mt-1">
                 Exports the pay history currently stored on this device.
               </p>
               <button
-                onClick={clearPayHistory}
+                onClick={() => {
+                  if (
+                    !confirm(
+                      "This will permanently delete all saved pay on this device. Continue?"
+                    )
+                  )
+                    return;
+                  localStorage.removeItem("payHistory");
+                  alert("All pay history has been cleared.");
+                }}
                 className="w-full bg-red-500 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-600 transition-colors text-sm"
               >
                 Clear local pay history
@@ -1230,15 +1233,21 @@ const Settings: React.FC<SettingsProps> = ({
                 affected.
               </p>
               <button
-                onClick={clearAllData}
+                onClick={() => {
+                  if (
+                    !confirm(
+                      "This will permanently delete ALL local data (entries, pay history, settings). Continue?"
+                    )
+                  )
+                    return;
+                  localStorage.clear();
+                  alert("All local data has been cleared. Reloading…");
+                  setTimeout(() => window.location.reload(), 500);
+                }}
                 className="w-full bg-red-700 text-white font-bold py-1.5 px-3 rounded-md hover:bg-red-800 transition-colors text-sm"
               >
                 Clear all local data
               </button>
-              <p className="text-xs text-slate-500">
-                Export your data for tax purposes or clear the data stored on
-                this device.
-              </p>
             </div>
           </div>
 

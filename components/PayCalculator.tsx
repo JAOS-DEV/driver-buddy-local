@@ -1303,6 +1303,9 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             >
               Save Pay
             </button>
+            <p className="text-[11px] text-slate-500 -mt-1 text-center">
+              Saves today’s pay to History. Change the date to save a past day.
+            </p>
           </div>
         </>
       ) : (
