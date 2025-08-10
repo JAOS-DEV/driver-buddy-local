@@ -267,7 +267,12 @@ export function isPremium(userProfile: UserProfile | null): boolean {
   if (!userProfile) return false;
   if (userProfile.role === "admin") return true;
   if (userProfile.role === "premium") return true;
+  if (userProfile.role === "beta") return true;
   return false;
+}
+
+export function isBeta(userProfile: UserProfile | null): boolean {
+  return !!userProfile && userProfile.role === "beta";
 }
 
 // Debug function retained for development, but avoid using in production UI

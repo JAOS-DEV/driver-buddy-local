@@ -63,8 +63,8 @@ export type WeekStartDay =
 
 export interface Settings {
   weekStartDay: WeekStartDay;
-  standardRates: StandardRate[];
-  overtimeRates: OvertimeRate[];
+  standardRates?: Array<{ id: string; name: string; rate: number }>;
+  overtimeRates?: Array<{ id: string; name: string; rate: number }>;
   enableTaxCalculations: boolean;
   taxRate: number;
   enableNiCalculations: boolean;
@@ -73,10 +73,10 @@ export interface Settings {
   monthlyGoal: number;
   darkMode: boolean;
   storageMode: "local" | "cloud";
-  lastSyncAt?: FieldValue | string;
+  lastSyncAt?: import("firebase/firestore").FieldValue | string;
 }
 
-export type UserRole = "free" | "premium" | "admin";
+export type UserRole = "free" | "premium" | "admin" | "beta";
 
 export interface UserProfile {
   uid: string;
@@ -95,7 +95,7 @@ export interface ChatMessage {
 export enum View {
   WORK = "work",
   PAY = "pay",
-  LAW_LIMITS = "law-limits",
+  LAW_LIMITS = "law_limits",
   CHAT = "chat",
   SETTINGS = "settings",
   ADMIN = "admin",

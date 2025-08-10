@@ -62,6 +62,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user }) => {
         return "bg-red-100 text-red-800 border-red-200";
       case "premium":
         return "bg-green-100 text-green-800 border-green-200";
+      case "beta":
+        return "bg-indigo-100 text-indigo-800 border-indigo-200";
       case "free":
         return "bg-gray-100 text-gray-800 border-gray-200";
       default:
@@ -97,7 +99,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user }) => {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="grid grid-cols-4 gap-2 text-center">
             <div className="bg-white/50 border border-gray-200/80 rounded-lg p-2">
               <div className="text-lg font-bold text-slate-800">
                 {users.filter((u) => u.role === "free").length}
@@ -109,6 +111,12 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user }) => {
                 {users.filter((u) => u.role === "premium").length}
               </div>
               <div className="text-xs text-slate-500">Premium Users</div>
+            </div>
+            <div className="bg-white/50 border border-gray-200/80 rounded-lg p-2">
+              <div className="text-lg font-bold text-slate-800">
+                {users.filter((u) => u.role === "beta").length}
+              </div>
+              <div className="text-xs text-slate-500">Beta Testers</div>
             </div>
             <div className="bg-white/50 border border-gray-200/80 rounded-lg p-2">
               <div className="text-lg font-bold text-slate-800">
@@ -157,6 +165,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ user }) => {
                     >
                       <option value="free">Free</option>
                       <option value="premium">Premium</option>
+                      <option value="beta">Beta Tester</option>
                       <option value="admin">Admin</option>
                     </select>
                   </div>

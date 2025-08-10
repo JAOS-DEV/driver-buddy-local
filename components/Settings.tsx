@@ -140,6 +140,11 @@ const Settings: React.FC<SettingsProps> = ({
         label: "Premium",
         classes: "bg-green-100 text-green-800 border-green-200",
       };
+    if (role === "beta")
+      return {
+        label: "Beta Tester",
+        classes: "bg-indigo-100 text-indigo-800 border-indigo-200",
+      };
     return {
       label: "Free",
       classes: "bg-gray-100 text-gray-800 border-gray-200",
