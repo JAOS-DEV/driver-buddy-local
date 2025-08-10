@@ -380,7 +380,7 @@ const App: React.FC = () => {
         )}
 
         <div
-          className={`w-full h-full sm:h-[700px] sm:max-w-md sm:rounded-3xl sm:shadow-2xl sm:border flex flex-col overflow-hidden mx-auto ${
+          className={`w-full h-full sm:max-w-md sm:rounded-3xl sm:border flex flex-col overflow-hidden mx-auto ${
             settings.darkMode
               ? "bg-gray-800 sm:border-gray-600/50"
               : "bg-[#FAF7F0] sm:border-slate-200/50"
