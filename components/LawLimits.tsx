@@ -1,10 +1,11 @@
 import React from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import { formatDurationWithMinutes } from "../hooks/useTimeCalculations";
-import { DailySubmission } from "../types";
+import { DailySubmission, Settings } from "../types";
 
 interface LawLimitsProps {
   totalMinutes: number;
+  settings: Settings;
 }
 
 interface DailyEntry {
@@ -12,11 +13,12 @@ interface DailyEntry {
   totalMinutes: number;
 }
 
-const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
-  value,
-  max,
-  label,
-}) => {
+const ProgressBar: React.FC<{
+  value: number;
+  max: number;
+  label: string;
+  settings: Settings;
+}> = ({ value, max, label, settings }) => {
   const percentage = Math.min((value / max) * 100, 100);
   const isOver = value > max;
 
@@ -40,25 +42,49 @@ const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
   return (
     <div>
       <div className="flex justify-between mb-1">
-        <span className="text-base font-medium text-slate-700">{label}</span>
+        <span
+          className={`text-base font-medium ${
+            settings.darkMode ? "text-gray-200" : "text-slate-700"
+          }`}
+        >
+          {label}
+        </span>
         <span
           className={`text-sm font-medium ${
-            isOver ? "text-red-600" : "text-slate-500"
+            isOver
+              ? settings.darkMode
+                ? "text-red-400"
+                : "text-red-600"
+              : settings.darkMode
+              ? "text-gray-400"
+              : "text-slate-500"
           }`}
         >
           {valueDisplay} / {maxDisplay}
         </span>
       </div>
-      <div className="w-full bg-slate-200 rounded-full h-2.5">
+      <div
+        className={`w-full rounded-full h-2.5 ${
+          settings.darkMode ? "bg-gray-700" : "bg-slate-200"
+        }`}
+      >
         <div
           className={`h-2 rounded-full ${
-            isOver ? "bg-red-500" : "bg-gray-700"
+            isOver
+              ? "bg-red-500"
+              : settings.darkMode
+              ? "bg-emerald-500"
+              : "bg-emerald-600"
           }`}
           style={{ width: `${percentage}%` }}
         ></div>
       </div>
       {isOver && (
-        <p className="text-red-600 text-xs mt-1">
+        <p
+          className={`text-xs mt-1 ${
+            settings.darkMode ? "text-red-400" : "text-red-600"
+          }`}
+        >
           You have exceeded the legal limit.
         </p>
       )}
@@ -66,7 +92,7 @@ const ProgressBar: React.FC<{ value: number; max: number; label: string }> = ({
   );
 };
 
-const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
+const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes, settings }) => {
   const [dailySubmissions, setDailySubmissions] = useLocalStorage<
     DailySubmission[]
   >("dailySubmissions", []);
@@ -123,16 +149,19 @@ const LawLimits: React.FC<LawLimitsProps> = ({ totalMinutes }) => {
           value={dailyMinutes}
           max={UK_DAILY_LIMIT * 60}
           label="Daily Driving"
+          settings={settings}
         />
         <ProgressBar
           value={weeklyMinutes}
           max={UK_WEEKLY_LIMIT * 60}
           label="Weekly Driving"
+          settings={settings}
         />
         <ProgressBar
           value={fortnightlyMinutes}
           max={UK_FORTNIGHTLY_LIMIT * 60}
           label="Fortnightly Driving"
+          settings={settings}
         />
 
         <div className="flex justify-center pt-2">

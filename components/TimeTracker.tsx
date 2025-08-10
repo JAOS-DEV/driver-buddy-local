@@ -471,7 +471,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
       <div
         className={`flex-shrink-0 border-b ${
           settings.darkMode
-            ? "bg-gray-800/50 border-gray-600/80"
+            ? "bg-gray-900/40 border-gray-700"
             : "bg-white/50 border-gray-200/80"
         }`}
       >
@@ -481,7 +481,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "tracker"
                 ? settings.darkMode
-                  ? "text-white border-b-2 border-white"
+                  ? "text-gray-100 border-b-2 border-indigo-400"
                   : "text-gray-800 border-b-2 border-gray-800"
                 : settings.darkMode
                 ? "text-gray-400 hover:text-gray-200"
@@ -495,7 +495,7 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "history"
                 ? settings.darkMode
-                  ? "text-white border-b-2 border-white"
+                  ? "text-gray-100 border-b-2 border-indigo-400"
                   : "text-gray-800 border-b-2 border-gray-800"
                 : settings.darkMode
                 ? "text-gray-400 hover:text-gray-200"
@@ -577,8 +577,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       startTimeError
                         ? "border-red-500"
                         : settings.darkMode
-                        ? "border-gray-500"
-                        : "border-slate-300"
+                        ? "border-gray-500 text-gray-100 placeholder-gray-400"
+                        : "border-slate-300 text-slate-800 placeholder-slate-400"
                     }`}
                   />
                   {startTimeError && (
@@ -611,8 +611,8 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       endTimeError
                         ? "border-red-500"
                         : settings.darkMode
-                        ? "border-gray-500"
-                        : "border-slate-300"
+                        ? "border-gray-500 text-gray-100 placeholder-gray-400"
+                        : "border-slate-300 text-slate-800 placeholder-slate-400"
                     }`}
                   />
                   {endTimeError && (
@@ -660,11 +660,19 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       <div className="text-sm font-medium mb-1">
                         Add your first entry
                       </div>
-                      <div className="text-xs text-slate-500 mb-1">
+                      <div
+                        className={`text-xs mb-1 ${
+                          settings.darkMode ? "text-gray-400" : "text-slate-500"
+                        }`}
+                      >
                         Example:{" "}
                         <span className="font-mono">09:00 – 17:30</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">
+                      <div
+                        className={`text-[11px] ${
+                          settings.darkMode ? "text-gray-400" : "text-slate-500"
+                        }`}
+                      >
                         Enter times above and press “Add Entry”.
                       </div>
                     </div>
@@ -746,7 +754,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             className="flex-shrink-0 border-t border-slate-200 pt-1.5 mt-1.5 pb-2 px-4 mb-1.5"
           >
             <div className="flex justify-between items-center">
-              <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">
+              <h2
+                className={`text-sm font-bold tracking-wider uppercase ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 TOTAL
               </h2>
               <p className="text-xl font-bold text-gray-800 font-mono">
@@ -758,14 +770,28 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
           {/* Submit Day Section */}
           <div className="flex-shrink-0 px-4 pb-3 space-y-1.5">
             {/* Date Picker */}
-            <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
+            <div
+              className={`${
+                settings.darkMode
+                  ? "bg-gray-700/50 border border-gray-600/80"
+                  : "bg-white/50 border border-gray-200/80"
+              } p-1 rounded-lg`}
+            >
               <div className="flex items-center justify-center gap-2 mb-0.5">
-                <label className="text-xs font-medium text-slate-600 text-center">
+                <label
+                  className={`text-xs font-medium text-center ${
+                    settings.darkMode ? "text-gray-300" : "text-slate-600"
+                  }`}
+                >
                   Select date ({submissionsForDate.length} submissions)
                 </label>
                 <button
                   onClick={() => setShowSubmissionInfoModal(true)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className={`${
+                    settings.darkMode
+                      ? "text-gray-400 hover:text-gray-200"
+                      : "text-slate-400 hover:text-slate-600"
+                  } transition-colors`}
                   title="What is a submission?"
                   aria-label="What is a submission?"
                 >
@@ -786,7 +812,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                 type="date"
                 value={submitDate}
                 onChange={(e) => setSubmitDate(e.target.value)}
-                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block"
+                className={`w-5/6 p-0.5 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block ${
+                  settings.darkMode
+                    ? "border-gray-600 text-gray-100"
+                    : "border-slate-300 text-slate-800"
+                }`}
               />
             </div>
 
@@ -827,7 +857,9 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
             <h2
               ref={entriesHeaderRef}
-              className="text-xs font-bold tracking-wider uppercase text-slate-500 mb-2"
+              className={`text-xs font-bold tracking-wider uppercase mb-2 ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
             >
               SUBMITTED ENTRIES
             </h2>
@@ -837,7 +869,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             >
               <div className="space-y-2">
                 {filteredSubmissions.length === 0 ? (
-                  <p className="text-center text-slate-500 py-4">
+                  <p
+                    className={`text-center py-4 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     No submitted entries for this period.
                   </p>
                 ) : (
@@ -861,15 +897,31 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                     .map(([date, submissions]: [string, DailySubmission[]]) => (
                       <div
                         key={date}
-                        className="bg-white/50 p-3 rounded-md border border-gray-200/50"
+                        className={`${
+                          settings.darkMode
+                            ? "bg-gray-700/40 border-gray-600/60"
+                            : "bg-white/50 border-gray-200/50"
+                        } p-3 rounded-md border`}
                       >
                         <div className="flex justify-between items-center mb-1.5">
-                          <span className="font-medium text-slate-700">
+                          <span
+                            className={`font-medium ${
+                              settings.darkMode
+                                ? "text-gray-200"
+                                : "text-slate-700"
+                            }`}
+                          >
                             {formatDate(date)}
                           </span>
                         </div>
 
-                        <div className="text-xs text-slate-500 mb-1.5">
+                        <div
+                          className={`text-xs mb-1.5 ${
+                            settings.darkMode
+                              ? "text-gray-400"
+                              : "text-slate-500"
+                          }`}
+                        >
                           {submissions.length} submission
                           {submissions.length > 1 ? "s" : ""}
                         </div>
@@ -884,14 +936,26 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                             .map((submission, index) => (
                               <div
                                 key={submission.timestamp}
-                                className={`border-l-2 border-slate-200 pl-3 relative ${
+                                className={`border-l-2 pl-3 relative ${
+                                  settings.darkMode
+                                    ? "border-gray-600"
+                                    : "border-slate-200"
+                                } ${
                                   index > 0
-                                    ? "mt-3 pt-3 border-t border-slate-100"
+                                    ? settings.darkMode
+                                      ? "mt-3 pt-3 border-t border-gray-700"
+                                      : "mt-3 pt-3 border-t border-slate-100"
                                     : ""
                                 }`}
                               >
                                 <div className="flex justify-between items-center mb-1">
-                                  <span className="text-xs text-slate-400">
+                                  <span
+                                    className={`text-xs ${
+                                      settings.darkMode
+                                        ? "text-gray-400"
+                                        : "text-slate-400"
+                                    }`}
+                                  >
                                     Submitted at:{" "}
                                     {submission.timestamp
                                       .split("T")[1]
@@ -904,20 +968,34 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                           submission.timestamp
                                         )
                                       }
-                                      className="text-slate-500 hover:text-slate-700 p-1"
+                                      className={`${
+                                        settings.darkMode
+                                          ? "text-gray-400 hover:text-gray-200"
+                                          : "text-slate-500 hover:text-slate-700"
+                                      } p-1`}
                                       title="More options"
                                     >
                                       ⋮
                                     </button>
                                     {openDropdownId ===
                                       submission.timestamp && (
-                                      <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                                      <div
+                                        className={`absolute right-0 top-6 rounded-lg shadow-lg z-10 min-w-[120px] border ${
+                                          settings.darkMode
+                                            ? "bg-gray-800 border-gray-700"
+                                            : "bg-white border-gray-200"
+                                        }`}
+                                      >
                                         <button
                                           onClick={() => {
                                             handleEditSubmission(submission);
                                             handleCloseDropdown();
                                           }}
-                                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                            settings.darkMode
+                                              ? "hover:bg-gray-700 text-gray-100"
+                                              : "hover:bg-gray-100"
+                                          }`}
                                         >
                                           ✏️ Edit
                                         </button>
@@ -928,7 +1006,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                             );
                                             handleCloseDropdown();
                                           }}
-                                          className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                            settings.darkMode
+                                              ? "hover:bg-gray-700 text-gray-100"
+                                              : "hover:bg-gray-100"
+                                          }`}
                                         >
                                           📋 Duplicate
                                         </button>
@@ -939,7 +1021,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                             );
                                             handleCloseDropdown();
                                           }}
-                                          className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                          className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                            settings.darkMode
+                                              ? "hover:bg-red-900/30 text-red-400"
+                                              : "hover:bg-red-50 text-red-600"
+                                          }`}
                                         >
                                           🗑️ Delete
                                         </button>
@@ -975,7 +1061,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                     return (
                                       <div
                                         key={entry.id}
-                                        className="flex justify-between items-center text-xs text-slate-600"
+                                        className={`flex justify-between items-center text-xs ${
+                                          settings.darkMode
+                                            ? "text-gray-300"
+                                            : "text-slate-600"
+                                        }`}
                                       >
                                         <span>
                                           {displayStartTime} - {displayEndTime}
@@ -987,8 +1077,20 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                                     );
                                   })}
                                   {/* Total time for this submission */}
-                                  <div className="pt-1 border-t border-slate-200">
-                                    <div className="flex justify-between items-center text-xs font-medium text-slate-700">
+                                  <div
+                                    className={`pt-1 border-t ${
+                                      settings.darkMode
+                                        ? "border-gray-700"
+                                        : "border-slate-200"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`flex justify-between items-center text-xs font-medium ${
+                                        settings.darkMode
+                                          ? "text-gray-200"
+                                          : "text-slate-700"
+                                      }`}
+                                    >
                                       <span>Total:</span>
                                       <span className="font-mono">
                                         {formatDurationWithMinutes(
@@ -1003,8 +1105,20 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                               </div>
                             ))}
                           {/* Total time for all submissions on this day */}
-                          <div className="pt-2 border-t-2 border-slate-300">
-                            <div className="flex justify-between items-center text-sm font-bold text-slate-800">
+                          <div
+                            className={`pt-2 border-t-2 ${
+                              settings.darkMode
+                                ? "border-gray-600"
+                                : "border-slate-300"
+                            }`}
+                          >
+                            <div
+                              className={`flex justify-between items-center text-sm font-bold ${
+                                settings.darkMode
+                                  ? "text-gray-100"
+                                  : "text-slate-800"
+                              }`}
+                            >
                               <span>Day Total:</span>
                               <span className="font-mono">
                                 {formatDurationWithMinutes(
@@ -1046,7 +1160,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
             <div className="p-3 space-y-3">
               {/* Date */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Date
                 </label>
                 <input
@@ -1075,7 +1193,13 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
                       className="border border-slate-200 rounded-md p-3"
                     >
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium text-slate-700">
+                        <span
+                          className={`text-sm font-medium ${
+                            settings.darkMode
+                              ? "text-gray-200"
+                              : "text-slate-700"
+                          }`}
+                        >
                           Entry {index + 1}
                         </span>
                         <button
@@ -1314,7 +1438,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
               {/* Preview */}
               <div className="bg-slate-50 p-3 rounded-md">
-                <h4 className="text-sm font-medium text-slate-700 mb-2">
+                <h4
+                  className={`text-sm font-medium mb-2 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Preview
                 </h4>
                 <div className="text-sm text-slate-600 space-y-1">
@@ -1472,17 +1600,29 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
 
             <div className="p-3 space-y-3">
               <div>
-                <h4 className="font-medium text-slate-700 mb-2">
+                <h4
+                  className={`font-medium mb-2 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   24-Hour Format
                 </h4>
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p
+                  className={`text-sm leading-relaxed ${
+                    settings.darkMode ? "text-gray-300" : "text-slate-600"
+                  }`}
+                >
                   Enter times using 24-hour format (HH:MM). This means 1:00 PM
                   is 13:00, 2:30 PM is 14:30, and midnight is 00:00.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-medium text-slate-700 mb-2">
+                <h4
+                  className={`font-medium mb-2 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Valid Examples
                 </h4>
                 <div className="text-sm text-slate-600 space-y-1">
@@ -1505,7 +1645,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
 
               <div>
-                <h4 className="font-medium text-slate-700 mb-2">
+                <h4
+                  className={`font-medium mb-2 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Common Mistakes
                 </h4>
                 <div className="text-sm text-slate-600 space-y-1">
@@ -1516,7 +1660,11 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
 
               <div className="pt-2 border-t border-gray-200">
-                <p className="text-xs text-slate-500">
+                <p
+                  className={`text-xs ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
+                >
                   💡 <strong>Tip:</strong> For overnight shifts, end time can be
                   after midnight (e.g., 06:00 for 6 AM the next day).
                 </p>
@@ -1544,12 +1692,20 @@ const TimeTracker: React.FC<TimeTrackerProps> = ({
               </div>
             </div>
             <div className="p-3 space-y-3">
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <p
+                className={`text-sm leading-relaxed ${
+                  settings.darkMode ? "text-gray-300" : "text-slate-600"
+                }`}
+              >
                 Submissions are a snapshot of the current entries. When you
                 submit entries, your current entries are saved to History so you
                 can review totals later.
               </p>
-              <p className="text-sm text-slate-600 leading-relaxed">
+              <p
+                className={`text-sm leading-relaxed ${
+                  settings.darkMode ? "text-gray-300" : "text-slate-600"
+                }`}
+              >
                 You can keep adding entries during the day and submit multiple
                 entries for a day and they will be added to the days History and
                 show the total. You can also save pay in the Pay tab; it uses

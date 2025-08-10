@@ -409,9 +409,12 @@ const App: React.FC = () => {
               />
             )}
             {activeView === View.LAW_LIMITS && (
-              <LawLimits totalMinutes={totalDuration.totalMinutes} />
+              <LawLimits
+                totalMinutes={totalDuration.totalMinutes}
+                settings={settings}
+              />
             )}
-            {activeView === View.CHAT && <UnionChatbot />}
+            {activeView === View.CHAT && <UnionChatbot settings={settings} />}
             {activeView === View.SETTINGS && (
               <SettingsComponent
                 settings={settings}
@@ -421,7 +424,7 @@ const App: React.FC = () => {
               />
             )}
             {userIsAdmin && activeView === View.ADMIN && (
-              <AdminPanel user={user} />
+              <AdminPanel user={user} settings={settings} />
             )}
           </div>
           {authChecked && user && (

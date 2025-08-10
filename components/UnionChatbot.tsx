@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChatMessage } from "../types";
+import { ChatMessage, Settings } from "../types";
 import { getChatbotResponse } from "../services/geminiService";
 
 // Utility function to detect URLs in text
@@ -42,7 +42,10 @@ const detectUrls = (
 };
 
 // Component to safely render text with clickable links
-const SafeTextRenderer: React.FC<{ text: string }> = ({ text }) => {
+const SafeTextRenderer: React.FC<{ text: string; darkMode?: boolean }> = ({
+  text,
+  darkMode = false,
+}) => {
   const parts = detectUrls(text);
 
   return (
@@ -55,7 +58,11 @@ const SafeTextRenderer: React.FC<{ text: string }> = ({ text }) => {
               href={part.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 underline hover:text-blue-800"
+              className={
+                darkMode
+                  ? "text-blue-400 underline hover:text-blue-300"
+                  : "text-blue-600 underline hover:text-blue-800"
+              }
             >
               {part.content}
             </a>
@@ -67,7 +74,11 @@ const SafeTextRenderer: React.FC<{ text: string }> = ({ text }) => {
   );
 };
 
-const UnionChatbot: React.FC = () => {
+interface UnionChatbotProps {
+  settings: Settings;
+}
+
+const UnionChatbot: React.FC<UnionChatbotProps> = ({ settings }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       sender: "bot",
@@ -126,7 +137,11 @@ const UnionChatbot: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#FAF7F0]">
+    <div
+      className={`h-full flex flex-col ${
+        settings.darkMode ? "bg-gray-800" : "bg-[#FAF7F0]"
+      }`}
+    >
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((msg, index) => (
           <div
@@ -138,13 +153,20 @@ const UnionChatbot: React.FC = () => {
             <div
               className={`max-w-[80%] px-3 py-2 rounded-2xl ${
                 msg.sender === "user"
-                  ? "bg-gray-700 text-white rounded-br-none"
+                  ? settings.darkMode
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-gray-700 text-white rounded-br-none"
+                  : settings.darkMode
+                  ? "bg-gray-700 text-gray-100 border border-gray-600 rounded-bl-none"
                   : "bg-white text-slate-800 border border-slate-200 rounded-bl-none"
               }`}
             >
               <div className="whitespace-pre-wrap text-sm">
                 {msg.sender === "bot" ? (
-                  <SafeTextRenderer text={msg.text} />
+                  <SafeTextRenderer
+                    text={msg.text}
+                    darkMode={settings.darkMode}
+                  />
                 ) : (
                   msg.text
                 )}
@@ -154,31 +176,63 @@ const UnionChatbot: React.FC = () => {
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] px-3 py-2 rounded-2xl bg-white text-slate-800 border border-slate-200 rounded-bl-none">
+            <div
+              className={`max-w-[80%] px-3 py-2 rounded-2xl rounded-bl-none border ${
+                settings.darkMode
+                  ? "bg-gray-700 text-gray-100 border-gray-600"
+                  : "bg-white text-slate-800 border-slate-200"
+              }`}
+            >
               <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                <div className="h-2 w-2 bg-slate-400 rounded-full animate-bounce"></div>
+                <div
+                  className={`h-2 w-2 rounded-full animate-bounce [animation-delay:-0.3s] ${
+                    settings.darkMode ? "bg-gray-400" : "bg-slate-400"
+                  }`}
+                ></div>
+                <div
+                  className={`h-2 w-2 rounded-full animate-bounce [animation-delay:-0.15s] ${
+                    settings.darkMode ? "bg-gray-400" : "bg-slate-400"
+                  }`}
+                ></div>
+                <div
+                  className={`h-2 w-2 rounded-full animate-bounce ${
+                    settings.darkMode ? "bg-gray-400" : "bg-slate-400"
+                  }`}
+                ></div>
               </div>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 bg-[#FAF7F0] border-t border-slate-200">
+      <div
+        className={`p-4 border-t ${
+          settings.darkMode
+            ? "bg-gray-800 border-gray-600"
+            : "bg-[#FAF7F0] border-slate-200"
+        }`}
+      >
         <form onSubmit={handleSendMessage} className="flex gap-2">
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask about your rights..."
-            className="flex-1 p-2.5 bg-white border border-slate-300 rounded-full focus:ring-2 focus:ring-gray-600 focus:border-gray-600 outline-none text-sm"
+            className={`flex-1 p-2.5 border rounded-full focus:ring-2 focus:ring-gray-600 focus:border-gray-600 outline-none text-sm ${
+              settings.darkMode
+                ? "bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400"
+                : "bg-white border-slate-300 text-slate-800 placeholder-slate-400"
+            }`}
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !inputValue.trim()}
-            className="bg-gray-700 text-white rounded-full p-2.5 hover:bg-gray-600 disabled:bg-slate-400 disabled:cursor-not-allowed transition-colors"
+            className={`rounded-full p-2.5 disabled:cursor-not-allowed transition-colors ${
+              settings.darkMode
+                ? "bg-blue-600 text-white hover:bg-blue-500 disabled:bg-gray-600"
+                : "bg-gray-700 text-white hover:bg-gray-600 disabled:bg-slate-400"
+            }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

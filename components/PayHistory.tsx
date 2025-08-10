@@ -105,25 +105,43 @@ const PayHistory: React.FC<PayHistoryProps> = ({
     return (
       <div>
         <div className="flex justify-between mb-1">
-          <span className="text-xs font-medium text-slate-700">{label}</span>
           <span
             className={`text-xs font-medium ${
-              isOver ? "text-green-600" : "text-slate-500"
+              settings.darkMode ? "text-gray-200" : "text-slate-700"
+            }`}
+          >
+            {label}
+          </span>
+          <span
+            className={`text-xs font-medium ${
+              isOver
+                ? "text-green-500"
+                : settings.darkMode
+                ? "text-gray-400"
+                : "text-slate-500"
             }`}
           >
             {formatCurrency(current)} / {formatCurrency(goal)}
           </span>
         </div>
-        <div className="w-full bg-slate-200 rounded-full h-2">
+        <div
+          className={`w-full rounded-full h-2 ${
+            settings.darkMode ? "bg-gray-700" : "bg-slate-200"
+          }`}
+        >
           <div
             className={`h-2 rounded-full ${
-              isOver ? "bg-green-500" : "bg-gray-700"
+              isOver
+                ? "bg-green-500"
+                : settings.darkMode
+                ? "bg-blue-500"
+                : "bg-blue-600"
             }`}
             style={{ width: `${percentage}%` }}
           ></div>
         </div>
         {isOver && (
-          <p className="text-green-600 text-xs mt-1">Goal achieved! 🎉</p>
+          <p className="text-green-500 text-xs mt-1">Goal achieved! 🎉</p>
         )}
       </div>
     );
@@ -412,7 +430,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               </h3>
               <button
                 onClick={handleCancelEdit}
-                className="text-slate-400 hover:text-slate-600"
+                className={`${
+                  settings.darkMode
+                    ? "text-gray-400 hover:text-gray-200"
+                    : "text-slate-400 hover:text-slate-600"
+                }`}
               >
                 ✕
               </button>
@@ -422,7 +444,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
           <div className="p-3 space-y-3">
             {/* Date */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  settings.darkMode ? "text-gray-200" : "text-slate-700"
+                }`}
+              >
                 Date
               </label>
               <input
@@ -436,7 +462,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             {/* Standard Hours */}
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Standard Hours
                 </label>
                 <input
@@ -452,7 +482,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Minutes
                 </label>
                 <input
@@ -468,7 +502,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Rate (£)
                 </label>
                 <input
@@ -488,7 +526,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
             {/* Overtime Hours */}
             <div className="grid grid-cols-3 gap-2">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Overtime Hours
                 </label>
                 <input
@@ -504,7 +546,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Minutes
                 </label>
                 <input
@@ -520,7 +566,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
+                <label
+                  className={`block text-sm font-medium mb-1 ${
+                    settings.darkMode ? "text-gray-200" : "text-slate-700"
+                  }`}
+                >
                   Rate (£)
                 </label>
                 <input
@@ -539,7 +589,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label
+                className={`block text-sm font-medium mb-1 ${
+                  settings.darkMode ? "text-gray-200" : "text-slate-700"
+                }`}
+              >
                 Notes (Optional)
               </label>
               <textarea
@@ -553,10 +607,18 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
             {/* Preview */}
             <div className="bg-slate-50 p-3 rounded-md">
-              <h4 className="text-sm font-medium text-slate-700 mb-2">
+              <h4
+                className={`text-sm font-medium mb-2 ${
+                  settings.darkMode ? "text-gray-200" : "text-slate-700"
+                }`}
+              >
                 Preview
               </h4>
-              <div className="text-sm text-slate-600 space-y-1">
+              <div
+                className={`text-sm space-y-1 ${
+                  settings.darkMode ? "text-gray-300" : "text-slate-600"
+                }`}
+              >
                 <div>
                   Standard: {formData.standardHours || 0}h{" "}
                   {formData.standardMinutes || 0}m @ £
@@ -675,7 +737,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               >
                 Total Overtime Pay:
               </span>
-              <div className="font-bold text-orange-600">
+              <div className="font-bold text-orange-500">
                 {formatCurrency(periodTotals.overtimePay)}
               </div>
             </div>
@@ -690,7 +752,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 >
                   Total Tax:
                 </span>
-                <div className="font-bold text-red-600">
+                <div className="font-bold text-red-500">
                   {formatCurrency(periodTotals.totalTax)}
                 </div>
               </div>
@@ -704,7 +766,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 >
                   Total NI:
                 </span>
-                <div className="font-bold text-orange-600">
+                <div className="font-bold text-orange-500">
                   {formatCurrency(periodTotals.totalNI)}
                 </div>
               </div>
@@ -738,7 +800,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
               >
                 Final Total:
               </span>
-              <div className="font-bold text-green-600">
+              <div className="font-bold text-green-500">
                 {formatCurrency(
                   settings.enableTaxCalculations &&
                     settings.enableNiCalculations
@@ -782,8 +844,18 @@ const PayHistory: React.FC<PayHistoryProps> = ({
         <div className="space-y-1.5 px-3">
           {Object.keys(paysByDate).length === 0 ? (
             <div className="text-center py-6">
-              <p className="text-slate-500">No pay saved yet.</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p
+                className={
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }
+              >
+                No pay saved yet.
+              </p>
+              <p
+                className={`text-xs mt-1 ${
+                  settings.darkMode ? "text-gray-500" : "text-slate-400"
+                }`}
+              >
                 Use “Save Pay” in the Calculator tab.
               </p>
             </div>
@@ -797,13 +869,27 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                 .map(([date, pays]: [string, DailyPay[]]) => (
                   <div
                     key={date}
-                    className="bg-white/50 p-2 rounded-lg border border-gray-200/80"
+                    className={`${
+                      settings.darkMode
+                        ? "bg-gray-700/40 border-gray-600/60"
+                        : "bg-white/50 border-gray-200/80"
+                    } p-2 rounded-lg border`}
                   >
                     <div className="flex justify-between items-center mb-1.5">
-                      <span className="font-medium text-slate-700">
+                      <span
+                        className={
+                          settings.darkMode
+                            ? "font-medium text-gray-200"
+                            : "font-medium text-slate-700"
+                        }
+                      >
                         {formatDate(date)}
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span
+                        className={`text-xs ${
+                          settings.darkMode ? "text-gray-400" : "text-slate-500"
+                        }`}
+                      >
                         {pays.length} submission{pays.length !== 1 ? "s" : ""}
                       </span>
                     </div>
@@ -818,32 +904,62 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                         .map((pay) => (
                           <div
                             key={pay.id}
-                            className="border-l-2 border-slate-200 pl-3 relative"
+                            className={`border-l-2 pl-3 relative ${
+                              settings.darkMode
+                                ? "border-gray-600"
+                                : "border-slate-200"
+                            }`}
                           >
                             <div className="flex justify-between items-center mb-1">
-                              <span className="text-xs text-slate-400">
+                              <span
+                                className={`text-xs ${
+                                  settings.darkMode
+                                    ? "text-gray-400"
+                                    : "text-slate-400"
+                                }`}
+                              >
                                 Submitted at: {pay.submissionTime}
                               </span>
                               <div className="flex items-center gap-2">
-                                <span className="font-mono text-sm text-slate-600">
+                                <span
+                                  className={`font-mono text-sm ${
+                                    settings.darkMode
+                                      ? "text-gray-300"
+                                      : "text-slate-600"
+                                  }`}
+                                >
                                   {formatCurrency(pay.totalPay)}
                                 </span>
                                 <div className="relative dropdown-menu">
                                   <button
                                     onClick={() => handleToggleDropdown(pay.id)}
-                                    className="text-slate-500 hover:text-slate-700 p-1"
+                                    className={`${
+                                      settings.darkMode
+                                        ? "text-gray-400 hover:text-gray-200"
+                                        : "text-slate-500 hover:text-slate-700"
+                                    } p-1`}
                                     title="More options"
                                   >
                                     ⋮
                                   </button>
                                   {openDropdownId === pay.id && (
-                                    <div className="absolute right-0 top-6 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-[120px]">
+                                    <div
+                                      className={`absolute right-0 top-6 rounded-lg shadow-lg z-10 min-w-[120px] border ${
+                                        settings.darkMode
+                                          ? "bg-gray-800 border-gray-700"
+                                          : "bg-white border-gray-200"
+                                      }`}
+                                    >
                                       <button
                                         onClick={() => {
                                           handleEditPay(pay);
                                           handleCloseDropdown();
                                         }}
-                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                          settings.darkMode
+                                            ? "hover:bg-gray-700 text-gray-100"
+                                            : "hover:bg-gray-100"
+                                        }`}
                                       >
                                         ✏️ Edit
                                       </button>
@@ -852,7 +968,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                           handleDuplicatePay(pay);
                                           handleCloseDropdown();
                                         }}
-                                        className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100 flex items-center gap-2"
+                                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                          settings.darkMode
+                                            ? "hover:bg-gray-700 text-gray-100"
+                                            : "hover:bg-gray-100"
+                                        }`}
                                       >
                                         📋 Duplicate
                                       </button>
@@ -861,7 +981,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                           handleDeletePay(pay.id);
                                           handleCloseDropdown();
                                         }}
-                                        className="w-full text-left px-3 py-2 text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                        className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 ${
+                                          settings.darkMode
+                                            ? "hover:bg-red-900/30 text-red-400"
+                                            : "hover:bg-red-50 text-red-600"
+                                        }`}
                                       >
                                         🗑️ Delete
                                       </button>
@@ -872,7 +996,11 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                             </div>
 
                             <div
-                              className={`text-xs text-slate-600 ${
+                              className={`text-xs ${
+                                settings.darkMode
+                                  ? "text-gray-300"
+                                  : "text-slate-600"
+                              } ${
                                 pay.overtimeHours > 0 || pay.overtimeMinutes > 0
                                   ? "grid grid-cols-2 gap-2"
                                   : ""
@@ -902,7 +1030,7 @@ const PayHistory: React.FC<PayHistoryProps> = ({
                                       .padStart(2, "0")}{" "}
                                     @ {formatCurrency(pay.overtimeRate)}
                                   </div>
-                                  <div className="font-mono text-orange-600">
+                                  <div className="font-mono text-orange-500">
                                     {formatCurrency(pay.overtimePay)}
                                   </div>
                                 </div>
@@ -986,7 +1114,13 @@ const PayHistory: React.FC<PayHistoryProps> = ({
 
                             {/* Show notes if they exist */}
                             {pay.notes && pay.notes.trim() !== "" && (
-                              <div className="mt-1 text-xs text-slate-500 italic">
+                              <div
+                                className={`mt-1 text-xs italic ${
+                                  settings.darkMode
+                                    ? "text-gray-400"
+                                    : "text-slate-500"
+                                }`}
+                              >
                                 💬 {pay.notes}
                               </div>
                             )}

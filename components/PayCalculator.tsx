@@ -536,7 +536,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
               </span>
               <span
                 className={`font-mono text-xl font-bold ${
-                  settings.darkMode ? "text-gray-100" : "text-slate-800"
+                  settings.darkMode ? "text-gray-100" : "text-slate-700"
                 }`}
               >
                 {formatCurrency(
@@ -656,7 +656,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             </h3>
             <button
               onClick={() => setShowDateInfoModal(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className={`${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
             >
               ✕
             </button>
@@ -665,37 +669,65 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
         <div className="p-3 space-y-3">
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               What is the Pay Date?
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               This is the date that the pay calculation represents. It's the day
               you worked, not when you're saving the calculation.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               Why is it Important?
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               The date helps organize your pay history and ensures you don't
               accidentally save multiple pay calculations for the same day.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               Submissions Counter
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               The number in parentheses shows how many pay calculations you've
               already saved for this date. This helps you avoid duplicates.
             </p>
           </div>
 
           <div className="pt-2 border-t border-gray-200">
-            <p className="text-xs text-slate-500">
+            <p
+              className={`text-xs ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               💡 <strong>Tip:</strong> Use today's date for current work, or
               select a past date if you're catching up on previous pay
               calculations.
@@ -717,7 +749,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             </h3>
             <button
               onClick={() => setShowTaxInfoModal(false)}
-              className="text-slate-400 hover:text-slate-600"
+              className={`${
+                settings.darkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-slate-400 hover:text-slate-600"
+              }`}
             >
               ✕
             </button>
@@ -726,18 +762,36 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
 
         <div className="p-3 space-y-3">
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">Income Tax</h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
+              Income Tax
+            </h4>
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               UK standard rate of 20% applied to your total earnings. This gives
               you an estimate of your take-home pay after tax deductions.
             </p>
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               National Insurance
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               NI is calculated at 12% on earnings above £34.44 per day
               (equivalent to the annual threshold). This is simplified for daily
               calculations.
@@ -745,10 +799,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
               Combined Calculations
             </h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               When both tax and NI are enabled, you'll see the final total after
               both deductions. This gives you the most accurate take-home pay
               estimate.
@@ -756,8 +818,18 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
 
           <div>
-            <h4 className="font-medium text-slate-700 mb-2">How to Enable</h4>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <h4
+              className={`font-medium mb-2 ${
+                settings.darkMode ? "text-gray-200" : "text-slate-700"
+              }`}
+            >
+              How to Enable
+            </h4>
+            <p
+              className={`text-sm leading-relaxed ${
+                settings.darkMode ? "text-gray-300" : "text-slate-600"
+              }`}
+            >
               Go to <strong>Settings</strong> →{" "}
               <strong>Tax Calculations </strong>
               and <strong>NI Calculations</strong> sections. Toggle the switches
@@ -766,7 +838,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
           </div>
 
           <div className="pt-2 border-t border-gray-200">
-            <p className="text-xs text-slate-500">
+            <p
+              className={`text-xs ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               💡 <strong>Note:</strong> These are estimates for planning
               purposes. Actual tax and NI may vary based on your specific
               circumstances.
@@ -815,14 +891,20 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
       {showTaxInfoModal && <TaxInfoModal />}
 
       {/* Internal Navigation Tabs */}
-      <div className="flex-shrink-0 bg-white/50 border-b border-gray-200/80">
+      <div
+        className={`flex-shrink-0 border-b ${
+          settings.darkMode
+            ? "bg-gray-900/40 border-gray-700"
+            : "bg-white/50 border-gray-200/80"
+        }`}
+      >
         <div className="flex">
           <button
             onClick={() => setActiveTab("calculator")}
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "calculator"
                 ? settings.darkMode
-                  ? "text-white border-b-2 border-white"
+                  ? "text-gray-100 border-b-2 border-indigo-400"
                   : "text-gray-800 border-b-2 border-gray-800"
                 : settings.darkMode
                 ? "text-gray-400 hover:text-gray-200"
@@ -836,7 +918,7 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             className={`flex-1 py-3 px-4 text-sm font-medium transition-colors duration-200 ${
               activeTab === "history"
                 ? settings.darkMode
-                  ? "text-white border-b-2 border-white"
+                  ? "text-gray-100 border-b-2 border-indigo-400"
                   : "text-gray-800 border-b-2 border-gray-800"
                 : settings.darkMode
                 ? "text-gray-400 hover:text-gray-200"
@@ -876,7 +958,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 </label>
                 <button
                   onClick={() => setShowInfoModal(true)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className={`${
+                    settings.darkMode
+                      ? "text-gray-400 hover:text-gray-200"
+                      : "text-slate-400 hover:text-slate-600"
+                  } transition-colors`}
                   title="How calculation methods work"
                 >
                   <svg
@@ -960,7 +1046,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setSelectedStandardRateId("");
                       }}
                       placeholder="e.g., 18.50"
-                      className="flex-1 mt-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0"
+                      className={`flex-1 mt-1 p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                     />
                     {settings.standardRates &&
                       settings.standardRates.length > 0 && (
@@ -977,7 +1067,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                               setSelectedStandardRateId("");
                             }
                           }}
-                          className="mt-1 p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0"
+                          className={`mt-1 p-1 text-xs border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0 ${
+                            settings.darkMode
+                              ? "bg-gray-800 border-gray-600 text-gray-100"
+                              : "bg-white border-slate-300 text-slate-800"
+                          }`}
                         >
                           <option value="">Select...</option>
                           {settings.standardRates.map((rate) => (
@@ -1018,7 +1112,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                           setManualHours(parseInt(e.target.value) || 0);
                         }}
                         placeholder="Hours"
-                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                        className={`mt-1 w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                          settings.darkMode
+                            ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                            : "border-slate-300 text-slate-800 placeholder-slate-400"
+                        }`}
                       />
                       <input
                         type="number"
@@ -1030,7 +1128,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                           setManualMinutes(parseInt(e.target.value) || 0);
                         }}
                         placeholder="Minutes"
-                        className="mt-1 w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                        className={`mt-1 w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                          settings.darkMode
+                            ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                            : "border-slate-300 text-slate-800 placeholder-slate-400"
+                        }`}
                       />
                     </div>
                   </div>
@@ -1067,7 +1169,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setSelectedOvertimeRateId("");
                       }}
                       placeholder="e.g., 27.75"
-                      className="flex-1 p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0"
+                      className={`flex-1 p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 min-w-0 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                     />
                     {settings.overtimeRates &&
                       settings.overtimeRates.length > 0 && (
@@ -1084,7 +1190,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                               setSelectedOvertimeRateId("");
                             }
                           }}
-                          className="p-1 text-xs bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0"
+                          className={`p-1 text-xs border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 w-20 flex-shrink-0 ${
+                            settings.darkMode
+                              ? "bg-gray-800 border-gray-600 text-gray-100"
+                              : "bg-white border-slate-300 text-slate-800"
+                          }`}
                         >
                           <option value="">Select...</option>
                           {settings.overtimeRates.map((rate) => (
@@ -1122,7 +1232,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setOvertimeHours(parseInt(e.target.value) || 0);
                       }}
                       placeholder="Hours"
-                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                      className={`w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                     />
                     <input
                       type="number"
@@ -1134,7 +1248,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                         setOvertimeMinutes(parseInt(e.target.value) || 0);
                       }}
                       placeholder="Minutes"
-                      className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                      className={`w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                     />
                   </div>
                 </div>
@@ -1164,7 +1282,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                     settings.enableNiCalculations) && (
                     <button
                       onClick={() => setShowTaxInfoModal(true)}
-                      className="text-slate-400 hover:text-slate-600 transition-colors"
+                      className={`${
+                        settings.darkMode
+                          ? "text-gray-400 hover:text-gray-200"
+                          : "text-slate-400 hover:text-slate-600"
+                      } transition-colors`}
                       title="About tax and NI calculations"
                     >
                       <svg
@@ -1181,7 +1303,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                     </button>
                   )}
                 </div>
-                <p className="text-xl font-bold text-gray-800 font-mono mb-2">
+                <p
+                  className={`text-xl font-bold font-mono mb-2 ${
+                    settings.darkMode ? "text-gray-100" : "text-gray-800"
+                  }`}
+                >
                   {formatCurrency(
                     premiumTaxEnabled
                       ? totalEarnings - taxAmount - niAmount
@@ -1260,14 +1386,28 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             className="flex-shrink-0 p-3 space-y-1.5 pb-4"
           >
             {/* Date Picker */}
-            <div className="bg-white/50 p-1 rounded-lg border border-gray-200/80">
+            <div
+              className={`${
+                settings.darkMode
+                  ? "bg-gray-700/50 border border-gray-600/80"
+                  : "bg-white/50 border border-gray-200/80"
+              } p-1 rounded-lg`}
+            >
               <div className="flex items-center justify-center gap-1 mb-0.5">
-                <label className="text-xs font-medium text-slate-600 text-center">
+                <label
+                  className={`text-xs font-medium text-center ${
+                    settings.darkMode ? "text-gray-300" : "text-slate-600"
+                  }`}
+                >
                   Select date ({submissionsForDate.length} submissions)
                 </label>
                 <button
                   onClick={() => setShowDateInfoModal(true)}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
+                  className={`${
+                    settings.darkMode
+                      ? "text-gray-400 hover:text-gray-200"
+                      : "text-slate-400 hover:text-slate-600"
+                  } transition-colors`}
                   title="About pay date selection"
                 >
                   <svg
@@ -1287,7 +1427,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
                 type="date"
                 value={payDate}
                 onChange={(e) => setPayDate(e.target.value)}
-                className="w-5/6 p-0.5 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block"
+                className={`w-5/6 p-0.5 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 mx-auto block ${
+                  settings.darkMode
+                    ? "border-gray-600 text-gray-100"
+                    : "border-slate-300 text-slate-800"
+                }`}
               />
             </div>
 
@@ -1303,7 +1447,11 @@ const PayCalculator: React.FC<PayCalculatorProps> = ({
             >
               Save Pay
             </button>
-            <p className="text-[11px] text-slate-500 -mt-1 text-center">
+            <p
+              className={`text-[11px] -mt-1 text-center ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               Saves today’s pay to History. Change the date to save a past day.
             </p>
           </div>

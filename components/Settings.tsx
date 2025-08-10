@@ -300,7 +300,11 @@ const Settings: React.FC<SettingsProps> = ({
                     <div className="text-sm font-medium truncate flex items-center gap-2">
                       <span>{user.displayName || "Signed in user"}</span>
                     </div>
-                    <div className="text-xs text-slate-500 truncate">
+                    <div
+                      className={`text-xs truncate ${
+                        settings.darkMode ? "text-gray-400" : "text-slate-500"
+                      }`}
+                    >
                       {user.email || ""}
                     </div>
                   </div>
@@ -319,7 +323,13 @@ const Settings: React.FC<SettingsProps> = ({
                 </button>
               </div>
             ) : (
-              <p className="text-sm text-slate-500">Not signed in</p>
+              <p
+                className={`text-sm ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
+                Not signed in
+              </p>
             )}
           </div>
 
@@ -393,7 +403,9 @@ const Settings: React.FC<SettingsProps> = ({
               <div>
                 <label
                   htmlFor="week-start-day"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                  className={`text-xs font-bold tracking-wider uppercase block mb-0.5 ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
                 >
                   WEEK START DAY
                 </label>
@@ -403,7 +415,11 @@ const Settings: React.FC<SettingsProps> = ({
                   onChange={(e) =>
                     updateSettings({ weekStartDay: e.target.value as any })
                   }
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                  className={`w-full p-1 text-sm border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                    settings.darkMode
+                      ? "bg-gray-800 border-gray-600 text-gray-100"
+                      : "bg-white border-slate-300 text-slate-800"
+                  }`}
                 >
                   <option value="monday">Monday</option>
                   <option value="tuesday">Tuesday</option>
@@ -413,7 +429,11 @@ const Settings: React.FC<SettingsProps> = ({
                   <option value="saturday">Saturday</option>
                   <option value="sunday">Sunday</option>
                 </select>
-                <p className="text-xs text-slate-500 mt-1">
+                <p
+                  className={`text-xs mt-1 ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
+                >
                   This affects how weekly totals are calculated in pay history.
                 </p>
               </div>
@@ -439,10 +459,18 @@ const Settings: React.FC<SettingsProps> = ({
               {settings.standardRates?.map((rate, index) => (
                 <div
                   key={rate.id}
-                  className="border border-slate-200 rounded p-2"
+                  className={`${
+                    settings.darkMode
+                      ? "bg-gray-700/50 border-gray-600"
+                      : "bg-white/50 border-slate-200"
+                  } border rounded p-2`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-700">
+                    <span
+                      className={`text-xs font-medium ${
+                        settings.darkMode ? "text-gray-200" : "text-slate-700"
+                      }`}
+                    >
                       {rate.name}
                     </span>
                     <button
@@ -469,7 +497,11 @@ const Settings: React.FC<SettingsProps> = ({
                         newRates[index].rate = parseFloat(e.target.value) || 0;
                         updateSettings({ standardRates: newRates });
                       }}
-                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
+                      className={`flex-1 p-0.5 text-xs bg-transparent border rounded focus:ring-1 focus:ring-gray-600 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                       placeholder="0.00"
                     />
                   </div>
@@ -481,7 +513,11 @@ const Settings: React.FC<SettingsProps> = ({
                       newRates[index].name = e.target.value;
                       updateSettings({ standardRates: newRates });
                     }}
-                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
+                    className={`w-full mt-1 p-0.5 text-xs bg-transparent border rounded focus:ring-1 focus:ring-gray-600 ${
+                      settings.darkMode
+                        ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                        : "border-slate-300 text-slate-800 placeholder-slate-400"
+                    }`}
                     placeholder="Rate name"
                   />
                 </div>
@@ -505,7 +541,11 @@ const Settings: React.FC<SettingsProps> = ({
                 }}
                 className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                   canAddStandardRate
-                    ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    ? settings.darkMode
+                      ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                      : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    : settings.darkMode
+                    ? "bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed"
                     : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
                 }`}
               >
@@ -514,7 +554,11 @@ const Settings: React.FC<SettingsProps> = ({
               {!canAddStandardRate && (
                 <div className="flex items-center gap-1 mt-1">
                   <PremiumBadge text="Premium required" />
-                  <span className="text-[11px] text-slate-500">
+                  <span
+                    className={`text-[11px] ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     More than 1 standard rate requires Premium.
                   </span>
                 </div>
@@ -541,10 +585,18 @@ const Settings: React.FC<SettingsProps> = ({
               {settings.overtimeRates?.map((rate, index) => (
                 <div
                   key={rate.id}
-                  className="border border-slate-200 rounded p-2"
+                  className={`${
+                    settings.darkMode
+                      ? "bg-gray-700/50 border-gray-600"
+                      : "bg-white/50 border-slate-200"
+                  } border rounded p-2`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-medium text-slate-700">
+                    <span
+                      className={`text-xs font-medium ${
+                        settings.darkMode ? "text-gray-200" : "text-slate-700"
+                      }`}
+                    >
                       {rate.name}
                     </span>
                     <button
@@ -571,7 +623,11 @@ const Settings: React.FC<SettingsProps> = ({
                         newRates[index].rate = parseFloat(e.target.value) || 0;
                         updateSettings({ overtimeRates: newRates });
                       }}
-                      className="flex-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
+                      className={`flex-1 p-0.5 text-xs bg-transparent border rounded focus:ring-1 focus:ring-gray-600 ${
+                        settings.darkMode
+                          ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                          : "border-slate-300 text-slate-800 placeholder-slate-400"
+                      }`}
                       placeholder="0.00"
                     />
                   </div>
@@ -583,7 +639,11 @@ const Settings: React.FC<SettingsProps> = ({
                       newRates[index].name = e.target.value;
                       updateSettings({ overtimeRates: newRates });
                     }}
-                    className="w-full mt-1 p-0.5 text-xs bg-transparent border border-slate-300 rounded focus:ring-1 focus:ring-gray-600"
+                    className={`w-full mt-1 p-0.5 text-xs bg-transparent border rounded focus:ring-1 focus:ring-gray-600 ${
+                      settings.darkMode
+                        ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                        : "border-slate-300 text-slate-800 placeholder-slate-400"
+                    }`}
                     placeholder="Rate name"
                   />
                 </div>
@@ -607,7 +667,11 @@ const Settings: React.FC<SettingsProps> = ({
                 }}
                 className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                   canAddOvertimeRate
-                    ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    ? settings.darkMode
+                      ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                      : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                    : settings.darkMode
+                    ? "bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed"
                     : "bg-slate-50 text-slate-400 border-slate-200 cursor-not-allowed"
                 }`}
               >
@@ -616,7 +680,11 @@ const Settings: React.FC<SettingsProps> = ({
               {!canAddOvertimeRate && (
                 <div className="flex items-center gap-1 mt-1">
                   <PremiumBadge text="Premium required" />
-                  <span className="text-[11px] text-slate-500">
+                  <span
+                    className={`text-[11px] ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     More than 1 overtime rate requires Premium.
                   </span>
                 </div>
@@ -642,10 +710,18 @@ const Settings: React.FC<SettingsProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-slate-700">
+                  <span
+                    className={`text-sm font-medium ${
+                      settings.darkMode ? "text-gray-200" : "text-slate-700"
+                    }`}
+                  >
                     Enable Tax Calculations
                   </span>
-                  <p className="text-xs text-slate-500">
+                  <p
+                    className={`text-xs ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     Show after-tax earnings in pay breakdown
                   </p>
                   {!canUseTaxCalculations && (
@@ -684,10 +760,16 @@ const Settings: React.FC<SettingsProps> = ({
                 </button>
               </div>
               {showTaxSection && (
-                <div className="pt-2 border-t border-gray-200">
+                <div
+                  className={`pt-2 border-t ${
+                    settings.darkMode ? "border-gray-700" : "border-gray-200"
+                  }`}
+                >
                   <label
                     htmlFor="tax-rate"
-                    className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                    className={`text-xs font-bold tracking-wider uppercase block mb-0.5 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
                   >
                     TAX RATE (%)
                   </label>
@@ -706,9 +788,17 @@ const Settings: React.FC<SettingsProps> = ({
                     }
                     placeholder="e.g., 20"
                     disabled={!canUseTaxCalculations}
-                    className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                    className={`w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                      settings.darkMode
+                        ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                        : "border-slate-300 text-slate-800 placeholder-slate-400"
+                    }`}
                   />
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p
+                    className={`text-xs mt-0.5 ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     Standard UK tax rate is 20%. This will show after-tax
                     earnings.
                   </p>
@@ -735,10 +825,18 @@ const Settings: React.FC<SettingsProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-slate-700">
+                  <span
+                    className={`text-sm font-medium ${
+                      settings.darkMode ? "text-gray-200" : "text-slate-700"
+                    }`}
+                  >
                     Enable NI Calculations
                   </span>
-                  <p className="text-xs text-slate-500">
+                  <p
+                    className={`text-xs ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     Show after-NI earnings in pay breakdown
                   </p>
                   {!canUseTaxCalculations && (
@@ -776,7 +874,11 @@ const Settings: React.FC<SettingsProps> = ({
                 </button>
               </div>
               <div className="pt-2 border-t border-gray-200">
-                <p className="text-xs text-slate-500">
+                <p
+                  className={`text-xs ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
+                >
                   UK NI rates: 12% on earnings between £12,570-£50,270, 2% above
                   £50,270. This will show after-NI earnings.
                 </p>
@@ -803,7 +905,9 @@ const Settings: React.FC<SettingsProps> = ({
               <div>
                 <label
                   htmlFor="weekly-goal"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                  className={`text-xs font-bold tracking-wider uppercase block mb-0.5 ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
                 >
                   WEEKLY GOAL (£)
                 </label>
@@ -820,13 +924,19 @@ const Settings: React.FC<SettingsProps> = ({
                     })
                   }
                   placeholder="e.g., 800"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                  className={`w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                    settings.darkMode
+                      ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                      : "border-slate-300 text-slate-800 placeholder-slate-400"
+                  }`}
                 />
               </div>
               <div>
                 <label
                   htmlFor="monthly-goal"
-                  className="text-xs font-bold tracking-wider uppercase text-slate-500 block mb-0.5"
+                  className={`text-xs font-bold tracking-wider uppercase block mb-0.5 ${
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }`}
                 >
                   MONTHLY GOAL (£)
                 </label>
@@ -843,10 +953,18 @@ const Settings: React.FC<SettingsProps> = ({
                     })
                   }
                   placeholder="e.g., 3200"
-                  className="w-full p-1 text-sm bg-transparent border border-slate-300 rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600"
+                  className={`w-full p-1 text-sm bg-transparent border rounded-md focus:ring-2 focus:ring-gray-600 focus:border-gray-600 ${
+                    settings.darkMode
+                      ? "border-gray-600 text-gray-100 placeholder-gray-400"
+                      : "border-slate-300 text-slate-800 placeholder-slate-400"
+                  }`}
                 />
               </div>
-              <p className="text-xs text-slate-500">
+              <p
+                className={`text-xs ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 Set goals to track your progress in the pay history view.
               </p>
             </div>
@@ -892,7 +1010,11 @@ const Settings: React.FC<SettingsProps> = ({
               </button>
             </div>
             <div className="space-y-2">
-              <p className="text-xs text-slate-500">
+              <p
+                className={`text-xs ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 Cloud OFF: data stays on this device. Cloud ON: data auto-syncs
                 to your account.
               </p>
@@ -901,7 +1023,11 @@ const Settings: React.FC<SettingsProps> = ({
                   <span
                     className={`px-1.5 py-0.5 rounded-full border ${
                       settings.storageMode === "cloud"
-                        ? "border-emerald-400 text-emerald-700 bg-emerald-50"
+                        ? settings.darkMode
+                          ? "border-emerald-400 text-emerald-300 bg-emerald-900/20"
+                          : "border-emerald-400 text-emerald-700 bg-emerald-50"
+                        : settings.darkMode
+                        ? "border-gray-600 text-gray-300 bg-gray-800"
                         : "border-slate-300 text-slate-700 bg-slate-50"
                     }`}
                   >
@@ -910,16 +1036,28 @@ const Settings: React.FC<SettingsProps> = ({
                       : "Cloud OFF"}
                   </span>
                 </span>
-                <span className="text-slate-500">
+                <span
+                  className={
+                    settings.darkMode ? "text-gray-400" : "text-slate-500"
+                  }
+                >
                   Last synced: {lastSyncedDisplay}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-medium text-slate-700">
+                  <span
+                    className={`text-sm font-medium ${
+                      settings.darkMode ? "text-gray-200" : "text-slate-700"
+                    }`}
+                  >
                     Cloud Sync
                   </span>
-                  <p className="text-xs text-slate-500">
+                  <p
+                    className={`text-xs ${
+                      settings.darkMode ? "text-gray-400" : "text-slate-500"
+                    }`}
+                  >
                     Automatically syncs your data when signed in
                   </p>
                   {!canUseCloudStorage && (
@@ -1093,7 +1231,11 @@ const Settings: React.FC<SettingsProps> = ({
                   }
                   className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                     canUseCloudStorage
-                      ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      ? settings.darkMode
+                        ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                        : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      : settings.darkMode
+                      ? "bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed"
                       : "bg-slate-100/80 text-slate-500 border-slate-300/60 cursor-not-allowed"
                   }`}
                 >
@@ -1162,14 +1304,22 @@ const Settings: React.FC<SettingsProps> = ({
                   className={`w-full py-1 px-2 rounded border transition-colors text-xs ${
                     canUseCloudStorage ||
                     (hasCloudData && !freeDownloadConsumed)
-                      ? "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      ? settings.darkMode
+                        ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                        : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                      : settings.darkMode
+                      ? "bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed"
                       : "bg-slate-100/80 text-slate-500 border-slate-300/60 cursor-not-allowed"
                   }`}
                 >
                   Download cloud data to this device
                 </button>
               </div>
-              <p className="text-[11px] text-slate-500">
+              <p
+                className={`text-[11px] ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 • Upload replaces your cloud data with this device's data. •
                 Download replaces this device’s data with what’s in the cloud.
               </p>
@@ -1234,7 +1384,11 @@ const Settings: React.FC<SettingsProps> = ({
                   <PremiumBadge text="Premium required" />
                 </div>
               )}
-              <p className="text-[11px] text-slate-500 -mt-1">
+              <p
+                className={`text-[11px] -mt-1 ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 Exports the pay history currently stored on this device.
               </p>
               <button
@@ -1252,7 +1406,11 @@ const Settings: React.FC<SettingsProps> = ({
               >
                 Clear local pay history
               </button>
-              <p className="text-[11px] text-slate-500 -mt-1">
+              <p
+                className={`text-[11px] -mt-1 ${
+                  settings.darkMode ? "text-gray-400" : "text-slate-500"
+                }`}
+              >
                 Removes pay history from this device only. Cloud data is not
                 affected.
               </p>
@@ -1290,7 +1448,11 @@ const Settings: React.FC<SettingsProps> = ({
             >
               About Driver Buddy
             </h3>
-            <div className="space-y-1.5 text-xs text-slate-600">
+            <div
+              className={`space-y-1.5 text-xs ${
+                settings.darkMode ? "text-gray-400" : "text-slate-600"
+              }`}
+            >
               <p>Beta version 1.0.0</p>
               <p>Designed for UK professional drivers</p>
               <p>Data is stored locally on your device</p>
@@ -1323,7 +1485,11 @@ const Settings: React.FC<SettingsProps> = ({
                     user?.uid || "n/a"
                   }\nRole: ${userProfile?.role || "n/a"}\n\nThanks!`
                 )}`}
-                className="block w-full text-center bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                className={`block w-full text-center py-1 px-2 rounded border transition-colors text-xs ${
+                  settings.darkMode
+                    ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                    : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                }`}
               >
                 Request Premium Access
               </a>
@@ -1337,12 +1503,20 @@ const Settings: React.FC<SettingsProps> = ({
                     user?.uid || "n/a"
                   }\nRole: ${userProfile?.role || "n/a"}\n\nThanks!`
                 )}`}
-                className="block w-full text-center bg-slate-100 text-slate-700 py-1 px-2 rounded border border-slate-300 hover:bg-slate-200 transition-colors text-xs"
+                className={`block w-full text-center py-1 px-2 rounded border transition-colors text-xs ${
+                  settings.darkMode
+                    ? "bg-gray-700 text-gray-100 border-gray-600 hover:bg-gray-600"
+                    : "bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200"
+                }`}
               >
                 Report a Bug / Feedback
               </a>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">
+            <p
+              className={`text-[11px] mt-1 ${
+                settings.darkMode ? "text-gray-400" : "text-slate-500"
+              }`}
+            >
               We’ll reply as soon as possible.
             </p>
           </div>
